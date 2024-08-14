@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-const NavBar = ({ isLoggedIn, walletBalance }) => {
+const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
   return (
     <nav className="nav">
       <Link href="/" legacyBehavior>
@@ -10,17 +10,10 @@ const NavBar = ({ isLoggedIn, walletBalance }) => {
         {isLoggedIn ? (
           <>
             <div className="wallet-balance">Balance: {walletBalance} NEAR</div>
-            <button>Log Out</button>
+            <button onClick={onLogout}>Log Out</button>
           </>
         ) : (
-          <>
-            <Link href="/signup" legacyBehavior>
-              <a>Sign Up</a>
-            </Link>
-            <Link href="/login" legacyBehavior>
-              <a>Log In</a>
-            </Link>
-          </>
+          <button onClick={onLogin}>Log In with NEAR</button>
         )}
       </div>
     </nav>

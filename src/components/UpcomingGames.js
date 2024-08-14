@@ -1,52 +1,33 @@
 import React from 'react';
 import GameCard from './GameCard';
+import { useNear } from '@/app/context/NearContext';
 
-const UpcomingGames = () => {
-    return (
-        <div className='upcoming-grid-container'>
-            <GameCard
-            className= 'upcoming-card upcoming-card-4-col'
-            tournamentIcon="/icons/tournament_icon.png"
-            tournamentName="VCT 24: AMER Stage 2"
-            matchTime="Today, 19:00"
-            team1Logo="/icons/nrg_logo.png"
-            team1Name="NRG Esports"
-            team2Logo="/icons/leviatan_logo.png"
-            team2Name="Leviatán"
-            odds1="1.87"
-            odds2="1.87"
-            />
-            <GameCard
-            className= 'upcoming-card upcoming-card-4-col'
-            tournamentIcon="/icons/events/vct_amer.png"
-            tournamentName="VCT 24: AMER Stage 2"
-            matchTime="Monday, 01:00"
-            team1Logo="/icons/teams/sen.png"
-            team1Name="Sentinels"
-            team2Logo="/icons/teams/g2.png"
-            team2Name="G2 esports"
-            odds1="1.48"
-            odds2="2.5"
-            />
-            <div className="upcoming-card upcoming-card-4-col">
-                <h2>Game 3</h2>
-                <p>Odds data...</p>
-            </div>
-            <div className="upcoming-card upcoming-card-4-col">
-                <h2>Game 4</h2>
-                <p>Odds data...</p>
-            </div>
-            <div className="upcoming-card upcoming-card-4-col">
-                <h2>Game 5</h2>
-                <p>Odds data...</p>
-            </div>
-            <div className="upcoming-card upcoming-card-4-col">
-                <h2>Game 6</h2>
-                <p>Odds data...</p>
-            </div>
-            
-        </div>
-    )
-}
+const UpcomingGames = ({ matches }) => {
+    const { wallet } = useNear();
+  return (
+    <div>
+      <h1 style={{ color: 'white' }}>Upcoming Games</h1>
+      <div className='upcoming-grid-container'>
+        {matches.map((match, index) => (
+          <GameCard
+            key={match.match_id || index}  // Bet ID
+            className='upcoming-card upcoming-card-4-col' // predefined
+            tournamentIcon="/icons/events/vct_amer.png"  // Placeholder 
+            tournamentName={match.game || "Unknown Tournament"}  // game name 
+            matchTime="Monday, 01:00"  // Placeholder 
+            team1Logo="/icons/teams/sen.png"  // Placeholder 
+            team1Name={match.team_1 || "Team 1"}  
+            team2Logo="/icons/teams/g2.png"  // Placeholder value
+            team2Name={match.team_2 || "Team 2"}  
+            odds1={match.team_1_odds || "1.00"}  
+            odds2={match.team_2_odds || "1.00"}  
+            matchId={match.match_id}  // match_id 
+            wallet={wallet} // wallet object
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default UpcomingGames;

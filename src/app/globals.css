@@ -13,6 +13,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  
 }
 
 body {
@@ -66,15 +67,15 @@ body {
 }
 
 /* sidebar */
-.sidebar {
+.app-sidebar {
   width: 250px;
   background-color: var(--black-color);
   color: var(--text-color);
   padding: 20px;
   position: fixed;
-  top: 60px; /* Adjust based on the height of your navbar */
+  top: 60px; 
   left: 0;
-  height: calc(100% - 60px); /* Adjust based on the height of your navbar */
+  height: calc(100% - 60px); 
   overflow-y: auto;
   z-index: 900;
 
@@ -106,6 +107,9 @@ body {
       }
     }
   }
+  a.selected {
+    background-color: var(--accent-color); 
+    }
 
   .section-title {
     margin-top: 20px;
@@ -117,6 +121,7 @@ body {
     padding-bottom: 5px;
   }
 }
+
 
 /* page container styles */
 .container {
@@ -156,7 +161,190 @@ body {
   grid-column: span 4;
 }
 
-/* Card Content */
+/* General Styles */
+* {
+  box-sizing: border-box;
+}
+
+.betting-container {
+  background-color: #282828;
+  padding: 10px;
+  padding-top: 5px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: auto; /* Fixed width */
+  height: 258px; /* Fixed height */
+  color: white;
+  font-family: Arial, sans-serif;
+  position: relative;
+}
+
+/* Back Arrow Styles */
+.back-arrow {
+  position: absolute;
+  top: 5px;
+  left: 10px;
+}
+
+.back-arrow button {
+  background-color: transparent;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Teams Section */
+.teams {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px 0 10px 0; /* Adjust top margin to accommodate the back button */
+}
+
+.team-container {
+  display: flex;
+  justify-content: center;
+  flex: 1; /* Make both team containers equal width */
+}
+
+.team-bm {
+  display: flex;
+  align-items: center;
+  flex-direction: row; /* Ensure logo and name are side by side */
+}
+
+.team-logo {
+  margin-right: 8px; /* Adjust spacing between the logo and the team name */
+}
+
+.team-name {
+  font-size: 1em;
+}
+
+.vs {
+  font-size: 1.2em;
+  text-align: center;
+  width: 50px;
+}
+
+/* Match Odds Section */
+.match-odds {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+
+.odds {
+  background-color: #333;
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+  flex: 1;
+  cursor: pointer;
+  position: relative;
+}
+
+.odds input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.odds input[type="radio"]:checked + span {
+  color: #4CAF50;
+}
+
+.odds span {
+  display: block;
+}
+
+.odds-value {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Bet Input and Button Section */
+.bet-input-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.stake-container {
+  flex: 3; /* Ratio 3:1 for input box */
+  margin-right: 10px; /* Add space between input and button */
+}
+
+.stake-container input {
+  width: 100%; /* Take full width of its container */
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.bet-button {
+  flex: 1; /* Ratio 3:1 for button */
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.bet-button button {
+  width: 100%; /* Take full width of its container */
+  background-color: #4CAF50;
+  border: none;
+  color: white;
+  padding: 10px; /* Adjust padding for a smaller button */
+  text-align: center;
+  font-size: 1em;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.bet-button button:hover {
+  background-color: #45a049;
+}
+
+/* Message Section */
+.message {
+  margin: 0;
+  text-align: center;
+  font-size: 0.9em;
+  color: #ff0000;
+}
+
+/* Regular Game Card Styles */
+.featured-card, .upcoming-card {
+  background-color: var(--black-color);
+  color: var(--text-color);
+  padding: 16px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Card Grid Layout */
+.featured-grid-container, .upcoming-grid-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+  margin: 16px;
+}
+
+/* Column Spans */
+.featured-card-3-col {
+  grid-column: span 3;
+}
+
+.upcoming-card-4-col {
+  grid-column: span 4;
+}
+
+/* Header, Body, and Odds Sections */
 .match-header,
 .match-body,
 .match-odds {

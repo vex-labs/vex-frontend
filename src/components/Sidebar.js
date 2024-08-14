@@ -1,13 +1,25 @@
 import Link from 'next/link';
+import { useState } from 'react';
 
-const Sidebar = () => {
+
+const Sidebar = ({ onSelectGame, selectedGame }) => {
+  const games = [
+    { name: 'csgo', label: 'CSGO', icon: '/icons/csgo.png' },
+    { name: 'lol', label: 'League of Legends', icon: '/icons/lol.png' },
+    { name: 'valorant', label: 'Valorant', icon: '/icons/valorant.png' },
+    { name: 'fortnite', label: 'Fortnite', icon: '/icons/fortnite.png' },
+    { name: 'apex', label: 'Apex Legends', icon: '/icons/apex.png' },
+    { name: 'rainbowsix', label: 'Rainbow Six Siege', icon: '/icons/rainbowsix.png' },
+    { name: 'dota2', label: 'Dota 2', icon: '/icons/dota2.png' },
+  ];
+
   return (
-    <div className="sidebar">
+    <div className="app-sidebar">
       <ul>
         <li>
           <Link href="/" legacyBehavior>
             <a>
-              <img src="/icons/home.svg" alt="Home" />
+              <img src="/icons/home.png" alt="Home" style={{ width: '32px', height: '32px' }} />
               Home
             </a>
           </Link>
@@ -15,7 +27,7 @@ const Sidebar = () => {
         <li>
           <Link href="/staking" legacyBehavior>
             <a>
-              <img src="/icons/staking.svg" alt="Staking" />
+              <img src="/icons/staking.png" alt="Staking" style={{ width: '32px', height: '32px' }}/>
               Staking
             </a>
           </Link>
@@ -23,7 +35,7 @@ const Sidebar = () => {
         <li>
           <Link href="/governance" legacyBehavior>
             <a>
-              <img src="/icons/governance.svg" alt="Governance" />
+              <img src="/icons/governance.png" alt="Governance" style={{ width: '32px', height: '32px' }}/>
               Governance
             </a>
           </Link>
@@ -31,56 +43,28 @@ const Sidebar = () => {
       </ul>
       <div className="section-title">Popular</div>
       <ul>
-        <li>
-          <a href="#">
-            <img src="/icons/csgo.png" alt="CSGO" />
-            CSGO
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/lol.png" alt="League of Legends" />
-            League of Legends
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/valorant.png" alt="Valorant" />
-            Valorant
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/fortnite.png" alt="Fortnite" />
-            Fortnite
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/apex.png" alt="Apex Legends" />
-            Apex Legends
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/rainbowsix.png" alt="Rainbow Six Siege" />
-            Rainbow Six Siege
-          </a>
-        </li>
-        <li>
-          <a href="#">
-            <img src="/icons/dota2.png" alt="Dota 2" />
-            Dota 2
-          </a>
-        </li>
+        {games.map((game) => (
+          <li key={game.name}>
+            <a
+              href="#"
+              onClick={() => onSelectGame(game.name)}
+              className={game.name === selectedGame ? styles.selected : ''}
+            >
+              <img src={game.icon} alt={game.label} />
+              {game.label}
+            </a>
+          </li>
+        ))}
       </ul>
       <div className="section-title">User Area</div>
       <ul>
         <li>
-          <a href="#">
-            <img src="/icons/user.png" alt="User Area" />
-            User Area
-          </a>
+          <Link href="/user" legacyBehavior>
+            <a>
+              <img src="/icons/user.png" alt="User Area" />
+              User Area
+            </a>
+          </Link>
         </li>
       </ul>
     </div>
