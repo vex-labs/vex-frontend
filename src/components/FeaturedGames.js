@@ -3,57 +3,59 @@ import GameCard from './GameCard';
 
 const FeaturedGames = () => {
     return (
+        <div> <h1 style={{ color: 'white' }}>Featured Games</h1>
         <div className='featured-grid-container'>
-           <GameCard
+        <GameCard
            className= 'featured-card featured-card-3-col'
-           tournamentIcon="/icons/tournament_icon.png"
-           tournamentName="VCT 24: AMER Stage 2"
+           tournamentIcon="/icons/events/vct_china.png"
+           tournamentName="VCT 24: China"
            matchTime="Today, 19:00"
-           team1Logo="/icons/nrg_logo.png"
-           team1Name="NRG Esports"
-           team2Logo="/icons/leviatan_logo.png"
-           team2Name="Leviatán"
+           team1Logo="/icons/teams/edg.png"
+           team1Name="EDG"
+           team2Logo="/icons/teams/fpx.png"
+           team2Name="FPX"
            odds1="1.87"
            odds2="1.87"
            />
-            <GameCard
+        <GameCard
            className= 'featured-card featured-card-3-col'
-           tournamentIcon="/icons/tournament_icon.png"
-           tournamentName="VCT 24: AMER Stage 2"
+           tournamentIcon="/icons/events/vct_china.png"
+           tournamentName="VCT 24: China"
            matchTime="Today, 19:00"
-           team1Logo="/icons/nrg_logo.png"
-           team1Name="NRG Esports"
-           team2Logo="/icons/leviatan_logo.png"
-           team2Name="Leviatán"
-           odds1="1.87"
-           odds2="1.87"
-           />
-
-<GameCard
-           className= 'featured-card featured-card-3-col'
-           tournamentIcon="/icons/tournament_icon.png"
-           tournamentName="VCT 24: AMER Stage 2"
-           matchTime="Today, 19:00"
-           team1Logo="/icons/nrg_logo.png"
-           team1Name="NRG Esports"
-           team2Logo="/icons/leviatan_logo.png"
-           team2Name="Leviatán"
+           team1Logo="/icons/teams/edg.png"
+           team1Name="EDG"
+           team2Logo="/icons/teams/fpx.png"
+           team2Name="FPX"
            odds1="1.87"
            odds2="1.87"
            />
 
-<GameCard
+        <GameCard
            className= 'featured-card featured-card-3-col'
-           tournamentIcon="/icons/tournament_icon.png"
-           tournamentName="VCT 24: AMER Stage 2"
+           tournamentIcon="/icons/events/vct_china.png"
+           tournamentName="VCT 24: China"
            matchTime="Today, 19:00"
-           team1Logo="/icons/nrg_logo.png"
-           team1Name="NRG Esports"
-           team2Logo="/icons/leviatan_logo.png"
-           team2Name="Leviatán"
+           team1Logo="/icons/teams/edg.png"
+           team1Name="EDG"
+           team2Logo="/icons/teams/fpx.png"
+           team2Name="FPX"
            odds1="1.87"
            odds2="1.87"
            />
+
+        <GameCard
+           className= 'featured-card featured-card-3-col'
+           tournamentIcon="/icons/events/vct_china.png"
+           tournamentName="VCT 24: China"
+           matchTime="Today, 19:00"
+           team1Logo="/icons/teams/edg.png"
+           team1Name="EDG"
+           team2Logo="/icons/teams/fpx.png"
+           team2Name="FPX"
+           odds1="1.87"
+           odds2="1.87"
+           />
+        </div>
         </div>
     )
 }
