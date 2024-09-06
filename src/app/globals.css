@@ -20,6 +20,26 @@ body {
   background-color: var(--secondary-color);
 }
 
+/* page container styles */
+.container {
+  display: flex;
+  margin-top: 60px; 
+}
+
+.mainContent {
+  flex: 1;
+  padding: 20px;
+  margin-left: 250px; 
+  height: calc(100vh - 60px); 
+  overflow-y: auto; 
+  transition: margin-left 0.3s ease-in-out;
+}
+
+.app-sidebar.collapsed + .mainContent {
+  margin-left: 80px; /* Adjust margin when sidebar is collapsed */
+}
+
+
 /* navbar */
 .nav {
   background-color: var(--black-color);
@@ -66,18 +86,19 @@ body {
   }
 }
 
-/* sidebar */
+/* Sidebar styles */
 .app-sidebar {
   width: 250px;
   background-color: var(--black-color);
   color: var(--text-color);
   padding: 20px;
   position: fixed;
-  top: 60px; 
+  top: 60px;
   left: 0;
-  height: calc(100% - 60px); 
-  overflow-y: auto;
+  height: calc(100vh - 60px); /* Full height minus navbar */
+  overflow-y: auto; /* Allow sidebar to scroll independently */
   z-index: 900;
+  transition: width 0.3s ease-in-out;
 
   ul {
     list-style: none;
@@ -91,6 +112,8 @@ body {
 
     img {
       margin-right: 10px;
+      width: 32px;
+      height: 32px;
     }
 
     a {
@@ -105,34 +128,59 @@ body {
       &:hover {
         background-color: var(--accent-color);
       }
+
+      span {
+        margin-left: 10px;
+        white-space: nowrap;
+      }
     }
   }
-  a.selected {
-    background-color: var(--accent-color); 
-    }
 
-  .section-title {
-    margin-top: 20px;
-    margin-bottom: 10px;
-    font-size: 14px;
+  .toggle-button {
+    background: none;
+    border: none;
     color: var(--text-color);
-    text-transform: uppercase;
-    border-bottom: 1px solid var(--text-color);
-    padding-bottom: 5px;
+    cursor: pointer;
+    font-size: 24px;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 52px;
+    border-radius: 5px;
+  }
+
+  .toggle-button:hover {
+    background-color: var(--accent-color);
   }
 }
 
-
-/* page container styles */
-.container {
-  display: flex;
-  margin-top: 60px; /* height of navbar */
+/* Adjustments for collapsed state */
+.app-sidebar.collapsed {
+  width: 80px;
 }
 
-.mainContent {
-  flex: 1;
-  padding: 20px;
-  margin-left: 250px; /* same width as the sidebar */
+.app-sidebar.collapsed ul li {
+  justify-content: center; /* Center the content horizontally */
+}
+
+.app-sidebar.collapsed ul li a,
+.app-sidebar.collapsed .toggle-button {
+  justify-content: center; /* Center the content of links and the toggle button */
+  padding: 10px 0; /* Adjust padding to center vertically */
+}
+
+
+
+.section-title {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: var(--text-color);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--text-color);
+  padding-bottom: 5px;
 }
 
 /* Grid Containers */
@@ -422,6 +470,7 @@ body {
   font-size: 18px;
   font-weight: bold;
 }
+
 
 
   
