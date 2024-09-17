@@ -1,56 +1,65 @@
-// src/app/stake/page.js
 "use client";
+import FAQ from '@/components/Faq';
 import NavBar from '../../components/NavBar';
 import "./earn.css";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { NearContext } from '@/app/context/NearContext';
+import { SwapWidget } from '@ref-finance/ref-sdk'; 
+import { init_env } from '@ref-finance/ref-sdk';
 
 const EarnPage = () => {
-  const [poolData, setPoolData] = useState(null);
+  const { wallet, signedAccountId } = useContext(NearContext); // Access wallet context
+  const [swapState, setSwapState] = useState(null);
+  const [tx, setTx] = useState(undefined);
 
   useEffect(() => {
-    const fetchPoolData = async () => {
-      try {
-        const response = await fetch('/api/ref-pool');
-        const data = await response.json();
-        setPoolData(data);
-      } catch (error) {
-        console.error('Error fetching pool data:', error);
-      }
-    };
-
-    fetchPoolData();
+    init_env('testnet');
   }, []);
 
-  return (
-    <div className = 'earn-page'>
-      <NavBar />
-      <div className = 'hero-section'>
+  const onSwap = async (transactionsRef) => {
+    if (!signedAccountId) {
+      console.error('No account signed in');
+      return;
+    }
+    const walletSelectorTransactions = {
+      transactions: transformTransactions(transactionsRef, signedAccountId),
+    };
+    return wallet.signAndSendTransactions(walletSelectorTransactions);
+  };
 
-      </div>
+  return (
+    <div className='earn-page'>
+      <NavBar />
+      <div className='hero-section'></div>
       <div className="earn-container">
         <div className="swap-section">
           <h2>Token Swap</h2>
-          {poolData ? (
             <div>
-              {/* Display the pool data here */}
-              <p>Pool ID: {poolData.pool_id}</p>
-              {/* Add your swap widget/UI here */}
+             
+              {signedAccountId && (
+                <SwapWidget
+                onSwap={onSwap}
+                connection={{ AccountId: signedAccountId, isSignedIn: !!signedAccountId }}
+                width={'500px'}
+                transactionState={{ state: swapState, setState: setSwapState, tx }}
+                defaultTokenIn={'token.betvex.testnet'}  // Example token on testnet
+                defaultTokenOut={'usdc.betvex.testnet'}
+              />
+              )}
             </div>
-          ) : (
-            <p>Loading pool data...</p>
-          )}
+         
         </div>
         <div className="stake-section">
           <h2>Stake/Unstake</h2>
-          {/* Add stake/unstake functionality here */}
         </div>
       </div>
       <div className="faq-section">
-        <h2>FAQ</h2>
-        {/* Add FAQ content here */}
+        <FAQ />
       </div>
     </div>
   );
 };
 
 export default EarnPage;
+
+
