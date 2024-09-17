@@ -11,13 +11,23 @@ import { providers, utils } from 'near-api-js';
 export default function HomePage() {
   const { signedAccountId, wallet } = useNear();  // Use wallet from NearContext
   const [walletBalance, setWalletBalance] = useState('');
+  const [tokenBalances, setTokenBalances] = useState({});
   const [matches, setMatches] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
+
+  // Token contracts to fetch balances from
+  const tokenContracts = [
+   
+    { name: 'USDC', address: 'usdc.betvex.testnet' },
+    { name: 'VEX', address: 'token.betvex.testnet' },
+    // Add more tokens here
+  ];
 
   const handleGameSelection = (game) => {
     setSelectedGame(game);
   };
 
+  // Fetch the native NEAR balance
   useEffect(() => {
     const fetchAccountBalance = async () => {
       if (signedAccountId) {
@@ -44,7 +54,42 @@ export default function HomePage() {
     };
 
     fetchAccountBalance();
-  }, [signedAccountId]); 
+  }, [signedAccountId]);
+
+  // Fetch token balances from multiple contracts
+  useEffect(() => {
+    const fetchTokenBalances = async () => {
+      if (!signedAccountId) return;
+
+      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+      const balances = {};
+
+      for (const token of tokenContracts) {
+        try {
+          const result = await provider.query({
+            request_type: "call_function",
+            account_id: token.address,
+            method_name: "ft_balance_of",
+            args_base64: btoa(JSON.stringify({ account_id: signedAccountId })),
+            finality: "final",
+          });
+
+          const balance = JSON.parse(Buffer.from(result.result).toString());
+          const formattedBalance = utils.format.formatNearAmount(balance, 2);
+
+          balances[token.name] = formattedBalance;
+
+        } catch (error) {
+          console.error(`Failed to fetch balance for ${token.name}:`, error);
+          balances[token.name] = '0';
+        }
+      }
+
+      setTokenBalances(balances);
+    };
+
+    fetchTokenBalances();
+  }, [signedAccountId]);
 
   useEffect(() => {
     const fetchMatches = async () => {
@@ -98,6 +143,18 @@ export default function HomePage() {
       <div className="mainContent">
         <FeaturedGames matches={matches} />
         <UpcomingGames matches={filteredMatches} />
+
+        {/* Display token balances */}
+        <div className="token-balances">
+          <h3>Token Balances</h3>
+          <ul>
+            {Object.entries(tokenBalances).map(([tokenName, balance]) => (
+              <li key={tokenName}>
+                {tokenName}: {balance}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
     </div>
   );

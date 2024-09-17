@@ -18,6 +18,14 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
     { name: 'dota2', label: 'Dota 2', icon: '/icons/dota2.png' },
   ];
 
+  const socials = [
+    {name:'Telegram',icon: '/icons/socials/telegram.png',link: 'https://t.me/+4x6uwCjC7BgzNmRk'},
+    {name: 'x', icon: '/icons/socials/x.png',link: 'https://x.com/betvex'},
+    {name: 'TikTok', icon: '/icons/socials/tiktok.png',link: 'https://www.tiktok.com/@betvex'},
+    {name:'Instagram', icon: '/icons/socials/instagram.png',link: 'https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr'}
+
+  ]
+
   return (
     <div className={`app-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
       <ul>
@@ -62,6 +70,17 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             >
               <img src={game.icon} alt={game.label} />
               {!isCollapsed && <span>{game.label}</span>}
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div className="section-title">{!isCollapsed && 'Socials'}</div>
+      <ul>
+        {socials.map((social) => (
+          <li key={social.name}>
+            <a href={social.link} target="_blank" rel="noopener noreferrer">
+              <img src={social.icon} alt={social.name} />
+              {!isCollapsed && <span>{social.name}</span>}
             </a>
           </li>
         ))}
