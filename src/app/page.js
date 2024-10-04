@@ -7,6 +7,7 @@ import FeaturedGames from '@/components/FeaturedGames';
 import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
 import { providers, utils } from 'near-api-js';
+import FaucetSection from '@/components/Faucet';
 
 export default function HomePage() {
   const { signedAccountId, wallet } = useNear();  // Use wallet from NearContext
@@ -141,6 +142,7 @@ export default function HomePage() {
       />
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
+        <FaucetSection />
         <FeaturedGames matches={matches} />
         <UpcomingGames matches={filteredMatches} />
 

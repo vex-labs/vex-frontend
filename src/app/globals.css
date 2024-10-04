@@ -376,6 +376,114 @@ body {
   border-radius: 8px;
 }
 
+/*Faucet Section */
+
+.faucet-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%; /* Takes up full width of parent */
+  height: 400px; /* Limited height for hero section */
+  max-height: 100vh; /* Ensures it doesn't overflow the viewport */
+  padding: 2rem;
+  background-color: rgba(255, 255, 255, 0.9); /* Transparent background for layering */
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 2; /* Ensure content is above the background */
+  overflow: hidden; /* Prevent image overflow */
+}
+
+.faucet-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/icons/Vex_Background.png');
+  background-size: contain; /* Maintain aspect ratio and prevent overflow */
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: rotate(90deg); /* Rotate 90 degrees to flip the image */
+  transform-origin: center center; /* Ensure the rotation happens around the center */
+  opacity: 1; /* Slight transparency for background image */
+  z-index: 1; /* Below content */
+  border-radius: 10px;
+}
+
+.faucet-container h3 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  color: #ffffff;
+  z-index: 2;
+}
+
+.faucet-container input {
+  width: 80%; /* Adjust input size for responsiveness */
+  max-width: 400px;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease-in-out;
+  z-index: 2;
+}
+
+.faucet-container input:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.faucet-container button {
+  padding: 10px 20px;
+  background-color: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+  z-index: 2;
+}
+
+.faucet-container button:disabled {
+  background-color: #bbb;
+  cursor: not-allowed;
+}
+
+.faucet-container button:hover:not(:disabled) {
+  background-color: #005bb5;
+}
+
+.faucet-container button:focus {
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .faucet-container {
+    height: 300px;
+    padding: 1.5rem;
+  }
+
+  .faucet-container h3 {
+    font-size: 1.5rem;
+  }
+
+  .faucet-container input {
+    width: 90%;
+  }
+
+  .faucet-container button {
+    width: 90%;
+    padding: 10px;
+  }
+}
+
+
 /* Card Grid Layout */
 .featured-grid-container, .upcoming-grid-container {
   display: grid;
