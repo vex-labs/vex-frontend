@@ -1,60 +1,90 @@
+:root {
+  --primary-color: #FF3358;
+  --secondary-color: #1E1E1E;
+  --black-color: #000;
+  --text-color: #EEE2DF;
+  --accent-color: #ff5722;
+  --white-color: #ffffff;
+}
+
+
 .earn-page {
-    margin-top: 60px; 
-    padding: 20px;
+  margin-top: 60px; 
+  padding: 20px;
+  background-color: black;
 }
 
 .earn-container {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px;
-  }
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  flex-wrap: wrap; /* Allow wrapping for smaller screens */
+}
 
-  .hero-section {
-    margin-top: 40px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    margin: 20px;
-    height: 200px;
-  }
-  
-  .swap-section, .stake-section {
-    width: 49%; /* Adjust as necessary */
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    height: 400px;
-  }
-  
-  .faq-section {
-    margin-top: 40px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    margin: 20px;
-  }
-  
-  /* FAQ section*/
+.hero-section {
+  margin-top: 40px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  margin: 20px;
+  height: 200px;
+}
 
-/* Global CSS */
+.swap-section, .stake-section {
+  width: 49%; /* Adjust width for balance */
+  
+  
+  border-radius: 8px;
+  
+  height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  justify-content: center; /* Center content vertically */
+}
 
+
+.placeholder {
+  text-align: center;
+  color: #666;
+  font-size: 1.2rem;
+  margin-top: 20px;
+}
+
+.faq-section {
+  margin-top: 40px;
+  padding: 20px;
+  
+  border-radius: 8px;
+ 
+  margin: 20px;
+}
+
+/* FAQ section styles */
 .faq-container {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f9f9f9;
+  
   border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px); /* Blur effect for glassmorphism */
 }
 
 .faq-item {
-  border-bottom: 1px solid #ddd;
-  padding: 10px 0;
-  cursor: pointer;
+  background: rgba(0, 0, 0, 0.1); /* Semi-transparent background for each item */
+  border: 0.5px solid #eee2dfc5;
+  border-radius: 8px;
+  padding: 30px; /* 30px padding as required */
+  margin-bottom: 15px; /* Space between each FAQ item */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.faq-item:hover {
+  background: rgba(255, 255, 255, 0.048); /* Lighter background on hover */
+  box-shadow: inset 0 0 30px #ff335871; /* Red inward glow filling the padding */
 }
 
 .faq-question {
@@ -63,26 +93,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #333;
-  padding: 10px 0;
+  color: var(--text-color); /* White text for contrast */
 }
 
 .faq-answer {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease-out, padding 0.4s ease-out;
-  padding: 0 0;
-  color: #666;
+  transition: max-height 0.4s ease-out, margin 0.4s ease-out;
+  margin-top: 0; /* No space between question and answer initially */
+  color: var(--text-color); /* Slightly transparent white for answer text */
   font-size: 16px;
 }
 
 .faq-answer.show {
-  max-height: 200px; /* Set this to a value that accommodates your answer size */
-  padding: 10px 0;
+  max-height: 200px;
+  margin-top: 15px; /* Add space between the question and answer when shown */
 }
 
 .faq-toggle {
   font-size: 24px;
   font-weight: bold;
-  color: #333;
+  color: white; /* White toggle text */
 }

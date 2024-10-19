@@ -8,12 +8,14 @@ import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
 import { providers, utils } from 'near-api-js';
 import FaucetSection from '@/components/Faucet';
+import { fetchMatchesByIDs } from '@/utils/fetchMatches';
 
 export default function HomePage() {
   const { signedAccountId, wallet } = useNear();  // Use wallet from NearContext
   const [walletBalance, setWalletBalance] = useState('');
   const [tokenBalances, setTokenBalances] = useState({});
   const [matches, setMatches] = useState([]);
+  const [additionalMatchData, setAdditionalMatchData] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
 
   // Token contracts to fetch balances from
@@ -92,44 +94,80 @@ export default function HomePage() {
     fetchTokenBalances();
   }, [signedAccountId]);
 
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const contractId = "shocking-desire.testnet";
+  
+// Fetch matches from the blockchain (NEAR)
+useEffect(() => {
+  const fetchMatches = async () => {
+    try {
+      const contractId = "sexyvexycontract.testnet";
 
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-        const matches = await provider.query({
-          request_type: "call_function",
-          account_id: contractId,
-          method_name: "get_matches",
-          args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
-          finality: "final"
-        });
-        const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
+      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+      const matches = await provider.query({
+        request_type: "call_function",
+        account_id: contractId,
+        method_name: "get_matches",
+        args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
+        finality: "final"
+      });
+      const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
 
-        console.log("Matches:", decodedResult);
-        setMatches(decodedResult);
+      console.log("Matches:", decodedResult);
+      setMatches(decodedResult);
 
-        localStorage.setItem("matches", JSON.stringify(decodedResult));
-      } catch (error) {
-        console.error("Failed to fetch matches:", error);
+      localStorage.setItem("matches", JSON.stringify(decodedResult));
+    } catch (error) {
+      console.error("Failed to fetch matches:", error);
+    }
+  };
+
+  fetchMatches();
+}, []); 
+
+useEffect(() => {
+  const fetchAdditionalMatchData = async () => {
+    try {
+      if (matches.length === 0) return;  // Don't fetch if there are no matches
+
+      // Extract match_ids from blockchain matches
+      const matchIDs = matches.map(match => match.match_id).filter(Boolean);
+
+      if (matchIDs.length === 0) {
+        console.warn("No match_ids available for fetching additional data");
+        return;
       }
-    };
 
-    fetchMatches();
-  }, []); 
+      // Fetch additional details from the backend using match_ids
+      const backendResponse = await fetchMatchesByIDs(matchIDs);
+      console.log("Matches from backend:", backendResponse);
 
-  const filteredMatches = selectedGame 
+      setAdditionalMatchData(backendResponse);
+
+      localStorage.setItem("additionalMatchData", JSON.stringify(backendResponse));
+    } catch (error) {
+      console.error("Failed to fetch additional match data from backend:", error);
+    }
+  };
+
+  fetchAdditionalMatchData();
+}, [matches]);  // This effect runs whenever `matches` is updated
+
+
+const filteredMatches = selectedGame 
     ? matches.filter((match) => match.game === selectedGame) 
     : matches;
 
-  const handleLogin = () => {
+const filteredAdditionalData = additionalMatchData.filter((additionalMatch) => 
+    filteredMatches.some((match) => match.match_id === additionalMatch.match_id)
+);
+const handleLogin = () => {
     wallet.signIn();  
   };
 
-  const handleLogout = () => {
-    wallet.signOut();  
-    window.location.reload();  // reload page after logout
+  const handleLogout = async () => {
+    await wallet.signOut();
+    localStorage.removeItem("signedAccountId"); // Remove from localStorage
+    setSignedAccountId(""); // Clear the state
+    
   };
 
   return (
@@ -144,7 +182,10 @@ export default function HomePage() {
       <div className="mainContent">
         <FaucetSection />
         <FeaturedGames matches={matches} />
-        <UpcomingGames matches={filteredMatches} />
+        <UpcomingGames 
+          matches={filteredMatches} 
+          additionalMatchData={additionalMatchData}
+        />
 
         {/* Display token balances */}
         <div className="token-balances">

@@ -25,7 +25,7 @@
     "@near-wallet-selector/sender": "^8.9.12",
     "@near-wallet-selector/wallet-connect": "^8.9.12",
     "@ref-finance/ref-sdk": "^1.4.0",
-    "near-api-js": "^0.44.2",
+    "near-api-js": "^4.0.3",
     "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",

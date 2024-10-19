@@ -12,7 +12,7 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
 
   const fetchMatchDetails = async () => {
     try {
-      const contractId = "shocking-desire.testnet";
+      const contractId = "sexyvexycontract.testnet";
 
       // Connect to NEAR blockchain
       const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");

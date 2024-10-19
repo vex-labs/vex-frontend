@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 
 const FaucetSection = () => {
   const [amount, setAmount] = useState(1);
@@ -28,18 +29,28 @@ const FaucetSection = () => {
 
   return (
     <div className="faucet-container">
-      <h3>Get USDC from Faucet</h3>
-      <input
-        type="number"
-        min="1"
-        max="100"
-        value={amount}
-        onChange={(e) => setAmount(e.target.value)}
-        placeholder="Amount (1-100)"
-      />
-      <button onClick={handleFaucetClick} disabled={loading}>
-        {loading ? "Processing..." : "Request USDC"}
-      </button>
+      <div className="image-wrapper">
+        <Image
+          src="/icons/Vex_Background.png" 
+          alt="Faucet section image"
+          layout="fill"
+          objectFit="cover"
+        />
+        <div className="overlay">
+          <h3>Get USDC from Faucet</h3>
+          <input
+            type="number"
+            min="1"
+            max="100"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="Amount (1-100)"
+          />
+          <button onClick={handleFaucetClick} disabled={loading}>
+            {loading ? "Processing..." : "Request USDC"}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

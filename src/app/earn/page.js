@@ -8,9 +8,14 @@ import { SwapWidget } from '@ref-finance/ref-sdk';
 import { init_env } from '@ref-finance/ref-sdk';
 
 const EarnPage = () => {
-  const { wallet, signedAccountId } = useContext(NearContext); // Access wallet context
+  const { wallet, signedAccountId } = useContext(NearContext);
   const [swapState, setSwapState] = useState(null);
   const [tx, setTx] = useState(undefined);
+
+  useEffect(() => {
+    console.log("Context Wallet: ", wallet);
+    console.log("Signed Account ID: ", signedAccountId);
+  }, [wallet, signedAccountId]);
 
   useEffect(() => {
     init_env('testnet');
@@ -27,27 +32,41 @@ const EarnPage = () => {
     return wallet.signAndSendTransactions(walletSelectorTransactions);
   };
 
+  const handleLogin = () => {
+    wallet.signIn();  
+  };
+
+  const handleLogout = async () => {
+    await wallet.signOut();
+  };
+
   return (
     <div className='earn-page'>
-      <NavBar />
+       <NavBar
+        isLoggedIn={!!signedAccountId}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      />
       <div className='hero-section'></div>
       <div className="earn-container">
         <div className="swap-section">
-          <h2>Token Swap</h2>
-            <div>
-             
-              {signedAccountId && (
-                <SwapWidget
-                onSwap={onSwap}
-                connection={{ AccountId: signedAccountId, isSignedIn: !!signedAccountId }}
-                width={'500px'}
-                transactionState={{ state: swapState, setState: setSwapState, tx }}
-                defaultTokenIn={'token.betvex.testnet'}  // Example token on testnet
-                defaultTokenOut={'usdc.betvex.testnet'}
-              />
-              )}
-            </div>
-         
+          
+            {signedAccountId ? (
+              <SwapWidget
+              onSwap={onSwap}
+              connection={{ AccountId: signedAccountId, isSignedIn: !!signedAccountId }}
+              width={'80%'}
+              transactionState={{ state: swapState, setState: setSwapState, tx }}
+              defaultTokenIn={'token.betvex.testnet'}
+              defaultTokenOut={'usdc.betvex.testnet'}
+              darkMode={true} 
+              height={'30rem'}
+            />
+            
+            ) : (
+              <div className="placeholder">Please log in to use the swap feature.</div>
+            )}
+          
         </div>
         <div className="stake-section">
           <h2>Stake/Unstake</h2>
@@ -61,5 +80,3 @@ const EarnPage = () => {
 };
 
 export default EarnPage;
-
-
