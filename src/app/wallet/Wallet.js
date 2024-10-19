@@ -34,50 +34,82 @@ export class Wallet {
    * @returns {Promise<string>} - the accountId of the signed-in user
    */
   startUp = async (accountChangeHook) => {
-    this.selector = setupWalletSelector({
-      network: this.networkId,
-      modules: [setupMyNearWallet(), setupHereWallet()],
-    });
-
-    const walletSelector = await this.selector;
-    const isSignedIn = walletSelector.isSignedIn();
-    const accountId = isSignedIn
-      ? walletSelector.store.getState().accounts[0].accountId
-      : "";
-
-    walletSelector.store.observable
-      .pipe(
-        map((state) => state.accounts),
-        distinctUntilChanged(),
-      )
-      .subscribe((accounts) => {
-        const signedAccount = accounts.find(
-          (account) => account.active,
-        )?.accountId;
-        accountChangeHook(signedAccount);
+    try {
+      // Initialize the wallet selector
+      this.selector = await setupWalletSelector({
+        network: this.networkId,
+        modules: [setupMyNearWallet(), setupHereWallet()],
       });
-
-    return accountId;
+  
+      const walletSelector = await this.selector;
+      const isSignedIn = walletSelector.isSignedIn();
+  
+      if (isSignedIn) {
+        const accountId = walletSelector.store.getState().accounts[0].accountId;
+        console.log("Account Signed In:", accountId);
+  
+        // Call the account change hook to update the signedAccountId
+        accountChangeHook(accountId);
+      }
+  
+      // Subscribe to account changes
+      walletSelector.store.observable
+        .pipe(
+          map((state) => state.accounts),
+          distinctUntilChanged(),
+        )
+        .subscribe((accounts) => {
+          const signedAccount = accounts.find(
+            (account) => account.active,
+          )?.accountId;
+  
+          console.log("Active Account Changed:", signedAccount);
+          accountChangeHook(signedAccount);
+        });
+  
+    } catch (error) {
+      console.error("Error during wallet startup:", error);
+    }
   };
+  
+  
 
   /**
    * Displays a modal to login the user
    */
   signIn = async () => {
-    const modal = setupModal(await this.selector, {
-      contractId: this.createAccessKeyFor,
-    });
-    modal.show();
+    try {
+      // Ensure that selector is properly initialized
+      if (!this.selector) {
+        this.selector = await setupWalletSelector({
+          network: this.networkId,
+          modules: [setupMyNearWallet(), setupHereWallet()],
+        });
+      }
+  
+      // Ensure the selector is ready before proceeding
+      if (this.selector) {
+        const modal = setupModal(this.selector, {
+          contractId: this.createAccessKeyFor,
+        });
+        modal.show();
+      } else {
+        console.error("Wallet selector is not initialized.");
+      }
+    } catch (error) {
+      console.error("Error during signIn:", error);
+    }
   };
-
+  
+  
   /**
    * Logout the user
    */
-  signOut = async () => {
+  signOut = async (accountChangeHook) => {
     const selectedWallet = await (await this.selector).wallet();
     selectedWallet.signOut();
+  
   };
-
   /**
    * Makes a read-only call to a contract
    * @param {Object} options - the options for the call
