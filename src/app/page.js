@@ -1,204 +1,109 @@
 "use client";
 
-import { useNear } from '@/app/context/NearContext';
-import NavBar from '@/components/NavBar';
 import Sidebar from '@/components/Sidebar';
 import FeaturedGames from '@/components/FeaturedGames';
 import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
-import { providers, utils } from 'near-api-js';
+import { providers } from 'near-api-js';
 import FaucetSection from '@/components/Faucet';
 import { fetchMatchesByIDs } from '@/utils/fetchMatches';
 
-export default function HomePage() {
-  const { signedAccountId, wallet } = useNear();  // Use wallet from NearContext
-  const [walletBalance, setWalletBalance] = useState('');
-  const [tokenBalances, setTokenBalances] = useState({});
+// Conditional useNear import
+let useNear;
+if (typeof window !== 'undefined') {
+  useNear = require('@/app/context/NearContext').useNear;
+}
+
+export default function HomePage({ isVexLogin, vexKeyPair }) {
   const [matches, setMatches] = useState([]);
   const [additionalMatchData, setAdditionalMatchData] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
 
-  // Token contracts to fetch balances from
-  const tokenContracts = [
-   
-    { name: 'USDC', address: 'usdc.betvex.testnet' },
-    { name: 'VEX', address: 'token.betvex.testnet' },
-    // Add more tokens here
-  ];
+  let signedAccountId = null;
+
+  // Conditionally use NearContext only if not using VEX and ensure it doesn't throw errors
+  if (!isVexLogin && useNear) {
+    try {
+      const nearContext = useNear();
+      signedAccountId = nearContext?.signedAccountId || null;
+    } catch (error) {
+      console.error("Error accessing NearContext:", error);
+    }
+  }
 
   const handleGameSelection = (game) => {
     setSelectedGame(game);
   };
 
-  // Fetch the native NEAR balance
+  // Determine if logged in with NEAR or VEX
+  const accountId = isVexLogin ? vexKeyPair?.publicKey : signedAccountId;
+
+  // Fetch matches from the blockchain (NEAR)
   useEffect(() => {
-    const fetchAccountBalance = async () => {
-      if (signedAccountId) {
-        try {
-          console.log("Logged in with account:", signedAccountId);
+    const fetchMatches = async () => {
+      try {
+        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        const matches = await provider.query({
+          request_type: "call_function",
+          account_id: "sexyvexycontract.testnet",
+          method_name: "get_matches",
+          args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
+          finality: "final"
+        });
+        const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
 
-          const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        console.log("Matches:", decodedResult);
+        setMatches(decodedResult);
 
-          const accountBalance = await provider.query({
-            request_type: "view_account",
-            finality: "final",
-            account_id: signedAccountId,
-          });
-
-          console.log("Account Balance:", accountBalance);
-
-          const balanceInNear = utils.format.formatNearAmount(accountBalance.amount, 2);
-
-          setWalletBalance(balanceInNear);
-        } catch (error) {
-          console.error("Failed to fetch account balance:", error);
-        }
+        localStorage.setItem("matches", JSON.stringify(decodedResult));
+      } catch (error) {
+        console.error("Failed to fetch matches:", error);
       }
     };
 
-    fetchAccountBalance();
-  }, [signedAccountId]);
+    fetchMatches();
+  }, []);
 
-  // Fetch token balances from multiple contracts
   useEffect(() => {
-    const fetchTokenBalances = async () => {
-      if (!signedAccountId) return;
-
-      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-      const balances = {};
-
-      for (const token of tokenContracts) {
-        try {
-          const result = await provider.query({
-            request_type: "call_function",
-            account_id: token.address,
-            method_name: "ft_balance_of",
-            args_base64: btoa(JSON.stringify({ account_id: signedAccountId })),
-            finality: "final",
-          });
-
-          const balance = JSON.parse(Buffer.from(result.result).toString());
-          const formattedBalance = utils.format.formatNearAmount(balance, 2);
-
-          balances[token.name] = formattedBalance;
-
-        } catch (error) {
-          console.error(`Failed to fetch balance for ${token.name}:`, error);
-          balances[token.name] = '0';
-        }
-      }
-
-      setTokenBalances(balances);
-    };
-
-    fetchTokenBalances();
-  }, [signedAccountId]);
-
-  
-// Fetch matches from the blockchain (NEAR)
-useEffect(() => {
-  const fetchMatches = async () => {
-    try {
-      const contractId = "sexyvexycontract.testnet";
-
-      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-      const matches = await provider.query({
-        request_type: "call_function",
-        account_id: contractId,
-        method_name: "get_matches",
-        args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
-        finality: "final"
-      });
-      const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
-
-      console.log("Matches:", decodedResult);
-      setMatches(decodedResult);
-
-      localStorage.setItem("matches", JSON.stringify(decodedResult));
-    } catch (error) {
-      console.error("Failed to fetch matches:", error);
-    }
-  };
-
-  fetchMatches();
-}, []); 
-
-useEffect(() => {
-  const fetchAdditionalMatchData = async () => {
-    try {
+    const fetchAdditionalMatchData = async () => {
       if (matches.length === 0) return;  // Don't fetch if there are no matches
 
-      // Extract match_ids from blockchain matches
       const matchIDs = matches.map(match => match.match_id).filter(Boolean);
 
-      if (matchIDs.length === 0) {
-        console.warn("No match_ids available for fetching additional data");
-        return;
-      }
+      if (matchIDs.length === 0) return;
 
-      // Fetch additional details from the backend using match_ids
       const backendResponse = await fetchMatchesByIDs(matchIDs);
       console.log("Matches from backend:", backendResponse);
 
       setAdditionalMatchData(backendResponse);
 
       localStorage.setItem("additionalMatchData", JSON.stringify(backendResponse));
-    } catch (error) {
-      console.error("Failed to fetch additional match data from backend:", error);
-    }
-  };
+    };
 
-  fetchAdditionalMatchData();
-}, [matches]);  // This effect runs whenever `matches` is updated
+    fetchAdditionalMatchData();
+  }, [matches]);
 
-
-const filteredMatches = selectedGame 
+  const filteredMatches = selectedGame 
     ? matches.filter((match) => match.game === selectedGame) 
     : matches;
 
-const filteredAdditionalData = additionalMatchData.filter((additionalMatch) => 
+  const filteredAdditionalData = additionalMatchData.filter((additionalMatch) => 
     filteredMatches.some((match) => match.match_id === additionalMatch.match_id)
-);
-const handleLogin = () => {
-    wallet.signIn();  
-  };
-
-  const handleLogout = async () => {
-    await wallet.signOut();
-    localStorage.removeItem("signedAccountId"); // Remove from localStorage
-    setSignedAccountId(""); // Clear the state
-    
-  };
+  );
 
   return (
     <div className="container">
-      <NavBar 
-        isLoggedIn={!!signedAccountId} 
-        walletBalance={walletBalance} 
-        onLogin={handleLogin} 
-        onLogout={handleLogout} 
-      />
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
-        <FaucetSection />
-        <FeaturedGames matches={matches} />
-        <UpcomingGames 
-          matches={filteredMatches} 
-          additionalMatchData={additionalMatchData}
-        />
-
-        {/* Display token balances */}
-        <div className="token-balances">
-          <h3>Token Balances</h3>
-          <ul>
-            {Object.entries(tokenBalances).map(([tokenName, balance]) => (
-              <li key={tokenName}>
-                {tokenName}: {balance}
-              </li>
-            ))}
-          </ul>
+        <FaucetSection className="faucet-section" />
+        <div className="content-wrapper">
+          <FeaturedGames matches={matches} />
+          <UpcomingGames 
+            matches={filteredMatches} 
+            additionalMatchData={filteredAdditionalData}
+          />
         </div>
       </div>
     </div>
   );
-};
+}

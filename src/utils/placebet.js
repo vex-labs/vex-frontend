@@ -1,17 +1,18 @@
-// src/utils/nearApi.js
 export async function placeBet(wallet, matchId, team, betAmount) {
-  const contractId = "shocking-desire.testnet";
-  const tokenContractId = "cusd.fakes.testnet"; 
+  const contractId = "sexyvexycontract.testnet";
+  const tokenContractId = "usdc.betvex.testnet"; 
 
   try {
     if (!wallet || !wallet.selector) {
       throw new Error("Wallet is not initialized");
     }
 
-    // Prepare the message for the bet
+    // Prepare the message for the bet (adjusted for the FtTransferAction::Bet variant)
     const msg = JSON.stringify({
-      match_id: matchId,
-      team: team,
+      Bet: {
+        match_id: matchId,
+        team: team,
+      },
     });
 
     const gas = "100000000000000"; // 100 Tgas
@@ -26,7 +27,7 @@ export async function placeBet(wallet, matchId, team, betAmount) {
       args: {
         receiver_id: contractId, // The contract that will handle ft_on_transfer
         amount: betAmount, // The amount of tokens to transfer (in yocto units)
-        msg: msg, // The message to pass to the receiving contract
+        msg: msg, // The message to pass to the receiving contract (now correctly structured)
       },
       gas: gas,
       deposit: deposit, // Usually 1 yoctoNEAR
