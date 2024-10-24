@@ -1,77 +1,61 @@
 "use client";
 import FAQ from '@/components/Faq';
-import NavBar from '../../components/NavBar';
 import "./earn.css";
-import { useState, useEffect, useContext } from 'react';
-import { NearContext } from '@/app/context/NearContext';
-import { SwapWidget } from '@ref-finance/ref-sdk'; 
-import { init_env } from '@ref-finance/ref-sdk';
+import Staking from '@/components/Stake';
+import Swap from '@/components/Swap';
+
+let useNear;
+if (typeof window !== 'undefined') {
+  try {
+    useNear = require('@/app/context/NearContext').useNear;
+  } catch (error) {
+    console.warn("NearContext is not available:", error);
+    useNear = null; // Fallback to null if NearContext is not available
+  }
+}
 
 const EarnPage = () => {
-  const { wallet, signedAccountId } = useContext(NearContext);
-  const [swapState, setSwapState] = useState(null);
-  const [tx, setTx] = useState(undefined);
+  const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
+  const vexKeyPair = isVexLogin ? {
+    publicKey: localStorage.getItem('vexPublicKey'),
+    privateKey: localStorage.getItem('vexPrivateKey'),
+  } : null;
 
-  useEffect(() => {
-    console.log("Context Wallet: ", wallet);
-    console.log("Signed Account ID: ", signedAccountId);
-  }, [wallet, signedAccountId]);
+  let wallet = null;
+  let signedAccountId = null;
 
-  useEffect(() => {
-    init_env('testnet');
-  }, []);
-
-  const onSwap = async (transactionsRef) => {
-    if (!signedAccountId) {
-      console.error('No account signed in');
-      return;
+  //  use NearContext only if the user is logged in with NEAR
+  if (!isVexLogin && useNear) {
+    try {
+      const nearContext = useNear();
+      wallet = nearContext?.wallet || null;
+      signedAccountId = nearContext?.signedAccountId || null;
+    } catch (error) {
+      console.error("Error accessing NearContext:", error);
     }
-    const walletSelectorTransactions = {
-      transactions: transformTransactions(transactionsRef, signedAccountId),
-    };
-    return wallet.signAndSendTransactions(walletSelectorTransactions);
-  };
-
-  const handleLogin = () => {
-    wallet.signIn();  
-  };
-
-  const handleLogout = async () => {
-    await wallet.signOut();
-  };
+  }
+  console.log('isVexLogin:', isVexLogin);
 
   return (
     <div className='earn-page'>
-       <NavBar
-        isLoggedIn={!!signedAccountId}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
-      />
-      <div className='hero-section'></div>
       <div className="earn-container">
         <div className="swap-section">
-          
-            {signedAccountId ? (
-              <SwapWidget
-              onSwap={onSwap}
-              connection={{ AccountId: signedAccountId, isSignedIn: !!signedAccountId }}
-              width={'80%'}
-              transactionState={{ state: swapState, setState: setSwapState, tx }}
-              defaultTokenIn={'token.betvex.testnet'}
-              defaultTokenOut={'usdc.betvex.testnet'}
-              darkMode={true} 
-              height={'30rem'}
-            />
-            
-            ) : (
-              <div className="placeholder">Please log in to use the swap feature.</div>
-            )}
-          
+          <Swap
+            wallet={wallet} 
+            signedAccountId={signedAccountId} 
+            vexKeyPair={vexKeyPair} 
+            isVexLogin={isVexLogin} 
+          />
         </div>
+  
         <div className="stake-section">
-          <h2>Stake/Unstake</h2>
+          <Staking
+           wallet={wallet} 
+           signedAccountId={signedAccountId} 
+          />
         </div>
       </div>
+  
       <div className="faq-section">
         <FAQ />
       </div>

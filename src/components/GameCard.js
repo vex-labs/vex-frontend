@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { providers } from 'near-api-js';
-import { placeBet } from '@/app/context/placebet';
+import { placeBet } from '@/utils/placebet';
 
 const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1Logo, team1Name, team2Logo, team2Name, odds1, odds2, matchId, walletBalance, wallet }) => {
   const [isBettingMode, setIsBettingMode] = useState(false);
@@ -33,8 +33,8 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       console.log("Match Details:", decodedResult);
 
       // Update odds with the fetched data
-      setUpdatedOdds1(decodedResult.team_1_odds);
-      setUpdatedOdds2(decodedResult.team_2_odds);
+      setUpdatedOdds1(parseFloat(decodedResult.team_1_odds).toFixed(2));
+      setUpdatedOdds2(parseFloat(decodedResult.team_2_odds).toFixed(2));
     } catch (error) {
       console.error("Failed to fetch match details:", error);
     }
@@ -47,10 +47,11 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
         return;
       }
 
-      const contractId = "shocking-desire.testnet";
+      const contractId = "sexyvexycontract.testnet";
       const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
-      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e24)).toString(); 
+      // Convert stake from USDC (with 6 decimal places) to yocto
+      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6 * 1e18)).toString(); 
 
       const args = JSON.stringify({
         match_id: matchId,
@@ -66,13 +67,20 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
         finality: "final"
       });
 
-      const winnings = JSON.parse(Buffer.from(potentialWinnings.result).toString());
-      setMessage(`Potential payout: $${winnings}`);
+      // Decode and convert winnings from yocto to USDC
+      const winningsYocto = JSON.parse(Buffer.from(potentialWinnings.result).toString());
+      const winningsUSDC = parseFloat(winningsYocto) / 1e6 / 1e6;  // Convert from yocto to USDC
+
+      // Round to 2 decimal places
+      const roundedWinnings = winningsUSDC.toFixed(2);
+
+      setMessage(`Potential payout: $${roundedWinnings}`);
     } catch (error) {
       console.error("Failed to fetch potential winnings:", error);
       setMessage("Error calculating potential winnings.");
     }
-  };
+};
+
 
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
@@ -96,7 +104,7 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       return;
     }
 
-    const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e24)).toString();
+    const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e8)).toString();
 
     try {
       await placeBet(wallet, matchId, selectedBet === team1Name ? 'Team1' : 'Team2', betAmount);

@@ -6,14 +6,11 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const toggleSidebar = () => {
-    // Start the transition
     setIsTransitioning(true);
-    
-    // Change the state after a slight delay to allow the transition to start
     setTimeout(() => {
       setIsCollapsed(!isCollapsed);
-      setIsTransitioning(false); // End the transition state
-    }, 300); // Match this duration to your CSS transition duration
+      setIsTransitioning(false);
+    }, 300);
   };
 
   const games = [
@@ -44,7 +41,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <li>
           <Link href="/" legacyBehavior>
             <a>
-              <img src="/icons/home.png" alt="Home" style={{ width: '32px', height: '32px' }} />
+              <img src="/icons/home.png" alt="Home" style={{ width: '17px', height: '17px' }} />
               {!isCollapsed && <span>Home</span>}
             </a>
           </Link>
@@ -52,7 +49,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <li>
           <Link href="/earn" legacyBehavior>
             <a>
-              <img src="/icons/staking.png" alt="earn" style={{ width: '32px', height: '32px' }} />
+              <img src="/icons/staking.png" alt="earn" style={{ width: '17px', height: '17px' }} />
               {!isCollapsed && <span>Earn</span>}
             </a>
           </Link>
@@ -60,7 +57,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <li>
           <Link href="/governance" legacyBehavior>
             <a>
-              <img src="/icons/governance.png" alt="Governance" style={{ width: '32px', height: '32px' }} />
+              <img src="/icons/governance.png" alt="Governance" style={{ width: '17px', height: '17px' }} />
               {!isCollapsed && <span>Governance</span>}
             </a>
           </Link>

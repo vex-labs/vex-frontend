@@ -5,15 +5,14 @@ const fetchPotentialWinnings = async () => {
         return;
       }
 
-      const contractId = "shocking-desire.testnet";
+      const contractId = "sexyvexycontract.testnet";
       const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
-      // Convert stake to yoctoNEAR (assuming NEAR input)
-      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e24)).toString(); // Convert to BigInt and then to string
+      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString(); 
 
       const args = JSON.stringify({
         match_id: matchId,
-        team: selectedBet === team1Name ? 'Team1' : 'Team2', // Assuming team names map to Team1 and Team2 in the contract
+        team: selectedBet === team1Name ? 'Team1' : 'Team2', 
         bet_amount: betAmount
       });
 

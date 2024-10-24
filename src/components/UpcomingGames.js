@@ -1,9 +1,28 @@
 import React, { useEffect } from 'react';
 import GameCard from './GameCard';
-import { useNear } from '@/app/context/NearContext';
+
+let useNear;
+if (typeof window !== 'undefined') {
+  try {
+    useNear = require('@/app/context/NearContext').useNear;
+  } catch (error) {
+    console.warn("NearContext is not available:", error);
+    useNear = null; // Fallback to null if NearContext is not available
+  }
+}
 
 const UpcomingGames = ({ matches, additionalMatchData }) => {
-  const { wallet } = useNear();
+  let wallet = null;
+
+  // Conditionally use useNear() if NearContext is available
+  if (useNear) {
+    try {
+      const nearContext = useNear();
+      wallet = nearContext?.wallet || null;
+    } catch (error) {
+      console.error("Error accessing NearContext:", error);
+    }
+  }
 
   useEffect(() => {
     // Combine matches and additional data based on the sanitized match_id
@@ -18,8 +37,8 @@ const UpcomingGames = ({ matches, additionalMatchData }) => {
 
       // Return a combined object with both match and additional data
       return {
-        ...match,  // Original match data
-        ...additionalData  // Spread additional data, will override match keys if any overlap
+        ...match,  
+        ...additionalData  
       };
     });
   }, [matches, additionalMatchData]);
@@ -37,12 +56,16 @@ const UpcomingGames = ({ matches, additionalMatchData }) => {
             additionalMatch.match_id === sanitizedMatchId
           );
 
+          // Round the odds before passing them
+          const roundedOdds1 = parseFloat(match.team_1_odds || "1.00").toFixed(2);
+          const roundedOdds2 = parseFloat(match.team_2_odds || "1.00").toFixed(2);
+
           return (
             <GameCard
               key={match.match_id || index}  // Bet ID
               className='upcoming-card upcoming-card-4-col' // predefined
 
-              // Use additional data or fallback to placeholder if not available
+              // placeholders if data not available
               tournamentIcon={additionalData ? additionalData.tournament_icon : "/icons/events/vct_amer.png"}  
               tournamentName={additionalData ? additionalData.tournament_name : match.game || "Unknown Tournament"}  
               matchTime={additionalData ? new Date(additionalData.match_time * 1000).toLocaleString() : "Monday, 01:00"}  
@@ -52,10 +75,10 @@ const UpcomingGames = ({ matches, additionalMatchData }) => {
               team2Logo={additionalData ? additionalData.team_2_icon : "/icons/teams/g2.png"}  
               team2Name={match.team_2 || "Team 2"}  
 
-              odds1={match.team_1_odds || "1.00"}  
-              odds2={match.team_2_odds || "1.00"}  
+              odds1={roundedOdds1}  
+              odds2={roundedOdds2}  
 
-              matchId={match.match_id}  // Pass the original match_id to GameCard
+              matchId={match.match_id}  
               wallet={wallet} // wallet object
             />
           );
