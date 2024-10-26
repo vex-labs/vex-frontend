@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@near-relay/client": "^0.1.6",
+    "@near-relay/server": "^0.1.6",
     "@near-wallet-selector/coin98-wallet": "^8.9.12",
     "@near-wallet-selector/core": "^8.9.12",
     "@near-wallet-selector/default-wallets": "^8.1.4",
