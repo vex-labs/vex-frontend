@@ -5,7 +5,7 @@ import { actionCreators } from "@near-js/transactions";
 const passwordEmitter = new EventEmitter();
 const CREATE_ACCOUNT_URL = '/api/relayer/create-account'
 const RELAY_URL = '/api/relayer'
-const NETWORK = 'mainnet'
+const NETWORK = 'testnet'
 
 export const handleTransaction = async (contractId, methodName, args, gas, deposit, wallet = null) => {
   const storedAccounts = Object.keys(localStorage).filter(key => key.startsWith('near-account-'));
