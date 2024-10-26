@@ -94,3 +94,17 @@ export const submitPassword = (password) => {
 
 //     //WHEN SUBMITTED FORM
 //     submitPassword(password)
+
+export const fetchAccountId = () => {
+  const accountKey = Object.keys(localStorage).find(key => key.startsWith('near-account'));
+
+  const { accountId } = localStorage.getItem(accountKey);
+
+  return {
+    accountId,
+  };
+};
+
+
+
+
