@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAccount } from '@near-relay/server'
 
-export async function POST(req, res) {
+export async function POST(req) {
     try {
         const { publicKey, accountId } = await req.json();
 

@@ -31,7 +31,7 @@ body {
   flex: 1;
   padding: 0px;
   margin-left: 230px; 
-  height: calc(100vh - 50px); 
+  height: auto;
   overflow-y: auto; 
   transition: margin-left 0.3s ease-in-out;
 }
@@ -42,6 +42,7 @@ body {
 
 .content-wrapper {
   padding: 20px;
+  height: auto;
 }
    
 /* navbar */
@@ -128,7 +129,7 @@ button {
       border-radius: 5px;
 
       &:hover {
-        background-color: var(--accent-color);
+        background-color: var(--secondary-color);
       }
 
       span {
@@ -173,7 +174,7 @@ button {
 .app-sidebar.collapsed {
   width: 50px;
   padding: 12px 0;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .app-sidebar.collapsed .section-title {
@@ -200,6 +201,47 @@ button {
   gap: 16px; 
   margin: 16px; 
 }
+
+/* Login Prompt */
+.vex-login-prompt {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  text-align: center;
+  z-index: 1000; /* Ensure it appears above other content */
+}
+
+.vex-login-prompt input {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.vex-login-prompt button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.vex-login-prompt button:hover {
+  background-color: #0056b3;
+}
+
 
 /* Card Styles */
 .featured-card, .upcoming-card {
@@ -389,50 +431,30 @@ button {
 }
 
 /* Faucet Section */
-.faucet-section {
-  width: 100%; 
-  padding-bottom: 20px; 
-  margin: 0;
-}
-
-.faucet-container {
-  position: relative;
-  height: 200px;
-  color: white;
-  text-align: center;
-  width: 100%; 
-  padding-bottom: 20px; 
-}
-
-.image-wrapper {
-  position: relative;
+.hero-section {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  height: 100%;
-  overflow: hidden; 
+  height: 300px; /* Fixed height for the hero section */
+  overflow: hidden; /* Crops overflowed content */
+  border-radius: 15px;
 }
 
-.overlay {
-  position: absolute;
-  top: 50%; 
-  left: 50%; 
-  transform: translate(-50%, -50%); 
-  z-index: 1; 
-  background-color: rgba(0, 0, 0, 0.5); 
-  padding: 20px; 
-  border-radius: 8px; 
+.hero-banner {
+  width: 100%;
+  height: 100%; /* Matches the height of .hero-section */
+  object-fit: cover; /* Crops the image to fit within the container */
 }
 
-h3, input, button {
-  margin: 10px 0; 
-  color: white; 
-}
 
 /* Card Grid Layout */
 .featured-grid-container, .upcoming-grid-container {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   gap: 16px;
-  margin: 16px;
+  margin: 16px 0px 16px 0px;
 }
 
 /* Column Spans */
@@ -522,6 +544,87 @@ h3, input, button {
   font-size: 18px;
   font-weight: bold;
 }
+
+
+/* Modal background */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; /* Ensure it's on top of other content */
+}
+
+/* Modal content */
+.modal-content {
+  background-color: #fff;
+  border-radius: 8px;
+  width: 300px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: fadeIn 0.3s ease; /* Smooth fade-in effect */
+}
+
+/* Modal heading */
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Password input */
+.modal-content input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+}
+
+/* Modal buttons */
+.modal-content button {
+  padding: 8px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.modal-content button:first-of-type {
+  background-color: #007bff; /* Primary button color */
+  color: #fff;
+}
+
+.modal-content button:last-of-type {
+  background-color: #ccc;
+  color: #333;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
 /* scrollbar */
 /* Make the scrollbar thinner (for WebKit browsers like Chrome, Safari, Edge) */

@@ -14,13 +14,13 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   };
 
   const games = [
-    { name: 'csgo', label: 'CSGO', icon: '/icons/csgo.png' },
-    { name: 'lol', label: 'League of Legends', icon: '/icons/lol.png' },
-    { name: 'valorant', label: 'Valorant', icon: '/icons/valorant.png' },
-    { name: 'fortnite', label: 'Fortnite', icon: '/icons/fortnite.png' },
-    { name: 'apex', label: 'Apex Legends', icon: '/icons/apex.png' },
-    { name: 'rainbowsix', label: 'Rainbow Six Siege', icon: '/icons/rainbowsix.png' },
-    { name: 'dota2', label: 'Dota 2', icon: '/icons/dota2.png' },
+    { name: 'csgo', label: 'CSGO', icon: '/icons/games/csgo.png' },
+    { name: 'lol', label: 'League of Legends', icon: '/icons/games/lol.png' },
+    { name: 'valorant', label: 'Valorant', icon: '/icons/games/valorant.png' },
+    { name: 'fortnite', label: 'Fortnite', icon: '/icons/games/fortnite.png' },
+    { name: 'apex', label: 'Apex Legends', icon: '/icons/games/apex.png' },
+    { name: 'rainbowsix', label: 'Rainbow Six Siege', icon: '/icons/games/rainbowsix.png' },
+    { name: 'dota2', label: 'Dota 2', icon: '/icons/games/dota2.png' },
   ];
 
   const socials = [

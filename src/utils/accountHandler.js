@@ -1,11 +1,15 @@
-import { actionCreators } from 'near-api-js';
 import { EventEmitter } from 'events';
+import { createAccount, relayTransaction } from '@near-relay/client';
+import { actionCreators } from "@near-js/transactions";
 
 const passwordEmitter = new EventEmitter();
+const CREATE_ACCOUNT_URL = '/api/relayer/create-account'
+const RELAY_URL = '/api/relayer'
+const NETWORK = 'testnet'
 
-export const handleTransaction = async (contractId, methodName, args, gas, deposit, wallet = null) => {
+export const handleTransaction = async (contractId, methodName, args, gas, deposit, wallet = null, password) => {
   const storedAccounts = Object.keys(localStorage).filter(key => key.startsWith('near-account-'));
-  
+
   if (storedAccounts.length === 0 && (!wallet || !wallet.selector)) {
     throw new Error("No stored account or wallet available for transaction.");
   }
@@ -24,11 +28,6 @@ export const handleTransaction = async (contractId, methodName, args, gas, depos
     );
     
     try {
-      passwordEmitter.emit('requestPassword');
-      const password = await new Promise((resolve) => {
-        passwordEmitter.once('passwordEntered', resolve);
-      });
-
       const receipt = await relayTransaction(action, contractId, RELAY_URL, NETWORK, { password });
       console.log("Relay transaction successful!", receipt);
       return receipt;
@@ -55,18 +54,17 @@ export const handleTransaction = async (contractId, methodName, args, gas, depos
   }
 };
 
-export const handleCreateAccount = async (accountId) => {
+
+export const handleCreateAccount = async (accountId, password) => {
   try {
-    passwordEmitter.emit('requestPassword');
-    const password = await new Promise((resolve) => {
-      passwordEmitter.once('passwordEntered', resolve);
-    });
+    console.log("Creating account with ID:", accountId);
 
     const receipt = await createAccount(
       CREATE_ACCOUNT_URL,
       accountId,
-      { password }
+      { password } 
     );
+
     console.log("Account created successfully!", receipt);
     return receipt.transaction;
   } catch (error) {
@@ -88,3 +86,17 @@ export const submitPassword = (password) => {
 
 //     //WHEN SUBMITTED FORM
 //     submitPassword(password)
+
+export const fetchAccountId = () => {
+  const accountKey = Object.keys(localStorage).find(key => key.startsWith('near-account'));
+
+  const { accountId } = localStorage.getItem(accountKey);
+
+  return {
+    accountId,
+  };
+};
+
+
+
+

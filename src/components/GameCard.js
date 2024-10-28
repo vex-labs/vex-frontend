@@ -2,13 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { providers } from 'near-api-js';
 import { placeBet } from '@/utils/placebet';
 
-const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1Logo, team1Name, team2Logo, team2Name, odds1, odds2, matchId, walletBalance, wallet }) => {
+const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1Logo, team1Name, team2Logo, team2Name, odds1, odds2, matchId, walletBalance, wallet, vexAccountId }) => {
   const [isBettingMode, setIsBettingMode] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
   const [updatedOdds1, setUpdatedOdds1] = useState(odds1);
   const [updatedOdds2, setUpdatedOdds2] = useState(odds2);
   const [stake, setStake] = useState('');
   const [message, setMessage] = useState('Potential payout: $0.00');
+  const [password, setPassword] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  useEffect(() => {
+    const savedPassword = localStorage.getItem("vexPassword");
+    if (savedPassword) setPassword(savedPassword); // Set password from localStorage if available
+  }, []);
 
   const fetchMatchDetails = async () => {
     try {
@@ -81,7 +88,6 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
     }
 };
 
-
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
     setStake(newStake);
@@ -94,7 +100,7 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
   };
 
   const handlePlaceBet = async () => {
-    if (!wallet) {
+    if (!wallet && !vexAccountId) {
       setMessage("Wallet not initialized");
       return;
     }
@@ -104,15 +110,26 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       return;
     }
 
+    if (!password) {
+      setShowPasswordModal(true); // Show modal if password is not set
+      return;
+    }
+
     const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e8)).toString();
 
     try {
-      await placeBet(wallet, matchId, selectedBet === team1Name ? 'Team1' : 'Team2', betAmount);
+      await placeBet(wallet, vexAccountId, matchId, selectedBet === team1Name ? 'Team1' : 'Team2', betAmount, password);
       setMessage("Bet placed successfully!");
+      setPassword(null); // Clear password after transaction
     } catch (error) {
       console.error("Failed to place bet:", error);
       setMessage("Failed to place bet.");
     }
+  };
+
+  const handlePasswordSubmit = () => {
+    setShowPasswordModal(false); // Close the modal
+    handlePlaceBet(); // Retry placing the bet
   };
 
   useEffect(() => {
@@ -232,6 +249,24 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
           </div>
         </>
       )}
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Enter Password</h3>
+            <input
+              type="password"
+              value={password || ''}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+            />
+            <button onClick={handlePasswordSubmit}>Submit</button>
+            <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

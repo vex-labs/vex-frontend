@@ -16,10 +16,6 @@ if (typeof window !== 'undefined') {
 
 const EarnPage = () => {
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
-  const vexKeyPair = isVexLogin ? {
-    publicKey: localStorage.getItem('vexPublicKey'),
-    privateKey: localStorage.getItem('vexPrivateKey'),
-  } : null;
 
   let wallet = null;
   let signedAccountId = null;
@@ -43,7 +39,6 @@ const EarnPage = () => {
           <Swap
             wallet={wallet} 
             signedAccountId={signedAccountId} 
-            vexKeyPair={vexKeyPair} 
             isVexLogin={isVexLogin} 
           />
         </div>
@@ -52,6 +47,7 @@ const EarnPage = () => {
           <Staking
            wallet={wallet} 
            signedAccountId={signedAccountId} 
+           isVexLogin={isVexLogin} 
           />
         </div>
       </div>

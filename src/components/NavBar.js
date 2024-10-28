@@ -6,7 +6,9 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
   return (
     <nav className="nav">
       <Link href="/" legacyBehavior>
-        <a className="logo"><img src='/icons/primary_logo.png' alt='VEX' /></a>
+        <a className="logo">
+          <img src="/icons/NewPrimaryLogo.svg" alt="VEX" height="30.5" style={{ objectFit: "contain" }} />
+        </a>
       </Link>
       <div className="nav-buttons">
         {isLoggedIn ? (
@@ -27,7 +29,7 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
                     <span>Balance: Loading...</span>
                   )}
                 </div>
-                <button onClick={onVexLogout}>Log Out (VEX)</button>
+                <button onClick={onVexLogout}>Log Out</button>
               </>
             ) : (
               <>
@@ -45,7 +47,7 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
                     <span>Balance: Loading...</span>
                   )}
                 </div>
-                <button onClick={onLogout}>Log Out (NEAR)</button>
+                <button onClick={onLogout}>Log Out</button>
               </>
             )}
           </>

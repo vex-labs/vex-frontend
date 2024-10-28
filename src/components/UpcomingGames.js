@@ -11,7 +11,7 @@ if (typeof window !== 'undefined') {
   }
 }
 
-const UpcomingGames = ({ matches, additionalMatchData }) => {
+const UpcomingGames = ({ matches, additionalMatchData,vexAccountId }) => {
   let wallet = null;
 
   // Conditionally use useNear() if NearContext is available
@@ -23,6 +23,10 @@ const UpcomingGames = ({ matches, additionalMatchData }) => {
       console.error("Error accessing NearContext:", error);
     }
   }
+
+  useEffect(() => {
+    console.log("vexAccountId in UpcomingGames:", vexAccountId); // Log vexAccountId
+  }, [vexAccountId]);
 
   useEffect(() => {
     // Combine matches and additional data based on the sanitized match_id
@@ -80,6 +84,7 @@ const UpcomingGames = ({ matches, additionalMatchData }) => {
 
               matchId={match.match_id}  
               wallet={wallet} // wallet object
+              vexAccountId={vexAccountId}
             />
           );
         })}
