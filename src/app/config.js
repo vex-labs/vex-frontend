@@ -1,5 +1,5 @@
 const contractPerNetwork = {
-    testnet: "shocking-desire.testnet",
+    testnet: "sexyvexycontract.testnet",
   };
   
   export const NetworkId = "testnet";

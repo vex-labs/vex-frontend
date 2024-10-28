@@ -1,135 +1,258 @@
 import React, { useState, useEffect } from 'react';
+import { providers } from 'near-api-js';
+import { handleTransaction } from "@/utils/accountHandler";
 
-const Staking = ({ wallet, signedAccountId }) => {
+const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const [selectedOption, setSelectedOption] = useState('stake');
   const [amount, setAmount] = useState('');
   const [balance, setBalance] = useState(0);
   const [stakedBalance, setStakedBalance] = useState(0);
+  const [vexAccountId, setVexAccountId] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  const hardcodedPassword = "shuban";
 
   const tokenContractId = "token.betvex.testnet";
   const stakingContractId = "sexyvexycontract.testnet";
+  const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
-  // Fetch user's VEX balance
-const fetchBalance = async () => {
-  if (!wallet || !signedAccountId) return;
-  try {
-    const result = await wallet.account().viewFunction(
-      'token.betvex.testnet',
-      'ft_balance_of',
-      { account_id: signedAccountId }
-    );
-    setBalance(result / 1e18); // assuming 18 decimals
-  } catch (error) {
-    console.error('Error fetching balance:', error);
-  }
-};
 
-// Fetch user's staked balance
-const fetchStakedBalance = async () => {
-  if (!wallet || !signedAccountId) return;
-  try {
-    const result = await wallet.account().viewFunction(
-      'contract.betvex.testnet',
-      'get_user_staked_bal',
-      { account_id: signedAccountId }
-    );
-    setStakedBalance(result / 1e18); // assuming 18 decimals
-  } catch (error) {
-    console.error('Error fetching staked balance:', error);
-  }
-};
+  const fetchBalance = async (accountId) => {
+    try {
+      console.log("Fetching balance for accountId:", accountId);
+      const args = { account_id: accountId };
+      console.log("Formatted args for fetchBalance:", args);
 
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: tokenContractId,
+        method_name: "ft_balance_of",
+        args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+        finality: "final",
+      });
+
+      console.log("Raw result from fetchBalance:", result);
+      const balanceValue = parseFloat(result) / 1e18;
+      console.log("Parsed balanceValue:", balanceValue);
+      setBalance(balanceValue); 
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+    }
+  };
+
+  const fetchStakedBalance = async (accountId) => {
+    try {
+      console.log("Fetching staked balance for accountId:", accountId);
+      const args = { account_id: accountId };
+      console.log("Formatted args for fetchStakedBalance:", args);
+
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: stakingContractId,
+        method_name: "get_user_staked_bal",
+        args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+        finality: "final",
+      });
+
+      console.log("Raw result from fetchStakedBalance:", result);
+      const stakedBal = JSON.parse(Buffer.from(result.result).toString());
+      console.log("Parsed stakedBal:", stakedBal);
+      setStakedBalance(stakedBal / 1e18); 
+    } catch (error) {
+      console.error("Error fetching staked balance:", error);
+    }
+  };
+
+  const fetchUserStakeInfo = async (accountId) => {
+    try {
+      console.log("Fetching user stake info for accountId:", accountId);
+      const args = { account_id: accountId };
+      console.log("Formatted args for fetchUserStakeInfo:", args);
+  
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: stakingContractId,
+        method_name: "get_user_stake_info",
+        args_base64: Buffer.from(JSON.stringify(args)).toString('base64'),
+        finality: "final",
+      });
+  
+      const stakeInfo = JSON.parse(Buffer.from(result.result).toString());
+      console.log("User Stake Info:", stakeInfo);
+    } catch (error) {
+      console.error("Error fetching user stake info:", error);
+    }
+  };
 
   useEffect(() => {
-    fetchBalance();
-    fetchStakedBalance();
-  }, [signedAccountId]);
+    const initializeBalanceFetch = async () => {
+      const accountId = wallet && signedAccountId ? signedAccountId : vexAccountId;
+      if (accountId) {
+        console.log("Using accountId:", accountId);
+        await fetchBalance(accountId);
+        await fetchStakedBalance(accountId);
+        await fetchUserStakeInfo(accountId);
+      }
+    };
+
+    initializeBalanceFetch();
+  }, [signedAccountId, vexAccountId]);
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
   };
 
+  const handlePasswordSubmit = (enteredPassword) => {
+    setPassword(enteredPassword);
+    localStorage.setItem("vexPassword", enteredPassword);
+    setShowPasswordModal(false);
+  };
+
   const handleStake = async () => {
-    if (!wallet || !amount) return;
+    if (!amount) {
+      alert("Please enter an amount to stake.");
+      return;
+    }
+
+    const formattedAmount = (parseFloat(amount) * Math.pow(10, 18)).toString();
+    const msg = JSON.stringify({ action: 'AddUSDC' });
+    const gas = "100000000000000";
+    const deposit = "1";
+
     try {
-      // Prepare the message for the staking
-      const msg = JSON.stringify({ action: 'AddUSDC' });
+      if (isVexLogin) {
+        console.log("Staking with VEX login...");
 
-      console.log("Initiating staking...");
+        const transferResult = await handleTransaction(
+          tokenContractId,
+          "ft_transfer_call",
+          {
+            receiver_id: stakingContractId,
+            amount: formattedAmount,
+            msg: msg,
+          },
+          gas,
+          deposit,
+          hardcodedPassword
+        );
 
-      // Call ft_transfer_call on the token contract for staking
-      const outcome = await wallet.callMethod({
-        contractId: tokenContractId,
-        method: "ft_transfer_call",
-        args: {
-          receiver_id: stakingContractId, // The staking contract that will handle ft_on_transfer
-          amount: (amount * 1e18).toString(), // The amount of tokens to transfer
-          msg: msg, // The message to pass to the staking contract
-        },
-        gas: "100000000000000", // 100 Tgas
-        deposit: "1", // 1 yoctoNEAR
-      });
+        console.log("ft_transfer_call result for staking:", transferResult);
 
-      console.log("Staking successful!", outcome);
+        if (transferResult && !transferResult.error) {
+          const stakeAllResult = await handleTransaction(
+            stakingContractId,
+            "stake_all",
+            {},
+            gas,
+            deposit,
+            hardcodedPassword
+          );
+          console.log("Stake all completed successfully with VEX login!", stakeAllResult);
+        }
+      } else {
+        console.log("Staking with NEAR wallet...");
+        const transferResult = await wallet.callMethod({
+          contractId: tokenContractId,
+          method: "ft_transfer_call",
+          args: {
+            receiver_id: stakingContractId,
+            amount: formattedAmount,
+            msg: msg,
+          },
+          gas,
+          deposit,
+        });
 
-      // After transfer is successful, call stake_all
-      await wallet.callMethod({
-        contractId: stakingContractId,
-        method: "stake_all",
-        args: {},
-        gas: "100000000000000", // 100 Tgas
-        deposit: "1", // 1 yoctoNEAR
-      });
+        console.log("ft_transfer_call result for staking with NEAR wallet:", transferResult);
 
-      console.log("Stake all completed successfully");
+        if (transferResult && !transferResult.error) {
+          const stakeAllResult = await wallet.callMethod({
+            contractId: stakingContractId,
+            method: "stake_all",
+            args: {},
+            gas,
+            deposit,
+          });
+          console.log("Stake all completed successfully with NEAR wallet!", stakeAllResult);
+        }
+      }
     } catch (error) {
-      console.error('Error staking:', error.message || error);
+      console.error('Error during staking process:', error);
     }
   };
 
   const handleUnstake = async () => {
-    if (!wallet || !amount) return;
+    if (!amount) {
+      alert("Please enter an amount to unstake.");
+      return;
+    }
+
+    const formattedAmount = (parseFloat(amount) * Math.pow(10, 18)).toString();
+    const gas = "100000000000000";
+    const deposit = "1";
+
     try {
-      console.log("Initiating unstaking...");
+      if (isVexLogin) {
+        console.log("Unstaking with VEX login...");
 
-      // Call unstake on the staking contract
-      await wallet.callMethod({
-        contractId: stakingContractId,
-        method: "unstake",
-        args: {
-          amount: (amount * 1e18).toString(),
-        },
-        gas: "100000000000000", // 100 Tgas
-        deposit: "1", // 1 yoctoNEAR
-      });
+        const unstakeResult = await handleTransaction(
+          stakingContractId,
+          "unstake",
+          { amount: formattedAmount },
+          gas,
+          deposit,
+          hardcodedPassword
+        );
 
-      console.log("Unstaking successful!");
+        console.log("Unstake result with VEX login:", unstakeResult);
 
-      // After unstaking is successful, call withdraw_all
-      await wallet.callMethod({
-        contractId: stakingContractId,
-        method: "withdraw_all",
-        args: {},
-        gas: "100000000000000", // 100 Tgas
-        deposit: "1", // 1 yoctoNEAR
-      });
+        if (unstakeResult && !unstakeResult.error) {
+          const withdrawResult = await handleTransaction(
+            stakingContractId,
+            "withdraw_all",
+            {},
+            gas,
+            deposit,
+            hardcodedPassword
+          );
+          console.log("Withdraw all completed successfully with VEX login!", withdrawResult);
+        }
+      } else {
+        console.log("Unstaking with NEAR wallet...");
 
-      console.log("Withdraw all completed successfully");
+        const unstakeResult = await wallet.callMethod({
+          contractId: stakingContractId,
+          method: "unstake",
+          args: { amount: formattedAmount },
+          gas,
+          deposit,
+        });
+
+        console.log("Unstake result with NEAR wallet:", unstakeResult);
+
+        if (unstakeResult && !unstakeResult.error) {
+          const withdrawResult = await wallet.callMethod({
+            contractId: stakingContractId,
+            method: "withdraw_all",
+            args: {},
+            gas,
+            deposit,
+          });
+          console.log("Withdraw all completed successfully with NEAR wallet!", withdrawResult);
+        }
+      }
     } catch (error) {
-      console.error('Error unstaking:', error.message || error);
+      console.error('Error during unstaking process:', error);
     }
   };
 
-  const handleStakeAll = () => {
-    setAmount(balance); // Set the input box to user's VEX balance
-  };
-
-  const handleUnstakeAll = () => {
-    setAmount(stakedBalance); // Set the input box to user's staked balance
-  };
 
   return (
     <div className="staking-container">
+      <button className="confirm-button">
+        Redistribute rewards
+      </button>
       <div className="staking-header">
         <label>
           <input
@@ -151,13 +274,11 @@ const fetchStakedBalance = async () => {
         </label>
       </div>
 
-      {/* Display user's current balance and staked balance */}
       <div className="staking-statistics">
         <p>Your Balance: {balance} VEX</p>
         <p>Your Staked Balance: {stakedBalance} VEX</p>
       </div>
 
-      {/* VEX Token Input */}
       <div className="token-box">
         <input
           type="number"
@@ -168,16 +289,26 @@ const fetchStakedBalance = async () => {
         />
       </div>
 
-      {/* Balance Info with buttons */}
-      <div className="balance-info">
-        <button onClick={handleStakeAll}>Stake All</button>
-        <button onClick={handleUnstakeAll}>Unstake All</button>
-      </div>
-
-      {/* Confirm Button */}
       <button className="confirm-button" onClick={selectedOption === 'stake' ? handleStake : handleUnstake}>
         Confirm {selectedOption}
       </button>
+
+
+      {showPasswordModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Enter Password</h3>
+            <input
+              type="password"
+              value={password || ''}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password"
+            />
+            <button onClick={handlePasswordSubmit}>Submit</button>
+            <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

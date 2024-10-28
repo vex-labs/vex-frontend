@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
 import Sidebar from '@/components/Sidebar';
 import FeaturedGames from '@/components/FeaturedGames';
 import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
 import { providers } from 'near-api-js';
-import FaucetSection from '@/components/Faucet';
 import { fetchMatchesByIDs } from '@/utils/fetchMatches';
 
-// Conditional useNear import
 let useNear;
 if (typeof window !== 'undefined') {
   useNear = require('@/app/context/NearContext').useNear;
@@ -18,10 +16,17 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
   const [matches, setMatches] = useState([]);
   const [additionalMatchData, setAdditionalMatchData] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
+  const [vexAccountId, setVexAccountId] = useState(null); // Initialize vexAccountId with useState
 
-  let signedAccountId = null;
+  useEffect(() => {
+    // Fetch vexAccountId from localStorage on component mount
+    const storedVexAccountId = localStorage.getItem("vexAccountId");
+    console.log("vexAccountId from local storage:", storedVexAccountId);
+    setVexAccountId(storedVexAccountId); // Set the state with the stored value
+  }, []);
 
   // Conditionally use NearContext only if not using VEX and ensure it doesn't throw errors
+  let signedAccountId = null;
   if (!isVexLogin && useNear) {
     try {
       const nearContext = useNear();
@@ -34,9 +39,6 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
   const handleGameSelection = (game) => {
     setSelectedGame(game);
   };
-
-  // Determine if logged in with NEAR or VEX
-  const accountId = isVexLogin ? vexKeyPair?.publicKey : signedAccountId;
 
   // Fetch matches from the blockchain (NEAR)
   useEffect(() => {
@@ -66,7 +68,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
 
   useEffect(() => {
     const fetchAdditionalMatchData = async () => {
-      if (matches.length === 0) return;  // Don't fetch if there are no matches
+      if (matches.length === 0) return;
 
       const matchIDs = matches.map(match => match.match_id).filter(Boolean);
 
@@ -95,13 +97,15 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     <div className="container">
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
-        <FaucetSection className="faucet-section" />
         <div className="content-wrapper">
           <FeaturedGames matches={matches} />
-          <UpcomingGames 
-            matches={filteredMatches} 
-            additionalMatchData={filteredAdditionalData}
-          />
+          
+            <UpcomingGames 
+              matches={filteredMatches} 
+              additionalMatchData={filteredAdditionalData}
+              vexAccountId={vexAccountId} // Pass updated vexAccountId as a prop
+            />
+          
         </div>
       </div>
     </div>
