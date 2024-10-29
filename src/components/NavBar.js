@@ -16,12 +16,12 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
             {isVexLogin ? (
               <>
                 <div className="wallet-balance">
-                {Object.keys(walletBalance).length > 0 ? (
+                  {Object.keys(walletBalance).length > 0 ? (
                     <ul>
-                      {/* Loop through tokenBalances and display each balance */}
                       {Object.entries(walletBalance).map(([token, balance]) => (
                         <li key={token}>
-                          {token}: {balance}
+                          <img src={`/icons/${token}.svg`} alt={`${token} icon`} className="token-icon" />
+                          <span className="token-balance">{balance}</span>
                         </li>
                       ))}
                     </ul>

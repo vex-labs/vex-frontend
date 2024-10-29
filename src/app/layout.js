@@ -5,13 +5,23 @@ import { NearContext } from "@/app/context/NearContext";
 import { Wallet } from "./wallet/Wallet";
 import { NetworkId, GuestbookNearContract } from "./config";
 import NavBar from "@/components/NavBar"; 
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { providers, utils } from 'near-api-js';
 import { handleCreateAccount, fetchAccountId } from "@/utils/accountHandler";
 import VexLoginPrompt from "@/components/VexLoginPrompt";
+import { Exo, Asap } from '@next/font/google';
+import Head from 'next/head';
 
-const inter = Inter({ subsets: ["latin"] });
+const exo = Exo({
+  subsets: ['latin'],
+  weight: ['400', '700'], // adjust as needed
+});
+
+// Import Asap with desired weights
+const asap = Asap({
+  subsets: ['latin'],
+  weight: ['400', '700'], // adjust as needed
+});
 
 export default function RootLayout({ children }) {
   const [signedAccountId, setSignedAccountId] = useState("");
@@ -20,6 +30,7 @@ export default function RootLayout({ children }) {
 
 
   const tokenContracts = [
+    
     { name: 'USDC', address: 'usdc.betvex.testnet' },
     { name: 'VEX', address: 'token.betvex.testnet' },
   ];
@@ -149,8 +160,16 @@ export default function RootLayout({ children }) {
   
 
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en"
+    style={{
+      "--font-primary": asap.style.fontFamily,
+      "--font-heading": exo.style.fontFamily,
+    }}>
+      <Head>
+        <title>BetVex | App</title>
+        <meta name="description" content="BetVex Esports by Vex Labs" />
+      </Head>
+      <body className={asap.className}>
         {localStorage.getItem("isVexLogin") === "true" ? (
           <>
             <NavBar

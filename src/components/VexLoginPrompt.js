@@ -9,7 +9,7 @@ const VexLoginPrompt = ({ onLoginSuccess, handleVexLogin }) => {
     try {
       await handleVexLogin(username, savePassword ? password : null);
       if (savePassword) localStorage.setItem("vexPassword", password);
-      onLoginSuccess(`${username.toLowerCase()}.testnet`);
+      onLoginSuccess(`${username.toLowerCase()}.betvex.testnet`);
     } catch (error) {
       console.error("Failed to create VEX account:", error);
     }
@@ -17,19 +17,29 @@ const VexLoginPrompt = ({ onLoginSuccess, handleVexLogin }) => {
 
   return (
     <div className="vex-login-prompt">
+      <h3>Login with VEX</h3>
+      
+      <label htmlFor="username">Username</label>
+      <div className="username-input">
+        <input
+          id="username"
+          type="text"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <span className="username-suffix">.betvex.testnet</span>
+      </div>
+
+      <label htmlFor="password">Password</label>
       <input
-        type="text"
-        placeholder="Enter username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="text"
+        id="password"
+        type="password"
         placeholder="Enter password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <label>
+      <label className="save-password">
         <input
           type="checkbox"
           checked={savePassword}
@@ -37,7 +47,7 @@ const VexLoginPrompt = ({ onLoginSuccess, handleVexLogin }) => {
         />
         Save password for transactions
       </label>
-      <button onClick={handleLogin}>Login with VEX</button>
+      <button onClick={handleLogin}>create account</button>
     </div>
   );
 };

@@ -3,6 +3,7 @@ import FAQ from '@/components/Faq';
 import "./earn.css";
 import Staking from '@/components/Stake';
 import Swap from '@/components/Swap';
+import Sidebar2 from '@/components/Sidebar2';
 
 let useNear;
 if (typeof window !== 'undefined') {
@@ -34,6 +35,7 @@ const EarnPage = () => {
 
   return (
     <div className='earn-page'>
+      <Sidebar2 />
       <div className="earn-container">
         <div className="swap-section">
           <Swap
@@ -51,10 +53,11 @@ const EarnPage = () => {
           />
         </div>
       </div>
-  
+      {/* 
       <div className="faq-section">
         <FAQ />
       </div>
+      */}
     </div>
   );
 };
