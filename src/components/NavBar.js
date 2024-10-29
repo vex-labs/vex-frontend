@@ -1,8 +1,11 @@
 "use client";
 
 import Link from 'next/link';
+import { useGlobalContext } from '../app/context/GlobalContext';
 
-const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVexLogout, isVexLogin }) => {
+const NavBar = ({ isLoggedIn, onLogin, onLogout, onVexLogin, onVexLogout, isVexLogin }) => {
+  const { tokenBalances } = useGlobalContext();
+
   return (
     <nav className="nav">
       <Link href="/" legacyBehavior>
@@ -16,9 +19,9 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
             {isVexLogin ? (
               <>
                 <div className="wallet-balance">
-                  {Object.keys(walletBalance).length > 0 ? (
+                  {Object.keys(tokenBalances).length > 0 ? (
                     <ul>
-                      {Object.entries(walletBalance).map(([token, balance]) => (
+                      {Object.entries(tokenBalances).map(([token, balance]) => (
                         <li key={token}>
                           <img src={`/icons/${token}.svg`} alt={`${token} icon`} className="token-icon" />
                           <span className="token-balance">{balance}</span>
@@ -34,10 +37,10 @@ const NavBar = ({ isLoggedIn, walletBalance, onLogin, onLogout, onVexLogin, onVe
             ) : (
               <>
                 <div className="wallet-balance">
-                  {Object.keys(walletBalance).length > 0 ? (
+                  {Object.keys(tokenBalances).length > 0 ? (
                     <ul>
                       {/* Loop through tokenBalances and display each balance */}
-                      {Object.entries(walletBalance).map(([token, balance]) => (
+                      {Object.entries(tokenBalances).map(([token, balance]) => (
                         <li key={token}>
                           {token}: {balance}
                         </li>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { providers } from 'near-api-js';
 import { handleTransaction } from "@/utils/accountHandler";
+import { useGlobalContext } from '@/app/context/GlobalContext';
 
 const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const [selectedOption, setSelectedOption] = useState('stake');
@@ -17,6 +18,12 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const tokenContractId = "token.betvex.testnet";
   const stakingContractId = "sexyvexycontract.testnet";
   const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+
+  const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
+
+  useEffect(() => {
+    setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
+  }, [tokenBalances]);
 
   useEffect(() => {
     const savedPassword = localStorage.getItem("vexPassword");
@@ -43,7 +50,6 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     const accountId = signedAccountId || vexAccountId;
     
     if (accountId) {
-      fetchBalance(accountId)
       fetchStakedBalance(accountId)
       rewards_ready_to_swap(stakingContractId)
     } else {
@@ -194,12 +200,13 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
                 if (stakeResult && !stakeResult.error) {
                     setMessage("Stake transaction successful.");
                     setRefreshBalances((prev) => !prev); // Trigger balance refresh
+                    toggleRefreshBalances();
                 } else {
-                    setMessage("Stake transaction failed. Please try again.");
+                    setMessage("Failed to stake. Please try again.");
                     console.error("Stake transaction failed:", stakeResult.error);
                 }
             } else {
-                setMessage("Deposit transaction failed. Please try again.");
+                setMessage("Failed to deposit. Please try again.");
                 console.error("Deposit transaction failed:", depositResult.error);
             }
         } else {
@@ -223,14 +230,15 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
                 });
 
                 if (stakeResult && !stakeResult.error) {
-                    setMessage("Stake transaction successful.");
+                    setMessage("Stake successful!");
                     setRefreshBalances((prev) => !prev); // Trigger balance refresh
+                    toggleRefreshBalances();
                 } else {
-                    setMessage("Stake transaction failed. Please try again.");
+                    setMessage("Failed to stake. Please try again.");
                     console.error("Stake transaction failed:", stakeResult.error);
                 }
             } else {
-                setMessage("Deposit transaction failed. Please try again.");
+                setMessage("Failed to deposit. Please try again.");
                 console.error("Deposit transaction failed:", depositResult.error);
             }
         }
@@ -284,12 +292,13 @@ const handleUnstake = async () => {
               if (withdrawResult && !withdrawResult.error) {
                   setMessage("Withdraw transaction successful.");
                   setRefreshBalances((prev) => !prev); // Trigger balance refresh
-              } else {
+                  toggleRefreshBalances();
+                } else {
                   setMessage("Withdraw transaction failed. Please try again.");
                   console.error("Withdraw transaction failed:", withdrawResult.error);
               }
           } else {
-              setMessage("Unstake transaction failed. Please try again.");
+              setMessage("Failed to unstake. Please try again.");
               console.error("Unstake transaction failed:", unstakeResult.error);
           }
       } else {
@@ -313,14 +322,15 @@ const handleUnstake = async () => {
               });
 
               if (withdrawResult && !withdrawResult.error) {
-                  setMessage("Withdraw transaction successful.");
+                  setMessage("Withdraw successful!");
                   setRefreshBalances((prev) => !prev); // Trigger balance refresh
-              } else {
-                  setMessage("Withdraw transaction failed. Please try again.");
-                  console.error("Withdraw transaction failed:", withdrawResult.error);
+                  toggleRefreshBalances();
+                } else {
+                  setMessage("Withdraw failed. Please try again.");
+                  console.error("Failed to withdraw:", withdrawResult.error);
               }
           } else {
-              setMessage("Unstake transaction failed. Please try again.");
+              setMessage("Failed to unstake. Please try again.");
               console.error("Unstake transaction failed:", unstakeResult.error);
           }
       }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { swapTokens } from '@/utils/swapTokens';
 import { handleTransaction } from '@/utils/accountHandler';
+import { useGlobalContext } from '../app/context/GlobalContext';
 import { providers } from 'near-api-js';
 
 const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
@@ -10,16 +11,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const [swapDirection, setSwapDirection] = useState(true); // true = VEX → USDC, false = USDC → VEX
   const [password, setPassword] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [message, setMessage] = useState(''); 
-  const [tokenBalances, setTokenBalances] = useState({ USDC: '0', VEX: '0' });
-  const [refreshBalances, setRefreshBalances] = useState(false);
+  const [message, setMessage] = useState('');
 
-
-  const tokenContracts = [
-    
-    { name: 'USDC', address: 'usdc.betvex.testnet' },
-    { name: 'VEX', address: 'token.betvex.testnet' },
-  ];
+  // Use global context for token balances and refresh function
+  const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
   useEffect(() => {
     const savedPassword = localStorage.getItem("vexPassword");
@@ -27,51 +22,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       setPassword(savedPassword);
     }
   }, []);
-
-  useEffect(() => {
-    const accountId = localStorage.getItem("isVexLogin") === "true" ? localStorage.getItem("vexAccountId") : signedAccountId;
-
-    if (accountId) {
-      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-
-      const fetchBalances = async () => {
-        const balances = {};
-        for (const token of tokenContracts) {
-          try {
-            if (token.name === "NEAR") {
-              const accountBalance = await provider.query({
-                request_type: "view_account",
-                finality: "final",
-                account_id: accountId,
-              });
-              const balanceInNear = utils.format.formatNearAmount(accountBalance.amount, 2);
-              balances[token.name] = balanceInNear;
-            } else {
-              const args = { account_id: accountId };
-              const result = await provider.query({
-                request_type: "call_function",
-                account_id: token.address,
-                method_name: "ft_balance_of",
-                args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
-                finality: "final",
-              });
-
-              const balance = JSON.parse(Buffer.from(result.result).toString());
-              const decimals = token.name === "USDC" ? 6 : 18;
-              const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(2);
-              balances[token.name] = formattedBalance;
-            }
-          } catch (error) {
-            console.error(`Failed to fetch balance for ${token.name}:`, error);
-            balances[token.name] = "0";
-          }
-        }
-        setTokenBalances(balances);
-      };
-
-      fetchBalances();
-    }
-  }, [signedAccountId, refreshBalances]);
 
   const handlePercentageClick = async (percentage) => {
     const balance = swapDirection ? tokenBalances.VEX : tokenBalances.USDC;
@@ -84,7 +34,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         setUsdcAmount(newAmount);
         await getOutputAmount(newAmount); // Calculate VEX equivalent
     }
-};
+  };
 
   const getOutputAmount = async (inputAmount) => {
     try {
@@ -170,6 +120,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       const outcome = await swapTokens(wallet, swapDirection, formattedAmount);
       alert('Swap Successful!');
       console.log('Swap outcome:', outcome);
+      toggleRefreshBalances(); // Trigger balance refresh after a successful transaction
     } catch (error) {
       console.error('Swap failed:', error.message || error);
       alert('Swap Failed.');
@@ -230,7 +181,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       );
       console.log("Swap Successful:", outcome);
       setMessage("Swap Successful!");
-      setRefreshBalances((prev) => !prev); // Trigger balance refresh
+      toggleRefreshBalances(); // Trigger balance refresh after successful transaction
     } catch (error) {
       console.error("Swap failed:", error);
       setMessage("Swap Failed.");
@@ -242,7 +193,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     localStorage.setItem("vexPassword", enteredPassword);
     setShowPasswordModal(false);
     handleVexSwap();
-    localStorage.removeItem('vexPassword')
+    localStorage.removeItem('vexPassword');
     setPassword(null);
   };
 
@@ -305,7 +256,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           </div>
           </div>
           
-            
         <input
           type="text"
           placeholder="Estimated"
@@ -341,6 +291,5 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     </div>
   );
 };
-
 
 export default Swap;
