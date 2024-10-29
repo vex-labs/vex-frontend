@@ -3,9 +3,8 @@ import { useEffect, useState } from 'react';
 import { providers } from 'near-api-js';
 import "./user.css";
 import UserBets from '@/components/Userbets';
-import { handleTransaction } from "@/utils/accountHandler"; 
-
-// lacks password modal, does not fetch password, yet propts a security key
+import { handleTransaction } from "@/utils/accountHandler";
+import Sidebar2 from '@/components/Sidebar2';
 
 let useNear;
 if (typeof window !== 'undefined') {
@@ -39,10 +38,20 @@ const UserPage = () => {
   }
 
   const [userBets, setUserBets] = useState([]);
+  const [matchDetails, setMatchDetails] = useState({});
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet"); // Default token
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
+  const [password, setPassword] = useState(null);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  useEffect(() => {
+    const savedPassword = localStorage.getItem("vexPassword");
+    if (savedPassword) {
+      setPassword(savedPassword);
+    }
+  }, []);
 
   useEffect(() => {
     const fetchUserBets = async () => {
@@ -64,8 +73,43 @@ const UserPage = () => {
         const decodedResult = JSON.parse(Buffer.from(userBets.result).toString());
         console.log("User Bets:", decodedResult);
         setUserBets(decodedResult);
+
+        // Fetch match details for each unique match_id in userBets
+        decodedResult.forEach(([betId, bet]) => {
+          const { match_id } = bet;
+          if (!matchDetails[match_id]) {
+            fetchMatchDetails(match_id);
+          }
+        });
       } catch (error) {
         console.error("Failed to fetch user bets:", error);
+      }
+    };
+
+    const fetchMatchDetails = async (matchId) => {
+      try {
+        const contractId = "sexyvexycontract.testnet";
+        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+
+        // Wrap args in JSON and convert to base64
+        const args = JSON.stringify({ match_id: matchId });
+        const matchDetails = await provider.query({
+          request_type: "call_function",
+          account_id: contractId,
+          method_name: "get_match",
+          args_base64: Buffer.from(args).toString("base64"),
+          finality: "final",
+        });
+        const decodedResult = JSON.parse(Buffer.from(matchDetails.result).toString());
+        console.log("Match Details:", decodedResult);
+
+        // Update match details state
+        setMatchDetails(prevDetails => ({
+          ...prevDetails,
+          [matchId]: decodedResult,
+        }));
+      } catch (error) {
+        console.error("Failed to fetch match details:", error);
       }
     };
 
@@ -74,20 +118,39 @@ const UserPage = () => {
     }
   }, [signedAccountId]);
 
+  const handlePasswordSubmit = (enteredPassword) => {
+    setPassword(enteredPassword);
+    localStorage.setItem("vexPassword", enteredPassword);
+    setShowPasswordModal(false);
+    handleWithdrawFunds();
+    localStorage.removeItem('vexPassword')
+    setPassword(null);
+  };
   // Handle the withdraw funds action
   const handleWithdrawFunds = async () => {
-    const formattedAmount = (parseFloat(withdrawAmount) * Math.pow(10, 18)).toString(); // Assuming 18 decimals for VEX
+
+    if (!password) {
+      setShowPasswordModal(true);
+      return;
+    }
+
+    // Determine decimals based on the token type
+    const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
+    // Convert the amount to the correct format using BigInt to avoid scientific notation
+    const formattedAmount = BigInt(parseFloat(withdrawAmount) * Math.pow(10, decimals)).toString();
+  
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR
-    
+  
     try {
       const result = await handleTransaction(
         withdrawToken,
-        "transfer",
+        "ft_transfer",
         { receiver_id: recipientAddress, amount: formattedAmount },
         gas,
         deposit,
-        isVexLogin ? "hardcoded_password_value" : undefined
+        null,
+        password
       );
       console.log("Withdrawal successful:", result);
       alert("Withdrawal Successful!");
@@ -97,9 +160,11 @@ const UserPage = () => {
       alert("Withdrawal Failed.");
     }
   };
-
+  
+  
   return (
     <div className="user-page">
+      <Sidebar2 />
       <div className="user-content">
         {/* Account Details */}
         <section className="account-details">
@@ -138,40 +203,70 @@ const UserPage = () => {
 
         {/* Withdraw Funds Modal */}
         {showWithdrawModal && (
-          <div className="modal">
-            <div className="modal-content">
+          <div className="withdraw-modal">
+            <div className="withdraw-modal-content">
               <h3>Withdraw Funds</h3>
-              <label>
+              
+              <label className="withdraw-label">
                 Token:
-                <select value={withdrawToken} onChange={(e) => setWithdrawToken(e.target.value)}>
+                <select 
+                  value={withdrawToken} 
+                  onChange={(e) => setWithdrawToken(e.target.value)}
+                  className="withdraw-select"
+                >
                   <option value="usdc.betvex.testnet">USDC</option>
                   <option value="token.betvex.testnet">VEX</option>
                 </select>
               </label>
-              <label>
+              
+              <label className="withdraw-label">
                 Amount:
                 <input
                   type="number"
                   value={withdrawAmount}
                   onChange={(e) => setWithdrawAmount(e.target.value)}
                   placeholder="Enter amount"
+                  className="withdraw-input"
                 />
               </label>
-              <label>
+              
+              <label className="withdraw-label">
                 Recipient Address:
                 <input
                   type="text"
                   value={recipientAddress}
                   onChange={(e) => setRecipientAddress(e.target.value)}
                   placeholder="Enter recipient address"
+                  className="withdraw-input"
                 />
               </label>
-              <button onClick={handleWithdrawFunds}>Confirm Withdrawal</button>
-              <button onClick={() => setShowWithdrawModal(false)}>Cancel</button>
+              
+              <div className="withdraw-modal-buttons">
+                <button onClick={() => setShowWithdrawModal(false)} className="withdraw-button cancel-button">Cancel</button>
+                <button onClick={handleWithdrawFunds} className="withdraw-button confirm-button"> Withdraw</button>
+                
+              </div>
             </div>
           </div>
         )}
+
       </div>
+      {showPasswordModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Enter Password</h3>
+            <input
+              type="password"
+              value={password || ''}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="modal-buttons">
+              <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+              <button onClick={handlePasswordSubmit}>Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

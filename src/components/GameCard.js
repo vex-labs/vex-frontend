@@ -49,44 +49,49 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
 
   const fetchPotentialWinnings = async () => {
     try {
-      if (!stake || parseFloat(stake) <= 0) {
-        setMessage("Invalid stake amount");
-        return;
-      }
+        // Convert stake to a number first to avoid invalid inputs
+        const stakeAmount = parseFloat(stake);
 
-      const contractId = "sexyvexycontract.testnet";
-      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        if (isNaN(stakeAmount) || stakeAmount <= 0) {
+            setMessage("Invalid stake amount");
+            return;
+        }
 
-      // Convert stake from USDC (with 6 decimal places) to yocto
-      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6 * 1e18)).toString(); 
+        const contractId = "sexyvexycontract.testnet";
+        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
-      const args = JSON.stringify({
-        match_id: matchId,
-        team: selectedBet === team1Name ? 'Team1' : 'Team2', 
-        bet_amount: betAmount
-      });
+        // Multiply the stake by 1e6 to match 6-decimal precision
+        const betAmount = (BigInt(Math.floor(stakeAmount * 1e6))).toString();
 
-      const potentialWinnings = await provider.query({
-        request_type: "call_function",
-        account_id: contractId,
-        method_name: "get_potential_winnings",
-        args_base64: Buffer.from(args).toString('base64'),
-        finality: "final"
-      });
+        const args = JSON.stringify({
+            match_id: matchId,
+            team: selectedBet === team1Name ? 'Team1' : 'Team2', 
+            bet_amount: betAmount
+        });
 
-      // Decode and convert winnings from yocto to USDC
-      const winningsYocto = JSON.parse(Buffer.from(potentialWinnings.result).toString());
-      const winningsUSDC = parseFloat(winningsYocto) / 1e6 / 1e6;  // Convert from yocto to USDC
+        const potentialWinnings = await provider.query({
+            request_type: "call_function",
+            account_id: contractId,
+            method_name: "get_potential_winnings",
+            args_base64: Buffer.from(args).toString('base64'),
+            finality: "final"
+        });
 
-      // Round to 2 decimal places
-      const roundedWinnings = winningsUSDC.toFixed(2);
+        // Decode the u128 response and convert back to USDC format
+        const winningsRaw = BigInt(JSON.parse(Buffer.from(potentialWinnings.result).toString()));
+        const winningsUSDC = Number(winningsRaw) / 1e5;
 
-      setMessage(`Potential payout: $${roundedWinnings}`);
+        // Round to 2 decimal places for display in USDC
+        const roundedWinnings = winningsUSDC.toFixed(2);
+
+        setMessage(`Potential payout: $${roundedWinnings}`);
     } catch (error) {
-      console.error("Failed to fetch potential winnings:", error);
-      setMessage("Error calculating potential winnings.");
+        console.error("Failed to fetch potential winnings:", error);
+        setMessage("Error calculating potential winnings.");
     }
 };
+
+
 
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
@@ -115,7 +120,7 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       return;
     }
 
-    const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e8)).toString();
+    const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString();
 
     try {
       await placeBet(wallet, vexAccountId, matchId, selectedBet === team1Name ? 'Team1' : 'Team2', betAmount, password);
@@ -251,21 +256,24 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       )}
 
       {/* Password Modal */}
-      {showPasswordModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Enter Password</h3>
-            <input
-              type="password"
-              value={password || ''}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
-            />
-            <button onClick={handlePasswordSubmit}>Submit</button>
-            <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+        {showPasswordModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3>Enter Password</h3>
+              <input
+                type="password"
+                value={password || ''}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=""
+              />
+              <div className="modal-buttons">
+                <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+                <button onClick={handlePasswordSubmit}>Submit</button>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
 
     </div>
   );

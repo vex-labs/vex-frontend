@@ -40,6 +40,10 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     setSelectedGame(game);
   };
 
+  const resetGameSelection = () => {
+    setSelectedGame(null);
+  };
+
   // Fetch matches from the blockchain (NEAR)
   useEffect(() => {
     const fetchMatches = async () => {
@@ -97,9 +101,16 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     <div className="container">
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
+      <div className="hero-section">
+          <img src="/icons/newBannerHD.svg" alt="Hero Banner" className="hero-banner" />
+        </div>
         <div className="content-wrapper">
           <FeaturedGames matches={matches} />
-          
+          {selectedGame && (
+            <button onClick={resetGameSelection} className="remove-filters-button">
+              Remove Filters
+            </button>
+          )}
             <UpcomingGames 
               matches={filteredMatches} 
               additionalMatchData={filteredAdditionalData}

@@ -10,6 +10,16 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const [swapDirection, setSwapDirection] = useState(true); // true = VEX → USDC, false = USDC → VEX
   const [password, setPassword] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [message, setMessage] = useState(''); 
+  const [tokenBalances, setTokenBalances] = useState({ USDC: '0', VEX: '0' });
+  const [refreshBalances, setRefreshBalances] = useState(false);
+
+
+  const tokenContracts = [
+    
+    { name: 'USDC', address: 'usdc.betvex.testnet' },
+    { name: 'VEX', address: 'token.betvex.testnet' },
+  ];
 
   useEffect(() => {
     const savedPassword = localStorage.getItem("vexPassword");
@@ -17,6 +27,64 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       setPassword(savedPassword);
     }
   }, []);
+
+  useEffect(() => {
+    const accountId = localStorage.getItem("isVexLogin") === "true" ? localStorage.getItem("vexAccountId") : signedAccountId;
+
+    if (accountId) {
+      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+
+      const fetchBalances = async () => {
+        const balances = {};
+        for (const token of tokenContracts) {
+          try {
+            if (token.name === "NEAR") {
+              const accountBalance = await provider.query({
+                request_type: "view_account",
+                finality: "final",
+                account_id: accountId,
+              });
+              const balanceInNear = utils.format.formatNearAmount(accountBalance.amount, 2);
+              balances[token.name] = balanceInNear;
+            } else {
+              const args = { account_id: accountId };
+              const result = await provider.query({
+                request_type: "call_function",
+                account_id: token.address,
+                method_name: "ft_balance_of",
+                args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
+                finality: "final",
+              });
+
+              const balance = JSON.parse(Buffer.from(result.result).toString());
+              const decimals = token.name === "USDC" ? 6 : 18;
+              const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(2);
+              balances[token.name] = formattedBalance;
+            }
+          } catch (error) {
+            console.error(`Failed to fetch balance for ${token.name}:`, error);
+            balances[token.name] = "0";
+          }
+        }
+        setTokenBalances(balances);
+      };
+
+      fetchBalances();
+    }
+  }, [signedAccountId, refreshBalances]);
+
+  const handlePercentageClick = async (percentage) => {
+    const balance = swapDirection ? tokenBalances.VEX : tokenBalances.USDC;
+    const newAmount = (balance * percentage).toFixed(2);
+
+    if (swapDirection) {
+        setVexAmount(newAmount);
+        await getOutputAmount(newAmount); // Calculate USDC equivalent
+    } else {
+        setUsdcAmount(newAmount);
+        await getOutputAmount(newAmount); // Calculate VEX equivalent
+    }
+};
 
   const getOutputAmount = async (inputAmount) => {
     try {
@@ -122,7 +190,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     console.log("Input Amount for Swap:", tokenAmount);
 
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
-      alert('Invalid swap amount.');
+      setMessage('Invalid swap amount.');
       return;
     }
 
@@ -161,10 +229,11 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         password
       );
       console.log("Swap Successful:", outcome);
-      alert("Swap Successful!");
+      setMessage("Swap Successful!");
+      setRefreshBalances((prev) => !prev); // Trigger balance refresh
     } catch (error) {
       console.error("Swap failed:", error);
-      alert("Swap Failed.");
+      setMessage("Swap Failed.");
     }
   };
 
@@ -173,6 +242,8 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     localStorage.setItem("vexPassword", enteredPassword);
     setShowPasswordModal(false);
     handleVexSwap();
+    localStorage.removeItem('vexPassword')
+    setPassword(null);
   };
 
   const handleSwap = () => {
@@ -197,9 +268,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
 
   return (
     <div className="swap-container">
-      <button onClick={toggleSwapDirection}>Switch to {swapDirection ? 'USDC to VEX' : 'VEX to USDC'}</button>
+      <h2 className="swap-heading">Swap </h2>
+      
       <div className="token-box">
-        <div className="token-info">
+      <div className="token-info">
           <img src={swapDirection ? "/icons/g12.svg" : "/icons/usdc-logo.svg"} alt={swapDirection ? "VEX Token Logo" : "USDC Token Logo"} className="token-logo" />
           <div>
             <p className="token-name">{swapDirection ? 'VEX' : 'USDC'}</p>
@@ -213,42 +285,62 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           className="token-input"
         />
       </div>
+      <div className="balance-info">
+        <span className="balance">Balance: {swapDirection ? tokenBalances.VEX : tokenBalances.USDC}</span>
+        <div className="percentage-options">
+          <span onClick={() => handlePercentageClick(0.25)}>25%</span>
+          <span onClick={() => handlePercentageClick(0.5)}>50%</span>
+          <span onClick={() => handlePercentageClick(0.75)}>75%</span>
+          <span onClick={() => handlePercentageClick(1)}>100%</span>
+        </div>
+      </div>
+
+      <div className="swap-icon" onClick={toggleSwapDirection}>⇄</div>
 
       <div className="token-box">
-        <div className="token-info">
+      <div className="token-info">
           <img src={swapDirection ? "/icons/usdc-logo.svg" : "/icons/g12.svg"} alt={swapDirection ? "USDC Token Logo" : "VEX Token Logo"} className="token-logo" />
           <div>
             <p className="token-name">{swapDirection ? 'USDC' : 'VEX'}</p>
           </div>
-        </div>
+          </div>
+          
+            
         <input
           type="text"
-          placeholder="Equivalent"
+          placeholder="Estimated"
           value={swapDirection ? displayUsdcAmount : vexAmount}
           readOnly
           className="token-input"
         />
       </div>
+      <div className="balance-info">
+        <span className="balance">Balance: {swapDirection ? tokenBalances.USDC : tokenBalances.VEX}</span>
+      </div>
 
-      <button className="swap-button" onClick={handleSwap}>Swap {swapDirection ? 'VEX to USDC' : 'USDC to VEX'}</button>
-    
+      <div className="message-box">{message}</div>
+
+      <button className="swap-button" onClick={handleSwap}>Submit</button>
+
       {showPasswordModal && (
         <div className="modal">
           <div className="modal-content">
             <h3>Enter Password</h3>
             <input
               type="password"
+              value={password || ''}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password"
             />
-            <button onClick={() => handlePasswordSubmit(password)}>Submit</button>
-            <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+            <div className="modal-buttons">
+              <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+              <button onClick={handlePasswordSubmit}>Submit</button>
+            </div>
           </div>
         </div>
       )}
-
     </div>
   );
 };
+
 
 export default Swap;

@@ -8,12 +8,18 @@
   }
   
   body {
-    background-color: var(--black-color);
+    background-color: var(--secondary-color);
   }
   
   .user-page {
-    margin-top: 60px;
+    
+    margin-top: 55px;
     padding: 20px;
+    margin-left: 230px; 
+  }
+
+  .app-sidebar.collapsed + .user-page {
+    margin-left: 50px; /* margin when sidebar is collapsed */
   }
   
   .user-content {
