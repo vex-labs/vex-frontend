@@ -11,6 +11,7 @@ import { handleCreateAccount, fetchAccountId } from "@/utils/accountHandler";
 import VexLoginPrompt from "@/components/VexLoginPrompt";
 import { Exo, Asap } from '@next/font/google';
 import Head from 'next/head';
+import { GlobalProvider } from "./context/GlobalContext";
 
 const exo = Exo({
   subsets: ['latin'],
@@ -170,8 +171,10 @@ export default function RootLayout({ children }) {
         <meta name="description" content="BetVex Esports by Vex Labs" />
       </Head>
       <body className={asap.className}>
+
         {localStorage.getItem("isVexLogin") === "true" ? (
           <>
+          <GlobalProvider>
             <NavBar
               isLoggedIn={true}
               walletBalance={tokenBalances}
@@ -182,8 +185,10 @@ export default function RootLayout({ children }) {
               isVexLogin={true}
             />
             {children}
+            </GlobalProvider>
           </>
         ) : (
+          <GlobalProvider>
           <NearContext.Provider value={{ wallet, signedAccountId }}>
             <NavBar
               isLoggedIn={!!signedAccountId}
@@ -195,6 +200,7 @@ export default function RootLayout({ children }) {
             />
             {children}
           </NearContext.Provider>
+          </GlobalProvider>
         )}
         {showVexLogin && (
           <VexLoginPrompt
