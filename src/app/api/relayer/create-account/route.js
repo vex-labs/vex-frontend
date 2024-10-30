@@ -35,7 +35,7 @@ export async function POST(req, res) {
             attachedDeposit: new BN('1') 
         });
    
-        return NextResponse.json([receipt], {
+        return NextResponse.json([receipt, usdcStorageReceipt, tokenStorageReceipt, transferReceipt], {
             status: 200,
             headers: { "content-type": "application/json" },
         });
