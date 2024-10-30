@@ -166,13 +166,13 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
             <div className="team-container" style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <div className="team-bm">
                 <img src={team1Logo} alt={team1Name} className="team-logo" />
-                <span className="team-name">{team1Name}</span>
+                <span className="team-name">{team1Name.replace(/_/g, ' ')}</span>
               </div>
             </div>
             <div className="vs">VS</div>
             <div className="team-container" style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <div className="team-bm">
-                <span className="team-name">{team2Name}</span>
+              <span className="team-name">{team2Name.replace(/_/g, ' ')}</span>
                 <img src={team2Logo} alt={team2Name} className="team-logo" />
               </div>
             </div>
@@ -221,8 +221,8 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
       ) : (
         <>
           <div className="match-header">
-            <div className="match-info">
-              <img src={tournamentIcon} alt="Tournament" className="tournament-icon" />
+          <div className="match-info">
+              <img src={tournamentIcon} alt="Tournament" className="tournament-icon" style={{ marginRight: '8px' }} />
               <span>{tournamentName}</span>
             </div>
             <div className="match-time">
@@ -232,23 +232,23 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
           <div className="match-body">
             <div className="team">
               <img src={team1Logo} alt={team1Name} className="team-logo" />
-              <span className="team-name">{team1Name}</span>
+              <span className="team-name">{team1Name.replace(/_/g, ' ')}</span>
             </div>
             <div className="vs">
               <span>VS</span>
             </div>
             <div className="team">
               <img src={team2Logo} alt={team2Name} className="team-logo" />
-              <span className="team-name">{team2Name}</span>
+              <span className="team-name">{team2Name.replace(/_/g, ' ')}</span>
             </div>
           </div>
           <div className="match-odds">
             <div className="odds" onClick={() => handleOddsClick(team1Name)}>
-              <span>{team1Name} Win </span>
+              <span>{team1Name.replace(/_/g, ' ')} Win </span>
               <span className="odds-value">{updatedOdds1}</span>
             </div>
             <div className="odds" onClick={() => handleOddsClick(team2Name)}>
-              <span>{team2Name} Win</span>
+              <span>{team2Name.replace(/_/g, ' ')} Win</span>
               <span className="odds-value">{updatedOdds2}</span>
             </div>
           </div>

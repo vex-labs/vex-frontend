@@ -102,10 +102,13 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
       <div className="hero-section">
+        <div className="hero-background">
           <img src="/icons/newBannerHD.svg" alt="Hero Banner" className="hero-banner" />
         </div>
+      </div>
         <div className="content-wrapper">
-          <FeaturedGames matches={matches} />
+        <FeaturedGames matches={matches} additionalMatchData={additionalMatchData} />
+
           {selectedGame && (
             <button onClick={resetGameSelection} className="remove-filters-button">
               Remove Filters

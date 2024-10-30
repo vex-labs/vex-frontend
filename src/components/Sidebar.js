@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useState } from 'react';
+import { lazy, useState } from 'react';
 
 const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -14,13 +14,14 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   };
 
   const games = [
-    { name: 'csgo', label: 'CSGO', icon: '/icons/games/csgo.png' },
+    { name: 'counter-strike-2', label: 'Counter Strike 2', icon: '/icons/games/csgo.png' },
     { name: 'lol', label: 'League of Legends', icon: '/icons/games/lol.png' },
     { name: 'valorant', label: 'Valorant', icon: '/icons/games/valorant.png' },
     { name: 'fortnite', label: 'Fortnite', icon: '/icons/games/fortnite.png' },
     { name: 'apex', label: 'Apex Legends', icon: '/icons/games/apex.png' },
     { name: 'rainbowsix', label: 'Rainbow Six Siege', icon: '/icons/games/rainbowsix.png' },
     { name: 'dota2', label: 'Dota 2', icon: '/icons/games/dota2.png' },
+    {name: 'overwatch-2', label: 'Overwatch 2', icon: '/icons/games/overwatch.png'}
   ];
 
   const socials = [

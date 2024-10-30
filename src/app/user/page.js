@@ -178,18 +178,6 @@ const UserPage = () => {
           </div>
         </section>
 
-        {/* Tokens Section */}
-        <section className="tokens-section">
-          <div className="token-item">
-            <h2>Token 1</h2>
-            <p>Token 1 details</p>
-          </div>
-          <div className="token-item">
-            <h2>Token 2</h2>
-            <p>Token 2 details</p>
-          </div>
-        </section>
-
         {/* Active Bets */}
         <UserBets userBets={userBets} wallet={wallet} signedAccountId={signedAccountId} />
 

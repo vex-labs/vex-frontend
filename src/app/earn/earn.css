@@ -260,6 +260,7 @@ input[type="radio"]:checked + label {
   border-radius: 5px;
   color: #fff;
   text-align: right;
+  font-size: 18px;
 }
 
 .balance-info {
