@@ -6,35 +6,23 @@ import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
 import { providers } from 'near-api-js';
 import { fetchMatchesByIDs } from '@/utils/fetchMatches';
-
-let useNear;
-if (typeof window !== 'undefined') {
-  useNear = require('@/app/context/NearContext').useNear;
-}
+import { useNear } from "@/app/context/NearContext"; // Import useNear at the top
 
 export default function HomePage({ isVexLogin, vexKeyPair }) {
+  const nearContext = useNear(); // Always call useNear at the top
   const [matches, setMatches] = useState([]);
   const [additionalMatchData, setAdditionalMatchData] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
-  const [vexAccountId, setVexAccountId] = useState(null); // Initialize vexAccountId with useState
+  const [vexAccountId, setVexAccountId] = useState(null);
+
+  const signedAccountId = isVexLogin ? null : nearContext?.signedAccountId || null;
 
   useEffect(() => {
     // Fetch vexAccountId from localStorage on component mount
     const storedVexAccountId = localStorage.getItem("vexAccountId");
     console.log("vexAccountId from local storage:", storedVexAccountId);
-    setVexAccountId(storedVexAccountId); // Set the state with the stored value
+    setVexAccountId(storedVexAccountId); 
   }, []);
-
-  // Conditionally use NearContext only if not using VEX and ensure it doesn't throw errors
-  let signedAccountId = null;
-  if (!isVexLogin && useNear) {
-    try {
-      const nearContext = useNear();
-      signedAccountId = nearContext?.signedAccountId || null;
-    } catch (error) {
-      console.error("Error accessing NearContext:", error);
-    }
-  }
 
   const handleGameSelection = (game) => {
     setSelectedGame(game);
@@ -120,7 +108,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
             <UpcomingGames 
               matches={filteredMatches} 
               additionalMatchData={filteredAdditionalData}
-              vexAccountId={vexAccountId} // Pass updated vexAccountId as a prop
+              vexAccountId={vexAccountId} 
             />
           
         </div>

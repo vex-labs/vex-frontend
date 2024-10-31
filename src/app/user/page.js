@@ -7,35 +7,16 @@ import { handleTransaction } from "@/utils/accountHandler";
 import Sidebar2 from '@/components/Sidebar2';
 import { useNear } from "@/app/context/NearContext";
 
-
-
-
 const UserPage = () => {
-  const nearContext = useNear();
-  let signedAccountId = null;
+  const nearContext = useNear(); // Always call useNear at the top level
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
-  const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : signedAccountId;
-
-  let wallet = null;
-
-  if (!isVexLogin && useNear) {
-    try {
-      const nearContext = useNear();
-      wallet = nearContext?.wallet || null;
-      signedAccountId = nearContext?.signedAccountId || null;
-    } catch (error) {
-      console.error("Error accessing NearContext:", error);
-    }
-  }
-
-  if (isVexLogin) {
-    signedAccountId = accountId;
-  }
-
+  const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : nearContext?.signedAccountId || null;
+  const wallet = isVexLogin ? null : nearContext?.wallet || null;
+  
   const [userBets, setUserBets] = useState([]);
   const [matchDetails, setMatchDetails] = useState({});
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
-  const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet"); // Default token
+  const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [recipientAddress, setRecipientAddress] = useState('');
   const [password, setPassword] = useState(null);
@@ -53,7 +34,7 @@ const UserPage = () => {
       try {
         const contractId = "sexyvexycontract.testnet";
         const args = {
-          bettor: signedAccountId,
+          bettor: accountId,
           from_index: null,
           limit: null,
         };
@@ -69,7 +50,6 @@ const UserPage = () => {
         console.log("User Bets:", decodedResult);
         setUserBets(decodedResult);
 
-        // Fetch match details for each unique match_id in userBets
         decodedResult.forEach(([betId, bet]) => {
           const { match_id } = bet;
           if (!matchDetails[match_id]) {
@@ -85,8 +65,6 @@ const UserPage = () => {
       try {
         const contractId = "sexyvexycontract.testnet";
         const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-
-        // Wrap args in JSON and convert to base64
         const args = JSON.stringify({ match_id: matchId });
         const matchDetails = await provider.query({
           request_type: "call_function",
@@ -98,7 +76,6 @@ const UserPage = () => {
         const decodedResult = JSON.parse(Buffer.from(matchDetails.result).toString());
         console.log("Match Details:", decodedResult);
 
-        // Update match details state
         setMatchDetails(prevDetails => ({
           ...prevDetails,
           [matchId]: decodedResult,
@@ -108,17 +85,17 @@ const UserPage = () => {
       }
     };
 
-    if (signedAccountId) {
+    if (accountId) {
       fetchUserBets();
     }
-  }, [signedAccountId]);
+  }, [accountId]);
 
   const handlePasswordSubmit = (enteredPassword) => {
     setPassword(enteredPassword);
     localStorage.setItem("vexPassword", enteredPassword);
     setShowPasswordModal(false);
     handleWithdrawFunds();
-    localStorage.removeItem('vexPassword')
+    localStorage.removeItem('vexPassword');
     setPassword(null);
   };
 
@@ -152,7 +129,7 @@ const UserPage = () => {
     }
   };
 
-  if (!signedAccountId) {
+  if (!accountId) {
     return (
       <div className="user-page">
         <Sidebar2 />
@@ -169,35 +146,27 @@ const UserPage = () => {
     <div className="user-page">
       <Sidebar2 />
       <div className="user-content">
-        {/* Account Details */}
         <section className="account-details">
           <h2>Account Details</h2>
           <div className="account-info">
-            <h2><strong>Username:</strong> {signedAccountId || "Not logged in"}</h2>
+            <h2><strong>Username:</strong> {accountId || "Not logged in"}</h2>
             <section className="vex-section">
               <button className="vex-button" onClick={() => setShowWithdrawModal(true)}>Withdraw Funds</button>
               <button className="vex-button">Export Private Key</button>
             </section>
           </div>
         </section>
-
-        {/* Active Bets */}
-        <UserBets userBets={userBets} wallet={wallet} signedAccountId={signedAccountId} />
-
-        {/* Past Bets */}
+        <UserBets userBets={userBets} wallet={wallet} signedAccountId={accountId} />
         <section className="past-bets">
           <h2>Past Bets</h2>
           <ul>
             <li>No past bets found.</li>
           </ul>
         </section>
-
-        {/* Withdraw Funds Modal */}
         {showWithdrawModal && (
           <div className="withdraw-modal">
             <div className="withdraw-modal-content">
               <h3>Withdraw Funds</h3>
-              
               <label className="withdraw-label">
                 Token:
                 <select 
@@ -209,7 +178,6 @@ const UserPage = () => {
                   <option value="token.betvex.testnet">VEX</option>
                 </select>
               </label>
-              
               <label className="withdraw-label">
                 Amount:
                 <input
@@ -220,7 +188,6 @@ const UserPage = () => {
                   className="withdraw-input"
                 />
               </label>
-              
               <label className="withdraw-label">
                 Recipient Address:
                 <input
@@ -231,7 +198,6 @@ const UserPage = () => {
                   className="withdraw-input"
                 />
               </label>
-              
               <div className="withdraw-modal-buttons">
                 <button onClick={() => setShowWithdrawModal(false)} className="withdraw-button cancel-button">Cancel</button>
                 <button onClick={handleWithdrawFunds} className="withdraw-button confirm-button"> Withdraw</button>
@@ -240,8 +206,6 @@ const UserPage = () => {
           </div>
         )}
       </div>
-
-      {/* Password Modal */}
       {showPasswordModal && (
         <div className="modal">
           <div className="modal-content">

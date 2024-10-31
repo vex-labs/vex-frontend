@@ -1,36 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import GameCard from './GameCard';
-
-let useNear;
-if (typeof window !== 'undefined') {
-  try {
-    useNear = require('@/app/context/NearContext').useNear;
-  } catch (error) {
-    console.warn("NearContext is not available:", error);
-    useNear = null; // Fallback to null if NearContext is not available
-  }
-}
+import { useNear } from "@/app/context/NearContext";
 
 const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
+  const nearContext = useNear(); // Always call useNear at the top
+  const wallet = nearContext?.wallet || null;
   const [sortedMatches, setSortedMatches] = useState([]);
-  let wallet = null;
-
-  // Conditionally use useNear() if NearContext is available
-  if (useNear) {
-    try {
-      const nearContext = useNear();
-      wallet = nearContext?.wallet || null;
-    } catch (error) {
-      console.error("Error accessing NearContext:", error);
-    }
-  }
 
   useEffect(() => {
-    console.log("vexAccountId in UpcomingGames:", vexAccountId); // Log vexAccountId
+    console.log("vexAccountId in UpcomingGames:", vexAccountId);
   }, [vexAccountId]);
 
   useEffect(() => {
-    // Combine matches and additional data based on the sanitized match_id
+    // Combine matches and additional data based on sanitized match_id
     const combinedMatches = matches.map(match => {
       const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');
       const additionalData = additionalMatchData.find(additionalMatch =>
