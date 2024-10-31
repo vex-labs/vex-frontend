@@ -1,7 +1,7 @@
 // src/app/context/GlobalContext.js
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { providers, utils } from 'near-api-js';
 
 const GlobalContext = createContext();
@@ -12,10 +12,11 @@ export const GlobalProvider = ({ children }) => {
     const [tokenBalances, setTokenBalances] = useState({ USDC: '0', VEX: '0' });
     const [refreshBalances, setRefreshBalances] = useState(false);
     
-    const tokenContracts = [
+    // Wrap tokenContracts in useMemo to ensure it remains stable across renders
+    const tokenContracts = useMemo(() => [
         { name: 'USDC', address: 'usdc.betvex.testnet' },
         { name: 'VEX', address: 'token.betvex.testnet' }
-    ];
+    ], []);
 
     const toggleRefreshBalances = () => {
         setRefreshBalances((prev) => !prev);
@@ -61,7 +62,7 @@ export const GlobalProvider = ({ children }) => {
         } else {
             console.log("Account ID not found.");
         }
-    }, [refreshBalances]); // Re-run this effect whenever refreshBalances changes
+    }, [refreshBalances, tokenContracts]); // tokenContracts is stable due to useMemo
 
     return (
         <GlobalContext.Provider value={{ tokenBalances, toggleRefreshBalances }}>

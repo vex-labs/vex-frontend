@@ -4,33 +4,15 @@ import "./earn.css";
 import Staking from '@/components/Stake';
 import Swap from '@/components/Swap';
 import Sidebar2 from '@/components/Sidebar2';
-
-let useNear;
-if (typeof window !== 'undefined') {
-  try {
-    useNear = require('@/app/context/NearContext').useNear;
-  } catch (error) {
-    console.warn("NearContext is not available:", error);
-    useNear = null; // Fallback to null if NearContext is not available
-  }
-}
+import { useNear } from "@/app/context/NearContext"; // Import useNear at the top level
 
 const EarnPage = () => {
+  const nearContext = useNear(); // Always call useNear here
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
 
-  let wallet = null;
-  let signedAccountId = null;
+  const wallet = isVexLogin ? null : nearContext?.wallet || null;
+  const signedAccountId = isVexLogin ? null : nearContext?.signedAccountId || null;
 
-  //  use NearContext only if the user is logged in with NEAR
-  if (!isVexLogin && useNear) {
-    try {
-      const nearContext = useNear();
-      wallet = nearContext?.wallet || null;
-      signedAccountId = nearContext?.signedAccountId || null;
-    } catch (error) {
-      console.error("Error accessing NearContext:", error);
-    }
-  }
   console.log('isVexLogin:', isVexLogin);
 
   return (
