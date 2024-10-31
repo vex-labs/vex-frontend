@@ -8,13 +8,14 @@ import Sidebar2 from '@/components/Sidebar2';
 import { useNear } from "@/app/context/NearContext";
 
 const UserPage = () => {
-  const nearContext = useNear(); // Always call useNear at the top level
+  const nearContext = useNear(); 
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
   const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : nearContext?.signedAccountId || null;
   const wallet = isVexLogin ? null : nearContext?.wallet || null;
-  
+
   const [userBets, setUserBets] = useState([]);
   const [matchDetails, setMatchDetails] = useState({});
+  const [matchStates, setMatchStates] = useState({}); // For storing match states
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -47,48 +48,55 @@ const UserPage = () => {
           finality: "final",
         });
         const decodedResult = JSON.parse(Buffer.from(userBets.result).toString());
-        console.log("User Bets:", decodedResult);
-        setUserBets(decodedResult);
 
-        decodedResult.forEach(([betId, bet]) => {
-          const { match_id } = bet;
-          if (!matchDetails[match_id]) {
-            fetchMatchDetails(match_id);
-          }
+        const userBetsWithState = decodedResult.map(([betId, bet]) => {
+          const matchState = matchStates[bet.match_id]?.match_state || null; // Add match state if available
+          return {
+            betId,
+            ...bet,
+            match_state: matchState, // Include the match state
+          };
         });
+
+        setUserBets(userBetsWithState);
       } catch (error) {
         console.error("Failed to fetch user bets:", error);
-      }
-    };
-
-    const fetchMatchDetails = async (matchId) => {
-      try {
-        const contractId = "sexyvexycontract.testnet";
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-        const args = JSON.stringify({ match_id: matchId });
-        const matchDetails = await provider.query({
-          request_type: "call_function",
-          account_id: contractId,
-          method_name: "get_match",
-          args_base64: Buffer.from(args).toString("base64"),
-          finality: "final",
-        });
-        const decodedResult = JSON.parse(Buffer.from(matchDetails.result).toString());
-        console.log("Match Details:", decodedResult);
-
-        setMatchDetails(prevDetails => ({
-          ...prevDetails,
-          [matchId]: decodedResult,
-        }));
-      } catch (error) {
-        console.error("Failed to fetch match details:", error);
       }
     };
 
     if (accountId) {
       fetchUserBets();
     }
-  }, [accountId]);
+  }, [accountId, matchStates]); // Re-run when matchStates change
+
+  // New useEffect hook to fetch matches and store match states by match_id
+  useEffect(() => {
+    const fetchMatches = async () => {
+      try {
+        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        const matches = await provider.query({
+          request_type: "call_function",
+          account_id: "sexyvexycontract.testnet",
+          method_name: "get_matches",
+          args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
+          finality: "final"
+        });
+        const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
+
+        const states = {};
+        decodedResult.forEach(match => {
+          states[match.match_id] = { match_state: match.match_state };
+        });
+
+        setMatchStates(states);
+        localStorage.setItem("matches", JSON.stringify(decodedResult));
+      } catch (error) {
+        console.error("Failed to fetch matches:", error);
+      }
+    };
+
+    fetchMatches();
+  }, []);
 
   const handlePasswordSubmit = (enteredPassword) => {
     setPassword(enteredPassword);
@@ -109,7 +117,7 @@ const UserPage = () => {
     const formattedAmount = BigInt(parseFloat(withdrawAmount) * Math.pow(10, decimals)).toString();
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR
-  
+
     try {
       const result = await handleTransaction(
         withdrawToken,
