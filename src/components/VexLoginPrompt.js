@@ -28,7 +28,6 @@ const VexLoginPrompt = ({ onLoginSuccess, handleVexLogin }) => {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
-        <span className="username-suffix">.betvex.testnet</span>
       </div>
 
       <label htmlFor="password">Password</label>

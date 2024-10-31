@@ -7,7 +7,7 @@ import { NetworkId, GuestbookNearContract } from "./config";
 import NavBar from "@/components/NavBar"; 
 import "./globals.css";
 import { providers, utils } from 'near-api-js';
-import { handleCreateAccount, fetchAccountId } from "@/utils/accountHandler";
+import { handleCreateAccount } from "@/utils/accountHandler";
 import VexLoginPrompt from "@/components/VexLoginPrompt";
 import { Exo, Asap } from '@next/font/google';
 import Head from 'next/head';
@@ -15,28 +15,25 @@ import { GlobalProvider } from "./context/GlobalContext";
 
 const exo = Exo({
   subsets: ['latin'],
-  weight: ['400', '700'], // adjust as needed
+  weight: ['400', '700'],
 });
 
-// Import Asap with desired weights
 const asap = Asap({
   subsets: ['latin'],
-  weight: ['400', '700'], // adjust as needed
+  weight: ['400', '700'],
 });
 
 export default function RootLayout({ children }) {
   const [signedAccountId, setSignedAccountId] = useState("");
   const [tokenBalances, setTokenBalances] = useState({});
-  const [showVexLogin, setShowVexLogin] = useState(false); // Controls VexLoginPrompt visibility
-
+  const [showVexLogin, setShowVexLogin] = useState(false);
+  const [isVexLogin, setIsVexLogin] = useState(null); // New state to manage isVexLogin client-side
 
   const tokenContracts = [
-    
     { name: 'USDC', address: 'usdc.betvex.testnet' },
     { name: 'VEX', address: 'token.betvex.testnet' },
   ];
 
-  // Memoize the NEAR wallet to prevent reinitializing on every render
   const wallet = useMemo(() => {
     return new Wallet({
       createAccessKeyFor: GuestbookNearContract,
@@ -44,30 +41,28 @@ export default function RootLayout({ children }) {
     });
   }, []);
 
+  // Fetch Vex login status only on the client side
   useEffect(() => {
-    const vexAccountId = localStorage.getItem("vexAccountId");
-    
-    // Check if `vexAccountId` is valid and ends with `.testnet`
-    if (vexAccountId && vexAccountId.endsWith(".testnet")) {
-      localStorage.setItem("isVexLogin", "true"); // Set isVexLogin to true
-    } else {
-      localStorage.setItem("isVexLogin", "false"); // Fallback for consistency
+    if (typeof window !== "undefined") {
+      const vexAccountId = localStorage.getItem("vexAccountId");
+      const isVexLoginStatus = vexAccountId && vexAccountId.endsWith(".testnet");
+      setIsVexLogin(isVexLoginStatus);
+      if (isVexLoginStatus) {
+        localStorage.setItem("isVexLogin", "true");
+      } else {
+        localStorage.setItem("isVexLogin", "false");
+      }
     }
   }, []);
-  
 
-  // Initialize NEAR wallet on component mount if not logged in with VEX
   useEffect(() => {
-    const isVexLogin = localStorage.getItem('isVexLogin') === 'true';
     if (!isVexLogin) {
       wallet.startUp(setSignedAccountId);
     }
-  }, [wallet]);
+  }, [wallet, isVexLogin]);
 
   useEffect(() => {
-    const isVexLogin = localStorage.getItem("isVexLogin") === "true";
     const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : signedAccountId;
-
     if (accountId) {
       const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
@@ -108,39 +103,51 @@ export default function RootLayout({ children }) {
 
       fetchBalances();
     }
-  }, [signedAccountId]);
-    
-  // Handle NEAR wallet login
+  }, [signedAccountId, isVexLogin]);
+
   const handleLogin = () => {
     wallet.signIn();
   };
 
-  // Handle NEAR wallet logout
   const handleLogout = async () => {
     await wallet.signOut();
     localStorage.removeItem("signedAccountId");
     setSignedAccountId("");
   };
 
-  // Handle VEX login
   const handleVexLogin = async (username, password) => {
-    const accountId = `${username}.testnet`;
+    // Add ".betvex.testnet" to the username input
+    const accountId = `${username}.shunab.testnet`;
     try {
       await handleCreateAccount(accountId, password);
       localStorage.setItem("isVexLogin", "true");
       localStorage.setItem("vexAccountId", accountId);
       if (password) localStorage.setItem("vexPassword", password);
       setSignedAccountId(accountId);
+      setIsVexLogin(true); // Update state after successful Vex login
     } catch (error) {
       console.error("Failed to log in with VEX:", error);
     }
   };
+  
 
-  // Handle VEX logout
   const handleVexLogout = () => {
-    localStorage.removeItem('vexPublicKey');
-    localStorage.removeItem('vexPrivateKey');
-    localStorage.setItem('isVexLogin', 'false');
+    // Remove all keys that start with "near-account-"
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("near-account-")) {
+        localStorage.removeItem(key);
+      }
+    });
+  
+    // Remove vex-specific localStorage items
+    localStorage.removeItem("isVexLogin");
+    localStorage.removeItem("vexAccountId");
+    localStorage.removeItem("vexPassword");
+  
+    setIsVexLogin(false); // Update state after logout
+  
+    // Reload the page to ensure the state resets completely
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -149,31 +156,23 @@ export default function RootLayout({ children }) {
       const accountData = JSON.parse(localStorage.getItem(`near-account-${vexAccountId}`));
       if (accountData) {
         setSignedAccountId(accountData.accountId);
-        setTokenBalances({ publicKey: accountData.publicKey }); // Use for displaying balance if needed
-        console.log(accountData);
+        setTokenBalances({ publicKey: accountData.publicKey });
       }
     }
   }, []);
 
-  useEffect(() => {
-    console.log("showVexLogin state:", showVexLogin);
-  }, [showVexLogin]);
-  
-
   return (
     <html lang="en"
-    style={{
-      "--font-primary": asap.style.fontFamily,
-      "--font-heading": exo.style.fontFamily,
-    }}>
+      style={{
+        "--font-primary": asap.style.fontFamily,
+        "--font-heading": exo.style.fontFamily,
+      }}>
       <Head>
         <title>BetVex | App</title>
         <meta name="description" content="BetVex Esports by Vex Labs" />
       </Head>
       <body className={asap.className}>
-
-        {localStorage.getItem("isVexLogin") === "true" ? (
-          <>
+        {isVexLogin ? (
           <GlobalProvider>
             <NavBar
               isLoggedIn={true}
@@ -185,21 +184,20 @@ export default function RootLayout({ children }) {
               isVexLogin={true}
             />
             {children}
-            </GlobalProvider>
-          </>
+          </GlobalProvider>
         ) : (
           <GlobalProvider>
-          <NearContext.Provider value={{ wallet, signedAccountId }}>
-            <NavBar
-              isLoggedIn={!!signedAccountId}
-              walletBalance={tokenBalances}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-              onVexLogin={() => setShowVexLogin(true)}
-              onVexLogout={handleVexLogout}
-            />
-            {children}
-          </NearContext.Provider>
+            <NearContext.Provider value={{ wallet, signedAccountId }}>
+              <NavBar
+                isLoggedIn={!!signedAccountId}
+                walletBalance={tokenBalances}
+                onLogin={handleLogin}
+                onLogout={handleLogout}
+                onVexLogin={() => setShowVexLogin(true)}
+                onVexLogout={handleVexLogout}
+              />
+              {children}
+            </NearContext.Provider>
           </GlobalProvider>
         )}
         {showVexLogin && (
@@ -208,7 +206,7 @@ export default function RootLayout({ children }) {
               setShowVexLogin(false);
               setSignedAccountId(accountId);
             }}
-            handleVexLogin={handleVexLogin} // Pass the login function
+            handleVexLogin={handleVexLogin}
           />
         )}
       </body>

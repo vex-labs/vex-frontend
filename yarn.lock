@@ -1159,10 +1159,10 @@
     react "^18.2.0"
     react-dom "^18.2.0"
 
-"@near-relay/server@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@near-relay/server/-/server-0.1.6.tgz#ba056e2999df70dbda1ee1e3f417eb68ef57e480"
-  integrity sha512-3DnOYPcS7WEfkE8NmUrNSeV97Ft8MQlvsPoxd8VNH2qBHWDA0hjmx68d606rEfOEqAsSfksb5lK0Iu8LnxEVYA==
+"@near-relay/server@^0.1.8":
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/@near-relay/server/-/server-0.1.8.tgz#da30759f610374c40ab91a1095c3bd708f365ecc"
+  integrity sha512-H39QdQCui6yOPoSzGEPO4ciFnuwVzIGs3wQqorwfgqyYBkgbLATMyUnVX3BLQqHnRkWuomw+QW4DTAGl9o02KA==
   dependencies:
     "@near-js/accounts" "1.0.4"
     "@near-js/crypto" "1.2.1"
