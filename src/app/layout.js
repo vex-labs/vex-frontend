@@ -117,7 +117,7 @@ export default function RootLayout({ children }) {
 
   const handleVexLogin = async (username, password) => {
     // Add ".betvex.testnet" to the username input
-    const accountId = `${username}.shunab.testnet`;
+    const accountId = `${username}.betvex.testnet`;
     try {
       await handleCreateAccount(accountId, password);
       localStorage.setItem("isVexLogin", "true");
