@@ -142,11 +142,16 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     setPassword(enteredPassword);
     localStorage.setItem("vexPassword", enteredPassword);
     setShowPasswordModal(false);
+
+    // Trigger function based on selected option
     if (selectedOption === 'stake') {
       handleStake();
-    } else {
+    } else if (selectedOption === 'unstake') {
       handleUnstake();
+    } else if (selectedOption === 'stakeSwap') {
+      handleStakeSwap(); // Call stake swap after password is submitted
     }
+
     localStorage.removeItem('vexPassword');
     setPassword(null);
   };
@@ -340,6 +345,49 @@ const handleUnstake = async () => {
   }
 };
 
+const handleStakeSwap = async () => {
+  if (isVexLogin && !password) {
+    setSelectedOption('stakeSwap'); // Set option to track purpose
+    setShowPasswordModal(true); // Show password modal if password is missing
+    return;
+  }
+
+  const contractId = "sexyvexycontract.testnet";
+  const gas = "300000000000000"; // 300 TGas
+
+  try {
+    if (isVexLogin) {
+      const outcome = await handleTransaction(
+        contractId,
+        "perform_stake_swap",
+        {}, // No arguments required
+        gas,
+        "0", // Minimal deposit in yoctoNEAR
+        null,
+        password
+      );
+
+      console.log("Stake swap successful!", outcome);
+      setMessage("Rewards distributed successfully");
+    } else if (wallet && wallet.selector) {
+      const outcome = await wallet.callMethod({
+        contractId: contractId,
+        method: "perform_stake_swap",
+        args: {},
+        gas,
+        deposit: "1", // Minimal deposit in yoctoNEAR
+      });
+
+      console.log("Stake swap successful!", outcome);
+      setMessage("Rewards distributed successfully!");
+    } else {
+      setMessage("Failed to distribute rewards. Please try again.");
+    }
+  } catch (error) {
+    console.error("Failed to perform stake swap:", error.message || error);
+    setMessage("Failed to distribute rewars, please try again.");
+  }
+};
 
 
 return (
@@ -366,9 +414,9 @@ return (
     </div>
 </div>
 
-<button className="confirm-button">
-        Distribute rweards 
-      </button>
+<button className="confirm-button" onClick={handleStakeSwap}>
+      Distribute Rewards
+    </button>
 
       <div className="staking-statistics">
         <p>Your Balance: {balance} VEX</p>

@@ -53,7 +53,6 @@ const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
 
   return (
     <div>
-      <h1 style={{ color: 'white' }}>Upcoming Games</h1>
       <div className="upcoming-grid-container">
         {sortedMatches.map((match, index) => {
           const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');

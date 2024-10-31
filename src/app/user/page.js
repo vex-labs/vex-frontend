@@ -17,11 +17,11 @@ if (typeof window !== 'undefined') {
 }
 
 const UserPage = () => {
+  let signedAccountId = null;
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
   const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : signedAccountId;
 
   let wallet = null;
-  let signedAccountId = null;
 
   if (!isVexLogin && useNear) {
     try {
@@ -126,19 +126,15 @@ const UserPage = () => {
     localStorage.removeItem('vexPassword')
     setPassword(null);
   };
-  // Handle the withdraw funds action
-  const handleWithdrawFunds = async () => {
 
+  const handleWithdrawFunds = async () => {
     if (!password) {
       setShowPasswordModal(true);
       return;
     }
 
-    // Determine decimals based on the token type
     const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
-    // Convert the amount to the correct format using BigInt to avoid scientific notation
     const formattedAmount = BigInt(parseFloat(withdrawAmount) * Math.pow(10, decimals)).toString();
-  
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR
   
@@ -154,14 +150,26 @@ const UserPage = () => {
       );
       console.log("Withdrawal successful:", result);
       alert("Withdrawal Successful!");
-      setShowWithdrawModal(false); // Close the modal on success
+      setShowWithdrawModal(false);
     } catch (error) {
       console.error("Withdrawal failed:", error);
       alert("Withdrawal Failed.");
     }
   };
-  
-  
+
+  if (!signedAccountId) {
+    return (
+      <div className="user-page">
+        <Sidebar2 />
+        <div className="user-content">
+          <h2 style={{ textAlign: 'center', color: 'var(--primary-color)', marginTop: '20%' }}>
+            Please Login to access the user page
+          </h2>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="user-page">
       <Sidebar2 />
@@ -170,7 +178,7 @@ const UserPage = () => {
         <section className="account-details">
           <h2>Account Details</h2>
           <div className="account-info">
-            <p><strong>Username:</strong> {signedAccountId || "Not logged in"}</p>
+            <h2><strong>Username:</strong> {signedAccountId || "Not logged in"}</h2>
             <section className="vex-section">
               <button className="vex-button" onClick={() => setShowWithdrawModal(true)}>Withdraw Funds</button>
               <button className="vex-button">Export Private Key</button>
@@ -232,13 +240,13 @@ const UserPage = () => {
               <div className="withdraw-modal-buttons">
                 <button onClick={() => setShowWithdrawModal(false)} className="withdraw-button cancel-button">Cancel</button>
                 <button onClick={handleWithdrawFunds} className="withdraw-button confirm-button"> Withdraw</button>
-                
               </div>
             </div>
           </div>
         )}
-
       </div>
+
+      {/* Password Modal */}
       {showPasswordModal && (
         <div className="modal">
           <div className="modal-content">

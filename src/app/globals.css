@@ -280,7 +280,7 @@ button {
 }
 
 .username-input input[type="text"] {
-  width: 55%;
+  width: 100%;
   padding: 10px;
   background-color: rgba(255, 255, 255, 0.1);
   color: #ffffffdb;
@@ -294,17 +294,6 @@ button {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.username-input .username-suffix {
-  width: 45%;
-  padding: 10px;
-  background-color: rgba(255, 255, 255, 0.2);
-  color: #ffffffdb;
-  border-radius: 0 5px 5px 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-}
 
 /* Input Fields */
 .vex-login-prompt input[type="password"] {
@@ -354,6 +343,17 @@ button {
   background-color: rgba(255, 255, 255, 1);
 }
 
+.header-container {
+  display: flex;
+  align-items: center; /* Aligns items vertically in the center */
+  gap: 10px; /* Space between the h1 and button */
+}
+
+.remove-filters-button {
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+}
 
 
 /* Card Styles */
