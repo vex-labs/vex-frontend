@@ -1,26 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { handleTransaction } from "@/utils/accountHandler";
 
 const UserBets = ({ userBets, wallet, signedAccountId }) => {
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [password, setPassword] = useState(null);
+  const [betToClaim, setBetToClaim] = useState(null);
+  const [claimedBets, setClaimedBets] = useState({}); // Track successfully claimed bets
 
-  const handleClaim = async (betId) => {
+  useEffect(() => {
+    const savedPassword = localStorage.getItem("vexPassword");
+    if (savedPassword) {
+      setPassword(savedPassword);
+    }
+  }, []);
+
+  const handlePasswordSubmit = (enteredPassword) => {
+    setPassword(enteredPassword);
+    localStorage.setItem("vexPassword", enteredPassword);
+    setShowPasswordModal(false);
+    handleClaim(betToClaim, enteredPassword); 
+    localStorage.removeItem('vexPassword');
+    setPassword(null);
+  };
+
+  const handleClaim = async (betId, enteredPassword = null) => {
     try {
       const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
       const contractId = "sexyvexycontract.testnet";
-      const gas = "100000000000000"; // 100 Tgas
-      const deposit = "1"; // 1 yoctoNEAR
+      const gas = "100000000000000";
+      const deposit = "1"; 
 
-      const args = {
-        bet_id: betId,
-      };
+      const args = { bet_id: betId };
 
-      console.log("Initiating claim...");
-
-      // Use handleTransaction if the user is logged in with VEX
       if (isVexLogin) {
-        const password = localStorage.getItem("vexPassword");
-        if (!password) {
-          alert("Please enter your password to claim the bet.");
+        const passwordToUse = enteredPassword || password;
+        if (!passwordToUse) {
+          setBetToClaim(betId);
+          setShowPasswordModal(true);
           return;
         }
 
@@ -30,16 +46,15 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
           args,
           gas,
           deposit,
-          null, // No wallet for VEX login
-          password
+          null,
+          passwordToUse
         );
 
         console.log("Claim successful!", outcome);
-        alert("Claim Successful!");
+        setClaimedBets(prev => ({ ...prev, [betId]: true }));
         return outcome;
 
       } else if (wallet && wallet.selector) {
-        // For regular NEAR wallet users, call claim directly on wallet
         const outcome = await wallet.callMethod({
           contractId: contractId,
           method: "claim",
@@ -49,7 +64,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
         });
 
         console.log("Claim successful!", outcome);
-        alert("Claim Successful!");
+        setClaimedBets(prev => ({ ...prev, [betId]: true }));
         return outcome;
       } else {
         throw new Error("Wallet is not initialized");
@@ -67,25 +82,30 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
       <h2>Active Bets</h2>
       <ul>
         {userBets.length > 0 ? (
-          userBets.map(([betId, bet], index) => {
-            // Split the match_id and format it as "team_a vs team_b"
-            const matchParts = bet.match_id.split("-");
+          userBets.map((bet, index) => {
+            const { match_id, team, bet_amount, potential_winnings, match_state, betId } = bet;
+            const matchParts = match_id.split("-");
             const formattedMatchId = `${matchParts[0]} vs ${matchParts[1]}`;
-  
+
             return (
               <li key={index} className="bet-item">
                 <p><strong>Bet ID:</strong> {betId}</p>
                 <p><strong>Match:</strong> {formattedMatchId}</p>
-                <p><strong>Team:</strong> {bet.team}</p>
-                <p><strong>Bet Amount:</strong> {(bet.bet_amount / Math.pow(10, 6)).toFixed(2)} USDC</p>
-                <p><strong>Potential Winnings:</strong> {(bet.potential_winnings / Math.pow(10, 6)).toFixed(2)} USDC</p>
+                <p><strong>Team:</strong> {team}</p>
+                <p><strong>Bet Amount:</strong> {(bet_amount / Math.pow(10, 6)).toFixed(2)} USDC</p>
+                <p><strong>Potential Winnings:</strong> {(potential_winnings / Math.pow(10, 6)).toFixed(2)} USDC</p>
                 <p><strong>Pay State:</strong> {bet.pay_state ? bet.pay_state : 'Pending'}</p>
-  
-                {/* Only render Claim button if pay_state is not null */}
-                {bet.pay_state && (
+                
+                {/* Render Claim button if match_state is not "Future" */}
+                {match_state !== "Future" && !claimedBets[betId] && (
                   <button className="claim-button" onClick={() => handleClaim(betId)}>
                     Claim
                   </button>
+                )}
+
+                {/* Display Claim Successful message if claim is successful */}
+                {claimedBets[betId] && (
+                  <p className="claim-successful-message">Claim Successful!</p>
                 )}
               </li>
             );
@@ -94,9 +114,26 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
           <li>No bets found.</li>
         )}
       </ul>
+
+      {/* Password Modal */}
+      {showPasswordModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Enter Password</h3>
+            <input
+              type="password"
+              value={password || ''}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div className="modal-buttons">
+              <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+              <button onClick={() => handlePasswordSubmit(password)}>Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
-  
 };
 
 export default UserBets;
