@@ -12,7 +12,13 @@ export const fetchMatchesByIDs = async (matchIDsArray) => {
     console.log("Fetching from URL:", url);  // Log the URL
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, {
+            method: 'GET',
+            mode: 'cors',  // Explicitly set mode to cors
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
         if (!response.ok) {
             throw new Error("Failed to fetch matches from backend");
         }
