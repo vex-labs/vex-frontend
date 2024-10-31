@@ -5,18 +5,13 @@ import "./user.css";
 import UserBets from '@/components/Userbets';
 import { handleTransaction } from "@/utils/accountHandler";
 import Sidebar2 from '@/components/Sidebar2';
+import { useNear } from "@/app/context/NearContext";
 
-let useNear;
-if (typeof window !== 'undefined') {
-  try {
-    useNear = require('@/app/context/NearContext').useNear;
-  } catch (error) {
-    console.warn("NearContext is not available:", error);
-    useNear = null;
-  }
-}
+
+
 
 const UserPage = () => {
+  const nearContext = useNear();
   let signedAccountId = null;
   const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
   const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : signedAccountId;
