@@ -103,7 +103,7 @@ export default function RootLayout({ children }) {
 
       fetchBalances();
     }
-  }, [signedAccountId, isVexLogin]);
+  }, [signedAccountId, isVexLogin, tokenContracts]);
 
   const handleLogin = () => {
     wallet.signIn();
