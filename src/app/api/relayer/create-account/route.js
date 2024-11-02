@@ -65,3 +65,11 @@ async function getRelayerAccount() {
   const near = await connect(config);
   return await near.account(relayerAccountId);
 }
+
+export async function GET() {
+    return NextResponse.json({ message: "Create account endpoint is working!" }, {
+        status: 200,
+        headers: { "content-type": "application/json" },
+    });
+}
+
