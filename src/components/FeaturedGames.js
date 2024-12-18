@@ -1,6 +1,19 @@
 import React from 'react';
 import GameCard from './GameCard';
 
+/**
+ * FeaturedGames component
+ * 
+ * This component renders a list of featured games based on specified match IDs.
+ * It filters the provided matches to only include those with the specified match IDs
+ * and combines them with additional match data.
+ * 
+ * @param {Object} props - The component props
+ * @param {Array<Object>} props.matches - The list of match objects
+ * @param {Array<Object>} props.additionalMatchData - The list of additional match data objects
+ * 
+ * @returns {JSX.Element} The rendered FeaturedGames component
+ */
 const FeaturedGames = ({ matches, additionalMatchData }) => {
   // Define the specific match IDs you want to display
   const featuredMatchIds = [

@@ -6,8 +6,24 @@ import { providers, utils } from 'near-api-js';
 
 const GlobalContext = createContext();
 
+/**
+ * Custom hook to use the GlobalContext
+ * 
+ * @returns {Object} The context value
+ */
 export const useGlobalContext = () => useContext(GlobalContext);
 
+/**
+ * GlobalProvider component
+ * 
+ * This component provides global state and context to its children.
+ * It manages token balances and provides a function to refresh balances.
+ * 
+ * @param {Object} props - The component props
+ * @param {React.ReactNode} props.children - The children components that will consume the context
+ * 
+ * @returns {JSX.Element} The rendered GlobalProvider component
+ */
 export const GlobalProvider = ({ children }) => {
     const [tokenBalances, setTokenBalances] = useState({ USDC: '0', VEX: '0' });
     const [refreshBalances, setRefreshBalances] = useState(false);

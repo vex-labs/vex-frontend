@@ -3,6 +3,21 @@ import { providers } from 'near-api-js';
 import { handleTransaction } from "@/utils/accountHandler";
 import { useGlobalContext } from '@/app/context/GlobalContext';
 
+/**
+ * Staking component
+ * 
+ * This component allows users to stake and unstake their tokens.
+ * It displays the user's balance, staked balance, and total USDC rewards.
+ * Users can select between staking and unstaking options, enter an amount, and submit transactions.
+ * 
+ * @param {Object} props - The component props
+ * @param {Object} props.wallet - Wallet object for handling transactions
+ * @param {string} props.signedAccountId - The signed-in user's account ID
+ * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
+ * 
+ * @returns {JSX.Element} The rendered Staking component
+ */
+
 const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const [selectedOption, setSelectedOption] = useState('stake');
   const [amount, setAmount] = useState('');
@@ -25,6 +40,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
   }, [tokenBalances]);
 
+  // Load saved password from local storage
   useEffect(() => {
     const savedPassword = localStorage.getItem("vexPassword");
     if (savedPassword) {
@@ -32,6 +48,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     }
   }, []);
 
+// Load saved VEX account ID from local storage
   useEffect(() => {
     if (isVexLogin) {
       const storedVexAccountId = localStorage.getItem("vexAccountId");
@@ -44,7 +61,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     }
   }, [isVexLogin]);
   
-
+// Fetch staked balance and rewards on component mount or as needed
   useEffect(() => {
 
     const accountId = signedAccountId || vexAccountId;
@@ -56,35 +73,13 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       console.log("Account ID is null; fetch functions not called.");
     }
   }, [signedAccountId, vexAccountId, refreshBalances]);
-  
+
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === 'stake' ? balance : stakedBalance;
     setAmount((currentBalance * percentage).toFixed(2));
   };
-
-  const fetchBalance = async (accountId) => {
-    try {
-      const args = { account_id: accountId };
-      const encodedArgs = Buffer.from(JSON.stringify(args)).toString('base64');
   
-      const result = await provider.query({
-        request_type: "call_function",
-        account_id: tokenContractId,
-        method_name: "ft_balance_of",
-        args_base64: encodedArgs,
-        finality: "final",
-      });
-  
-      const resultString = Buffer.from(result.result).toString();
-      const parsedResult = JSON.parse(resultString);
-      const balanceRaw = parseFloat(parsedResult) / 1e18;
-  
-      setBalance(isNaN(balanceRaw) ? 0 : parseFloat(balanceRaw.toFixed(2))); // Round to 2 decimal places
-    } catch (error) {
-      console.error("Failed to fetch balance:", error);
-    }
-  };
-  
+  // This function fetches the staked balance for the user
   const fetchStakedBalance = async (accountId) => {
     try {
       const args = { account_id: accountId };
@@ -109,6 +104,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     }
   };
 
+  // This function fetches the total USDC rewards available to swap
   const rewards_ready_to_swap = async () => {
     try {
       // Call the view function `get_usdc_staking_rewards` on the contract
@@ -156,6 +152,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     setPassword(null);
   };
 
+  // This function stakes the user's tokens in the staking contract
+  // This function makes two transactions: one to deposit the tokens and another to stake them
+  // This function is dynamically called based on the login type and password availability
   const handleStake = async () => {
     if (!amount) {
         setMessage("Please enter an amount to stake.");
@@ -253,7 +252,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     }
 };
 
-
+// This function unstakes the user's tokens and withdraws them from the staking contract
+// This function makes two transactions: one to unstake the tokens and another to withdraw them
+// This function is dynamically called based on the login type and password availability
 const handleUnstake = async () => {
   if (!amount) {
       setMessage("Please enter an amount to unstake.");
@@ -345,6 +346,8 @@ const handleUnstake = async () => {
   }
 };
 
+// This functions swaps the rewards from the staking contract to USDC and distributes them to the users
+// This function is used for the "Distribute Rewards" button
 const handleStakeSwap = async () => {
   if (isVexLogin && !password) {
     setSelectedOption('stakeSwap'); // Set option to track purpose

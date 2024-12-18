@@ -13,6 +13,7 @@ import { Exo, Asap } from '@next/font/google';
 import Head from 'next/head';
 import { GlobalProvider } from "./context/GlobalContext";
 
+// Initialize fonts
 const exo = Exo({
   subsets: ['latin'],
   weight: ['400', '700'],
@@ -23,12 +24,27 @@ const asap = Asap({
   weight: ['400', '700'],
 });
 
+/**
+ * RootLayout component
+ * 
+ * This component serves as the root layout for the application and not a typical layput.js
+ * This page uses "use client"
+ * It provides the global context and manages the state for user authentication,
+ * token balances, and the visibility of the Vex login prompt.
+ * 
+ * @param {Object} props - The component props
+ * @param {React.ReactNode} props.children - The child components to be rendered within the layout
+ * 
+ * @returns {JSX.Element} The rendered RootLayout component
+ */
+
 export default function RootLayout({ children }) {
   const [signedAccountId, setSignedAccountId] = useState("");
   const [tokenBalances, setTokenBalances] = useState({});
   const [showVexLogin, setShowVexLogin] = useState(false);
-  const [isVexLogin, setIsVexLogin] = useState(null); // New state to manage isVexLogin client-side
+  const [isVexLogin, setIsVexLogin] = useState(null);
 
+  // List of token contracts with their names and addresses
   const tokenContracts = [
     { name: 'USDC', address: 'usdc.betvex.testnet' },
     { name: 'VEX', address: 'token.betvex.testnet' },
@@ -44,9 +60,12 @@ export default function RootLayout({ children }) {
   // Fetch Vex login status only on the client side
   useEffect(() => {
     if (typeof window !== "undefined") {
+       // Check if vexAccountId exists in localStorage and if it ends with ".testnet"
       const vexAccountId = localStorage.getItem("vexAccountId");
       const isVexLoginStatus = vexAccountId && vexAccountId.endsWith(".testnet");
       setIsVexLogin(isVexLoginStatus);
+
+      // Set isVexLogin in localStorage based on the status
       if (isVexLoginStatus) {
         localStorage.setItem("isVexLogin", "true");
       } else {
@@ -56,16 +75,20 @@ export default function RootLayout({ children }) {
   }, []);
 
   useEffect(() => {
+    // If not logged in via Vex, start up the wallet and set the signed account ID
     if (!isVexLogin) {
       wallet.startUp(setSignedAccountId);
     }
   }, [wallet, isVexLogin]);
 
   useEffect(() => {
+    // Determine the account ID based on the login method
     const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : signedAccountId;
     if (accountId) {
+       // Initialize the NEAR RPC provider
       const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
 
+      // Function to fetch token balances
       const fetchBalances = async () => {
         const balances = {};
         for (const token of tokenContracts) {
@@ -101,6 +124,7 @@ export default function RootLayout({ children }) {
         setTokenBalances(balances);
       };
 
+      // Fetch balances when the component mounts or accountId changes
       fetchBalances();
     }
   }, [signedAccountId, isVexLogin, tokenContracts]);

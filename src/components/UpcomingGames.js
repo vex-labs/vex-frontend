@@ -2,6 +2,20 @@ import React, { useEffect, useState } from 'react';
 import GameCard from './GameCard';
 import { useNear } from "@/app/context/NearContext";
 
+/**
+ * UpcomingGames component
+ * 
+ * This component displays a list of upcoming game matches fetched from the smartcontract.
+ * It combines match data with additional match data, filters future matches, and sorts them by match time.
+ * 
+ * @param {Object} props - The component props
+ * @param {Array} props.matches - Array of match objects
+ * @param {Array} props.additionalMatchData - Array of additional match data objects
+ * @param {string} props.vexAccountId - User's VEX account ID
+ * 
+ * @returns {JSX.Element} The rendered UpcomingGames component which consists of multiple GameCard components
+ */
+
 const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
   const nearContext = useNear(); // Always call useNear at the top
   const wallet = nearContext?.wallet || null;

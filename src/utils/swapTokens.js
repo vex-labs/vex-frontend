@@ -1,8 +1,22 @@
 // src/utils/swapTokens.js
+
+import { UsdcTokenContract, VexTokenContract, ReceiverId, PoolId } from '../app/config';
+
+/**
+ * Swaps tokens using the Ref.Finance contract.
+ * 
+ * This function prepares and sends a transaction to swap tokens using the Ref.Finance contract.
+ * 
+ * @param {Object} wallet - The wallet instance to use for the transaction
+ * @param {boolean} swapDirection - The direction of the swap (true for USDC to VEX, false for VEX to USDC)
+ * @param {string} tokenAmount - The amount of tokens to swap
+ * 
+ * @returns {Promise<Object>} A promise that resolves to the transaction outcome
+ */
 export async function swapTokens(wallet, swapDirection, tokenAmount) {
-    const tokenContractId = swapDirection ? 'usdc.betvex.testnet' : 'token.betvex.testnet'; // Token to transfer
-    const receiverId = 'ref-finance-101.testnet'; // Ref.Finance contract for swapping
-    const poolId = 2197; // Ref.Finance pool for VEX-USDC
+    const tokenContractId = swapDirection ? CONFIG.tokenContractIdUSDC : CONFIG.tokenContractIdVEX; // Token to transfer
+    const receiverId = ReceiverId; // Ref.Finance contract for swapping
+    const poolId = PoolId; 
   
     try {
       if (!wallet) {
@@ -16,7 +30,7 @@ export async function swapTokens(wallet, swapDirection, tokenAmount) {
           {
             pool_id: poolId,
             token_in: tokenContractId,
-            token_out: swapDirection ? 'token.betvex.testnet' : 'usdc.betvex.testnet',
+            token_out: swapDirection ? VexTokenContract : UsdcTokenContract,
             amount_in: tokenAmount,
             amount_out: '0', // Set to '0' if you don't have an exact amount
             min_amount_out: '0', // Set to '0' for no slippage tolerance (or customize this)
@@ -34,19 +48,18 @@ export async function swapTokens(wallet, swapDirection, tokenAmount) {
         contractId: tokenContractId,
         method: 'ft_transfer_call',
         args: {
-          receiver_id: receiverId, // Ref.Finance contract to handle the swap
-          amount: tokenAmount.toString(), // Ensure amount is passed as a string
-          msg: msg, // The message for Ref.Finance pool with swap details
+          receiver_id: receiverId,
+          amount: tokenAmount,
+          msg: msg,
         },
-        gas: gas,
-        deposit: deposit, // 1 yoctoNEAR required for cross-contract calls
+        gas,
+        deposit,
       });
   
       console.log('Token swap successful!', outcome);
       return outcome;
     } catch (error) {
-      console.error('Failed to swap tokens:', error.message || error);
+      console.error('Failed to swap tokens:', error);
       throw error;
     }
-  }
-  
+}

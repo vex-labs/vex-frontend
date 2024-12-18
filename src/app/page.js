@@ -6,10 +6,23 @@ import UpcomingGames from '@/components/UpcomingGames';
 import { useEffect, useState } from 'react';
 import { providers } from 'near-api-js';
 import { fetchMatchesByIDs } from '@/utils/fetchMatches';
-import { useNear } from "@/app/context/NearContext"; // Import useNear at the top
+import { useNear } from "@/app/context/NearContext"; 
 
+/**
+ * HomePage component
+ * 
+ * This component serves as the main page for displaying featured and upcoming games.
+ * It fetches match data from the blockchain and additional match data from the backend.
+ * It also manages the state for selected games and user account information.
+ * 
+ * @param {Object} props - The component props
+ * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
+ * @param {Object} props.vexKeyPair - The VEX key pair for the user
+ * 
+ * @returns {JSX.Element} The rendered HomePage component
+ */
 export default function HomePage({ isVexLogin, vexKeyPair }) {
-  const nearContext = useNear(); // Always call useNear at the top
+  const nearContext = useNear(); 
   const [matches, setMatches] = useState([]);
   const [additionalMatchData, setAdditionalMatchData] = useState([]);
   const [selectedGame, setSelectedGame] = useState(null);
@@ -24,10 +37,18 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     setVexAccountId(storedVexAccountId); 
   }, []);
 
+  /**
+   * Handles the selection of a game from the sidebar
+   * 
+   * @param {string} game - The selected game
+   */
   const handleGameSelection = (game) => {
     setSelectedGame(game);
   };
 
+  /**
+   * Resets the selected game to null
+   */
   const resetGameSelection = () => {
     setSelectedGame(null);
   };
@@ -58,6 +79,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     fetchMatches();
   }, []);
 
+  // Fetch additional match data from the backend
   useEffect(() => {
     const fetchAdditionalMatchData = async () => {
       if (matches.length === 0) return;
@@ -89,28 +111,26 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     <div className="container">
       <Sidebar onSelectGame={handleGameSelection} />
       <div className="mainContent">
-      <div className="hero-section">
-        <div className="hero-background">
-          <img src="/icons/newBannerHD.svg" alt="Hero Banner" className="hero-banner" />
+        <div className="hero-section">
+          <div className="hero-background">
+            <img src="/icons/newBannerHD.svg" alt="Hero Banner" className="hero-banner" />
+          </div>
         </div>
-      </div>
         <div className="content-wrapper">
-        <FeaturedGames matches={matches} additionalMatchData={additionalMatchData} />
-        <div className="header-container">
-          <h1 style={{ color: 'white' }}>Upcoming Games</h1>
-          {selectedGame && (
-            <button onClick={resetGameSelection} className="remove-filters-button">
-              Remove Filters
-            </button>
-          )}
-        </div>
-
-            <UpcomingGames 
-              matches={filteredMatches} 
-              additionalMatchData={filteredAdditionalData}
-              vexAccountId={vexAccountId} 
-            />
-          
+          <FeaturedGames matches={matches} additionalMatchData={additionalMatchData} />
+          <div className="header-container">
+            <h1 style={{ color: 'white' }}>Upcoming Games</h1>
+            {selectedGame && (
+              <button onClick={resetGameSelection} className="remove-filters-button">
+                Remove Filters
+              </button>
+            )}
+          </div>
+          <UpcomingGames 
+            matches={filteredMatches} 
+            additionalMatchData={filteredAdditionalData}
+            vexAccountId={vexAccountId} 
+          />
         </div>
       </div>
     </div>
