@@ -1,6 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { handleTransaction } from "@/utils/accountHandler";
 
+/**
+ * UserBets component
+ * 
+ * This component displays the user's bets and allows them to claim their winnings.
+ * It handles password submission if necessary and tracks successfully claimed bets.
+ * 
+ * yet to test this component for wallet login
+ * works with vex login
+ * 
+ * @param {Object} props - The component props
+ * @param {Array} props.userBets - Array of user's bet objects
+ * @param {Object} props.wallet - Wallet object for handling transactions
+ * @param {string} props.signedAccountId - The signed-in user's account ID
+ * 
+ * @returns {JSX.Element} The rendered UserBets component
+ */
+
 const UserBets = ({ userBets, wallet, signedAccountId }) => {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState(null);
