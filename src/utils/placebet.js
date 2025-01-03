@@ -1,12 +1,26 @@
 import { handleTransaction } from "@/utils/accountHandler";
 
-export async function placeBet(wallet, vexAccountId, matchId, team, betAmount, password) {
-  const contractId = "sexyvexycontract.testnet";
-  const tokenContractId = "usdc.betvex.testnet"; 
-
+/**
+ * Places a bet on a specified match.
+ * RETRIVE PASSWORD NEEDS TO BE CHECKED
+ * 
+ * This function prepares and sends a transaction to place a bet on a specific match
+ * using either a VEX account or a NEAR wallet.
+ * 
+ * @param {string} matchId - The ID of the match to bet on
+ * @param {string} team - The team to bet on
+ * @param {string} betAmount - The amount to bet
+ * @param {string} contractId - The ID of the contract to interact with
+ * @param {string} tokenContractId - The ID of the token contract for the bet
+ * @param {Object} wallet - The wallet instance to use for the transaction
+ * @param {string} vexAccountId - The VEX account ID, if available
+ * @param {string} password - The password for the VEX account, if saved
+ * 
+ * @returns {Promise<Object>} A promise that resolves to the transaction outcome
+ */
+export async function placeBet(matchId, team, betAmount, contractId, tokenContractId, wallet, vexAccountId, password) {
   try {
     // Retrieve password from local storage, if saved
-    
 
     // Prepare the message for the bet
     const msg = JSON.stringify({

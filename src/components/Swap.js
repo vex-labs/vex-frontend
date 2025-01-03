@@ -4,6 +4,23 @@ import { handleTransaction } from '@/utils/accountHandler';
 import { useGlobalContext } from '../app/context/GlobalContext';
 import { providers } from 'near-api-js';
 
+/**
+ * Swap component
+ * 
+ * This component allows users to swap between VEX and USDC tokens using refswap.
+ * It displays input fields for the amounts to be swapped and handles the swap transactions.
+ * Users can select the swap direction and enter the amount to be swapped.
+ * 
+ * Need to use values from the config file
+ * 
+ * @param {Object} props - The component props
+ * @param {string} props.signedAccountId - The signed-in user's account ID
+ * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
+ * @param {Object} props.wallet - Wallet object for handling transactions
+ * 
+ * @returns {JSX.Element} The rendered Swap component
+ */
+
 const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const [vexAmount, setVexAmount] = useState('');
   const [usdcAmount, setUsdcAmount] = useState('');

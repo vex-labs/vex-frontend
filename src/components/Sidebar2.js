@@ -1,6 +1,19 @@
 import Link from 'next/link';
 import { useState } from 'react';
 
+/**
+ * Sidebar component
+ * Sidebar can toggle between collapsed and expanded states.
+ * This sidebar is not dynamic and is used in the user page and earn page
+ * Sidebar.js is used in the main page
+ * 
+ * @param {Object} props - The component props
+ * @param {Function} props.onSelectGame - Function to handle game selection
+ * @param {string} props.selectedGame - The currently selected game
+ * 
+ * @returns {JSX.Element} The rendered Sidebar component
+ */
+
 const Sidebar2 = ({ }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
