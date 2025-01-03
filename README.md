@@ -1,4 +1,4 @@
-# VEX Betting Platform
+# Betvex Frontend
 
 Frontend for BetVex decentralised betting platform on [Near blockchain](https://near.org/) using [Next.js](https://nextjs.org/). 
 This application acts as a frontend to the BetVex smart contract while implementing additional features.
@@ -35,33 +35,51 @@ bun install
 
 ```plaintext
 .
-├── app
-│   ├── context
-│   │   ��── GlobalContext.js
-│   │   └── NearContext.js
-│   ├── page.js
-│   └── ...
-├── components
-│   ├── GameCard.js
-│   ├── NavBar.js
-│   ├── PasswordModal.js
-│   ├── Sidebar.js
-│   ├── Staking.js
-│   ├── Swap.js
-│   ├── UpcomingGames.js
-│   ├── UserBets.js
-│   └── VexLoginPrompt.js
-├── utils
-│   ├── accountHandler.js
-│   ├── placebet.js
-│   └── swapTokens.js
-├── public
-│   ├── icons
-│   └── ...
-├── styles
-│   └── ...
+├── .env
+├── jsconfig.json
+├── next.config.mjs
+├── package.json
+├── public/
+│   └── icons/
 ├── README.md
-└── ...
+├── src/
+│   ├── app/
+│   │   ├── context/
+│   │   │   ├── GlobalContext.js
+│   │   │   └── NearContext.js
+│   │   ├── earn/
+│   │   │   ├── earn.css
+│   │   │   └── page.js
+│   │   ├── governance/
+│   │   │   └── page.js
+│   │   ├── layout.js
+│   │   ├── page.js
+│   │   ├── user/
+│   │   │   ├── page.js
+│   │   │   └── user.css
+│   │   ├── wallet/
+│   │   │   └── Wallet.js
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── Faq.js
+│   │   ├── FeaturedGames.js
+│   │   ├── GameCard.js
+│   │   ├── NavBar.js
+│   │   ├── Sidebar.js
+│   │   ├── Sidebar2.js
+│   │   ├── Stake.js
+│   │   ├── Swap.js
+│   │   ├── UpcomingGames.js
+│   │   ├── UserBets.js
+│   │   └── VexLoginPrompt.js
+│   ├── utils/
+│   │   ├── accountHandler.js
+│   │   ├── fetchMatches.js
+│   │   ├── placebet.js
+│   │   ├── swapTokens.js
+│   │   └── swapTokensWithVexLogin.js
+│   └── config.js
+
 ```
 
 ## Main Pages
