@@ -1,7 +1,36 @@
 import React, { useState, useEffect } from 'react';
 import { providers } from 'near-api-js';
 import { placeBet } from '@/utils/placebet';
+import { BetContractId, NearRpcUrl } from '@/app/config';
 
+/**
+ * GameCard component
+ * 
+ * This component represents a card displaying information about a game match.
+ * The game card can be in two modes: viewing the match details or placing a bet.
+ * Betting mode will be replaced by a betslip.
+ * It allows users to place bets on the match and view potential payouts.
+ * 
+ * Note: For both functions "get_match" and "get_potential_winnings" different rpc calls are made to the contract.
+ * 
+ * @param {Object} props - The component props
+ * @param {string} props.className - Additional class names for styling
+ * @param {string} props.tournamentIcon - URL of the tournament icon
+ * @param {string} props.tournamentName - Name of the tournament
+ * @param {string} props.matchTime - Time of the match
+ * @param {string} props.team1Logo - URL of the first team's logo
+ * @param {string} props.team1Name - Name of the first team
+ * @param {string} props.team2Logo - URL of the second team's logo
+ * @param {string} props.team2Name - Name of the second team
+ * @param {number} props.odds1 - Betting odds for the first team
+ * @param {number} props.odds2 - Betting odds for the second team
+ * @param {string} props.matchId - ID of the match
+ * @param {number} props.walletBalance - User's wallet balance
+ * @param {Object} props.wallet - Wallet object for handling transactions
+ * @param {string} props.vexAccountId - User's VEX account ID
+ * 
+ * @returns {JSX.Element} The rendered GameCard component
+ */
 const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1Logo, team1Name, team2Logo, team2Name, odds1, odds2, matchId, walletBalance, wallet, vexAccountId }) => {
   const [isBettingMode, setIsBettingMode] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
@@ -19,10 +48,10 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
 
   const fetchMatchDetails = async () => {
     try {
-      const contractId = "sexyvexycontract.testnet";
+      const contractId = BetContractId;
 
       // Connect to NEAR blockchain
-      const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+      const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
       // Fetch match details using the match_id
       const args = JSON.stringify({ match_id: matchId });
@@ -57,8 +86,8 @@ const GameCard = ({ className, tournamentIcon, tournamentName, matchTime, team1L
             return;
         }
 
-        const contractId = "sexyvexycontract.testnet";
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        const contractId = BetContractId;
+        const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
         // Multiply the stake by 1e6 to match 6-decimal precision
         const betAmount = (BigInt(Math.floor(stakeAmount * 1e6))).toString();

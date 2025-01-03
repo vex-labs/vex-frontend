@@ -1,5 +1,5 @@
 import { transactions, utils } from 'near-api-js';
-
+import { UsdcTokenContract, VexTokenContract, ReceiverId, PoolId } from '../app/config';
 /**
  * Handles token swap logic for VEX login.
  * @param {boolean} swapDirection - true for VEX -> USDC, false for USDC -> VEX.
@@ -12,17 +12,15 @@ import { transactions, utils } from 'near-api-js';
 export async function swapTokensWithVexLogin(swapDirection, formattedAmount, keyPair, provider, accountId) {
   try {
     // Define the token contracts and other constants
-    const tokenContractId = swapDirection ? 'usdc.betvex.testnet' : 'token.betvex.testnet'; // Token contract based on swap direction
-    const receiverId = 'ref-finance-101.testnet'; // Ref.Finance contract for swapping
-    const poolId = 2197; // Ref.Finance pool for VEX-USDC
+    const tokenContractId = swapDirection ? UsdcTokenContract : VexTokenContract; 
 
     const msg = JSON.stringify({
       force: 0,
       actions: [
         {
-          pool_id: poolId,
-          token_in: swapDirection ? 'usdc.betvex.testnet' : 'token.betvex.testnet',
-          token_out: swapDirection ? 'token.betvex.testnet' : 'usdc.betvex.testnet',
+          pool_id: PoolId, // Ref.Finance pool for VEX-USDC
+          token_in: swapDirection ? UsdcTokenContract : VexTokenContract,
+          token_out: swapDirection ? VexTokenContract : UsdcTokenContract,
           amount_in: formattedAmount,
           amount_out: '0', // Set to '0' if no specific output expected
           min_amount_out: '1', // Set based on slippage tolerance
@@ -38,7 +36,7 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
       transactions.functionCall(
         'ft_transfer_call',
         {
-          receiver_id: receiverId,
+          receiver_id: ReceiverId,
           amount: formattedAmount,
           msg: msg,
         },
@@ -49,7 +47,6 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
 
     // Step 1: Get the public key from the keypair
     const publicKey = keyPair.getPublicKey();
-    console.log("Public Key:", publicKey.toString());
 
     // Step 2: Query for the access key to get the current nonce and block hash
     const accessKey = await provider.query(
@@ -57,16 +54,11 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
       ""
     );
 
-    // Log access key details for debugging
-    console.log("Access Key Details:", JSON.stringify(accessKey, null, 2));
-
     // Step 3: Increment the nonce by 1, convert it to string
     const nonce = (BigInt(accessKey.nonce) + BigInt(1)).toString();
-    console.log("Nonce for the transaction:", nonce.toString());
 
     // Step 4: Get the block hash from the access key and log it
     const blockHash = accessKey.block_hash;
-    console.log("Raw Block Hash (base58):", blockHash);
 
     // Validate blockHash before decoding
     if (!/^[1-9A-HJ-NP-Za-km-z]+$/.test(blockHash)) {
@@ -77,7 +69,6 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
     let recentBlockHash;
     try {
       recentBlockHash = utils.serialize.base_decode(blockHash);
-      console.log("Decoded Block Hash (Uint8Array):", recentBlockHash);
     } catch (err) {
       console.error("Error decoding block hash:", err.message);
       throw new Error('Failed to decode block hash');
@@ -93,9 +84,6 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
         actions, // The action (swap call)
         recentBlockHash // Pass the decoded block hash directly here
       );
-
-      // Log the prepared transaction for further inspection
-      console.log("Prepared Transaction:", transaction);
 
       return transaction;
     } catch (err) {

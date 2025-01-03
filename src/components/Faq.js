@@ -1,9 +1,23 @@
 // components/FAQ.js
 import { useState } from "react";
 
+/**
+ * FAQ component
+ * 
+ * This component renders a list of frequently asked questions (FAQs).
+ * Users can click on a question to toggle the visibility of the answer.
+ * Note: This FAQ sections can have multiple answers open at the same time.
+ *    Keep in mind when designing the UI.
+ * @returns {JSX.Element} The rendered FAQ component
+ */
 const FAQ = () => {
   const [openFAQs, setOpenFAQs] = useState([]);
 
+  /**
+   * Toggles the visibility of an FAQ answer.
+   * 
+   * @param {number} index - The index of the FAQ to toggle
+   */
   const toggleFAQ = (index) => {
     if (openFAQs.includes(index)) {
       // If the clicked FAQ is already open, close it
@@ -14,6 +28,7 @@ const FAQ = () => {
     }
   };
 
+  // Data for the FAQs
   const faqData = [
     {
       question: "What is Next.js?",

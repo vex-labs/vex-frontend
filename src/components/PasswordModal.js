@@ -1,6 +1,17 @@
 // PasswordModal.js
 import React, { useState } from 'react';
 
+/**
+ * PasswordModal component
+ * 
+ * This component renders a modal for entering a password when required.
+ * 
+ * @param {Object} props - The component props
+ * @param {Function} props.onClose - Function to handle closing the modal
+ * @param {Function} props.onSubmit - Function to handle submitting the password
+ * 
+ * @returns {JSX.Element} The rendered PasswordModal component
+ */
 const PasswordModal = ({ onClose, onSubmit }) => {
   const [password, setPassword] = useState('');
 
