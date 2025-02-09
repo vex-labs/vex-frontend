@@ -1,108 +1,114 @@
 :root {
-    --primary-color: #FF3358;
-    --secondary-color: #1E1E1E;
-    --black-color: #000;
-    --text-color: #EEE2DF;
-    --accent-color: #ff5722;
-    --white-color: #ffffff;
-  }
-  
-  body {
-    background-color: var(--secondary-color);
-  }
-  
-  .user-page {
-    
-    margin-top: 55px;
-    padding: 20px;
-    margin-left: 230px; 
-  }
+  --primary-color: #ff3358;
+  --secondary-color: #1e1e1e;
+  --black-color: #000;
+  --text-color: #eee2df;
+  --accent-color: #ff5722;
+  --white-color: #ffffff;
+}
 
-  .app-sidebar.collapsed + .user-page {
-    margin-left: 50px; /* margin when sidebar is collapsed */
-  }
-  
-  .user-content {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  h2 {
-    color: var(--primary-color);
-  }
-  
-  .account-details, .tokens-section, .active-bets {
-    padding: 15px;
-    margin-bottom: 20px;
-  }
-  
-  .account-info, .token-item, .bet-item {
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1); /* Frosted glass effect for inner elements */
-    border-radius: 15px;
-    backdrop-filter: blur(10px); /* Creates the glass effect */
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    color: var(--text-color);
-  }
+body {
+  background-color: var(--secondary-color);
+}
 
-  .vex-section {
-    display: flex;
-    justify-content: space-between;
-  }
+.user-page {
+  margin-top: 55px;
+  padding: 20px;
+  margin-left: 230px;
+}
 
-  .vex-button {
-    width: 48%; /* Equal width for both buttons */
-    text-align: center;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.1); /* Glass effect for buttons */
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    color: var(--white-color);
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.3s;
-  }
-  
-  .vex-button:hover {
-    background-color: var(--accent-color); /* Hover effect */
-  }
-  
-  .tokens-section {
-    display: flex;
-    justify-content: space-between;
-  }
-  
-  .token-item {
-    width: 48%;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
-  .bet-item {
-    margin: 10px 0;
-  }
-  
-  .bet-item p {
-    margin: 5px 0;
-  }
-  
-  .bet-item p strong {
-    color: var(--primary-color);
-  }
-  
-  .action-button {
-    background-color: var(--primary-color);
-    color: var(--white-color);
-    padding: 10px 15px;
-    margin: 10px 0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .action-button:hover {
-    background-color: var(--accent-color);
-  }
-  
+.app-sidebar.collapsed + .user-page {
+  margin-left: 50px; /* margin when sidebar is collapsed */
+}
 
+.user-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: var(--primary-color);
+}
+
+.account-details,
+.tokens-section,
+.active-bets {
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.account-info,
+.token-item,
+.bet-item {
+  padding: 15px;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Frosted glass effect for inner elements */
+  border-radius: 15px;
+  backdrop-filter: blur(10px); /* Creates the glass effect */
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: var(--text-color);
+}
+
+.vex-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.vex-button {
+  width: 48%; /* Equal width for both buttons */
+  text-align: center;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.1); /* Glass effect for buttons */
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: var(--white-color);
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s;
+}
+
+.vex-button:hover {
+  background-color: var(--accent-color); /* Hover effect */
+}
+
+.tokens-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.token-item {
+  width: 48%;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.bet-item {
+  margin: 10px 0;
+}
+
+.bet-item p {
+  margin: 5px 0;
+}
+
+.bet-item p strong {
+  color: var(--primary-color);
+}
+
+.action-button {
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  padding: 10px 15px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.action-button:hover {
+  background-color: var(--accent-color);
+}

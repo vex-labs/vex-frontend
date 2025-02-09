@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import GameCard from './GameCard';
+import React, { useEffect, useState } from "react";
+import GameCard from "./GameCard";
 import { useNear } from "@/app/context/NearContext";
 
 /**
  * UpcomingGames component
- * 
+ *
  * This component displays a list of upcoming game matches fetched from the smartcontract.
  * It combines match data with additional match data, filters future matches, and sorts them by match time.
- * 
+ *
  * @param {Object} props - The component props
  * @param {Array} props.matches - Array of match objects
  * @param {Array} props.additionalMatchData - Array of additional match data objects
  * @param {string} props.vexAccountId - User's VEX account ID
- * 
+ *
  * @returns {JSX.Element} The rendered UpcomingGames component which consists of multiple GameCard components
  */
 
@@ -27,21 +27,21 @@ const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
 
   useEffect(() => {
     // Combine matches and additional data based on sanitized match_id
-    const combinedMatches = matches.map(match => {
-      const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');
-      const additionalData = additionalMatchData.find(additionalMatch =>
-        additionalMatch.match_id === sanitizedMatchId
+    const combinedMatches = matches.map((match) => {
+      const sanitizedMatchId = match.match_id.replace(/\s+/g, "-");
+      const additionalData = additionalMatchData.find(
+        (additionalMatch) => additionalMatch.match_id === sanitizedMatchId,
       );
 
       return {
         ...match,
-        ...additionalData
+        ...additionalData,
       };
     });
 
     // Filter only future matches and sort them by match_time
     const futureMatches = combinedMatches
-      .filter(match => match.match_state === 'Future' && match.match_time)
+      .filter((match) => match.match_state === "Future" && match.match_time)
       .sort((a, b) => a.match_time - b.match_time);
 
     setSortedMatches(futureMatches);
@@ -51,13 +51,17 @@ const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
     <div>
       <div className="upcoming-grid-container">
         {sortedMatches.map((match, index) => {
-          const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');
+          const sanitizedMatchId = match.match_id.replace(/\s+/g, "-");
           const additionalData = additionalMatchData.find(
-            additionalMatch => additionalMatch.match_id === sanitizedMatchId
+            (additionalMatch) => additionalMatch.match_id === sanitizedMatchId,
           );
 
-          const roundedOdds1 = parseFloat(match.team_1_odds || "1.00").toFixed(2);
-          const roundedOdds2 = parseFloat(match.team_2_odds || "1.00").toFixed(2);
+          const roundedOdds1 = parseFloat(match.team_1_odds || "1.00").toFixed(
+            2,
+          );
+          const roundedOdds2 = parseFloat(match.team_2_odds || "1.00").toFixed(
+            2,
+          );
 
           return (
             <GameCard
@@ -75,13 +79,17 @@ const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
               }
               matchTime={
                 additionalData
-                  ? `${new Date(additionalData.match_time * 1000).toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: 'long'
-                    })} ${new Date(additionalData.match_time * 1000).toLocaleTimeString('en-GB', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
+                  ? `${new Date(
+                      additionalData.match_time * 1000,
+                    ).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "long",
+                    })} ${new Date(
+                      additionalData.match_time * 1000,
+                    ).toLocaleTimeString("en-GB", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      hour12: false,
                     })}`
                   : "Monday, 01:00"
               }

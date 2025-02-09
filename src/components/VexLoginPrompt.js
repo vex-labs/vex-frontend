@@ -2,16 +2,16 @@ import React, { useState } from "react";
 
 /**
  * VexLoginPrompt component
- * 
+ *
  * This component provides a login prompt for VEX users.
  * It allows users to enter their username and password, and optionally save the password.
- * 
- * This component requires a close button 
- * 
+ *
+ * This component requires a close button
+ *
  * @param {Object} props - The component props
  * @param {Function} props.onLoginSuccess - Function to handle successful login
  * @param {Function} props.handleVexLogin - Function to handle the VEX login process
- * 
+ *
  * @returns {JSX.Element} The rendered VexLoginPrompt component
  */
 
@@ -33,7 +33,7 @@ const VexLoginPrompt = ({ onLoginSuccess, handleVexLogin }) => {
   return (
     <div className="vex-login-prompt">
       <h3>Login with VEX</h3>
-      
+
       <label htmlFor="username">Username</label>
       <div className="username-input">
         <input

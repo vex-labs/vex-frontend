@@ -1,15 +1,15 @@
-import Link from 'next/link';
-import { lazy, useState } from 'react';
+import Link from "next/link";
+import { lazy, useState } from "react";
 /**
  * Sidebar component
  * Sidebar can toggle between collapsed and expanded states.
  * This sidebar is not dynamic and is only used in the main page
  * Sidebar2.js is used in the userpage and earn page
- * 
+ *
  * @param {Object} props - The component props
  * @param {Function} props.onSelectGame - Function to handle game selection
  * @param {string} props.selectedGame - The currently selected game
- * 
+ *
  * @returns {JSX.Element} The rendered Sidebar component
  */
 
@@ -26,35 +26,65 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   };
 
   const games = [
-    { name: 'counter-strike-2', label: 'Counter Strike 2', icon: '/icons/games/csgo.png' },
-    { name: 'lol', label: 'League of Legends', icon: '/icons/games/lol.png' },
-    { name: 'valorant', label: 'Valorant', icon: '/icons/games/valorant.png' },
-    { name: 'fortnite', label: 'Fortnite', icon: '/icons/games/fortnite.png' },
-    { name: 'apex', label: 'Apex Legends', icon: '/icons/games/apex.png' },
-    { name: 'rainbowsix', label: 'Rainbow Six Siege', icon: '/icons/games/rainbowsix.png' },
-    { name: 'dota2', label: 'Dota 2', icon: '/icons/games/dota2.png' },
-    {name: 'overwatch-2', label: 'Overwatch 2', icon: '/icons/games/overwatch.png'}
+    {
+      name: "counter-strike-2",
+      label: "Counter Strike 2",
+      icon: "/icons/games/csgo.png",
+    },
+    { name: "lol", label: "League of Legends", icon: "/icons/games/lol.png" },
+    { name: "valorant", label: "Valorant", icon: "/icons/games/valorant.png" },
+    { name: "fortnite", label: "Fortnite", icon: "/icons/games/fortnite.png" },
+    { name: "apex", label: "Apex Legends", icon: "/icons/games/apex.png" },
+    {
+      name: "rainbowsix",
+      label: "Rainbow Six Siege",
+      icon: "/icons/games/rainbowsix.png",
+    },
+    { name: "dota2", label: "Dota 2", icon: "/icons/games/dota2.png" },
+    {
+      name: "overwatch-2",
+      label: "Overwatch 2",
+      icon: "/icons/games/overwatch.png",
+    },
   ];
 
   const socials = [
-    { name: 'Telegram', icon: '/icons/socials/telegram.png', link: 'https://t.me/+4x6uwCjC7BgzNmRk' },
-    { name: 'x', icon: '/icons/socials/x.png', link: 'https://x.com/betvex' },
-    { name: 'TikTok', icon: '/icons/socials/tiktok.png', link: 'https://www.tiktok.com/@betvex' },
-    { name: 'Instagram', icon: '/icons/socials/instagram.png', link: 'https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr' },
+    {
+      name: "Telegram",
+      icon: "/icons/socials/telegram.png",
+      link: "https://t.me/+4x6uwCjC7BgzNmRk",
+    },
+    { name: "x", icon: "/icons/socials/x.png", link: "https://x.com/betvex" },
+    {
+      name: "TikTok",
+      icon: "/icons/socials/tiktok.png",
+      link: "https://www.tiktok.com/@betvex",
+    },
+    {
+      name: "Instagram",
+      icon: "/icons/socials/instagram.png",
+      link: "https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr",
+    },
   ];
 
   return (
-    <div className={`app-sidebar ${isCollapsed ? 'collapsed' : ''} ${isTransitioning ? 'transitioning' : ''}`}>
+    <div
+      className={`app-sidebar ${isCollapsed ? "collapsed" : ""} ${isTransitioning ? "transitioning" : ""}`}
+    >
       <ul>
         <li>
           <button className="toggle-button" onClick={toggleSidebar}>
-            {isCollapsed ? '→' : '←'}
+            {isCollapsed ? "→" : "←"}
           </button>
         </li>
         <li>
           <Link href="/" legacyBehavior>
             <a>
-              <img src="/icons/home.png" alt="Home" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/home.png"
+                alt="Home"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Home</span>}
             </a>
           </Link>
@@ -62,7 +92,11 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <li>
           <Link href="/earn" legacyBehavior>
             <a>
-              <img src="/icons/staking.png" alt="earn" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/staking.png"
+                alt="earn"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Earn</span>}
             </a>
           </Link>
@@ -70,7 +104,11 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <li>
           <Link href="/governance" legacyBehavior>
             <a>
-              <img src="/icons/governance.png" alt="Governance" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/governance.png"
+                alt="Governance"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Governance</span>}
             </a>
           </Link>
@@ -83,7 +121,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             <a
               href="#"
               onClick={() => onSelectGame(game.name)}
-              className={game.name === selectedGame ? 'selected' : ''}
+              className={game.name === selectedGame ? "selected" : ""}
             >
               <img src={game.icon} alt={game.label} />
               {!isCollapsed && <span>{game.label}</span>}

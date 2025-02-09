@@ -1,16 +1,21 @@
 "use client";
-import { useEffect, useState } from 'react';
-import { providers } from 'near-api-js';
+import { useEffect, useState } from "react";
+import { providers } from "near-api-js";
 import "./user.css";
-import UserBets from '@/components/Userbets';
+import UserBets from "@/components/Userbets";
 import { handleTransaction } from "@/utils/accountHandler";
-import Sidebar2 from '@/components/Sidebar2';
+import Sidebar2 from "@/components/Sidebar2";
 import { useNear } from "@/app/context/NearContext";
+import { NearRpcUrl } from "../config";
 
 const UserPage = () => {
-  const nearContext = useNear(); 
-  const isVexLogin = typeof window !== 'undefined' && localStorage.getItem('isVexLogin') === 'true';
-  const accountId = isVexLogin ? localStorage.getItem("vexAccountId") : nearContext?.signedAccountId || null;
+  const nearContext = useNear();
+  const isVexLogin =
+    typeof window !== "undefined" &&
+    localStorage.getItem("isVexLogin") === "true";
+  const accountId = isVexLogin
+    ? localStorage.getItem("vexAccountId")
+    : nearContext?.signedAccountId || null;
   const wallet = isVexLogin ? null : nearContext?.wallet || null;
 
   const [userBets, setUserBets] = useState([]);
@@ -18,8 +23,8 @@ const UserPage = () => {
   const [matchStates, setMatchStates] = useState({}); // For storing match states
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
-  const [withdrawAmount, setWithdrawAmount] = useState('');
-  const [recipientAddress, setRecipientAddress] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState("");
   const [password, setPassword] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
@@ -39,7 +44,7 @@ const UserPage = () => {
           from_index: null,
           limit: null,
         };
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        const provider = new providers.JsonRpcProvider(NearRpcUrl);
         const userBets = await provider.query({
           request_type: "call_function",
           account_id: contractId,
@@ -47,7 +52,9 @@ const UserPage = () => {
           args_base64: btoa(JSON.stringify(args)),
           finality: "final",
         });
-        const decodedResult = JSON.parse(Buffer.from(userBets.result).toString());
+        const decodedResult = JSON.parse(
+          Buffer.from(userBets.result).toString(),
+        );
 
         const userBetsWithState = decodedResult.map(([betId, bet]) => {
           const matchState = matchStates[bet.match_id]?.match_state || null; // Add match state if available
@@ -73,18 +80,20 @@ const UserPage = () => {
   useEffect(() => {
     const fetchMatches = async () => {
       try {
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+        const provider = new providers.JsonRpcProvider(NearRpcUrl);
         const matches = await provider.query({
           request_type: "call_function",
           account_id: "sexyvexycontract.testnet",
           method_name: "get_matches",
           args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
-          finality: "final"
+          finality: "final",
         });
-        const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
+        const decodedResult = JSON.parse(
+          Buffer.from(matches.result).toString(),
+        );
 
         const states = {};
-        decodedResult.forEach(match => {
+        decodedResult.forEach((match) => {
           states[match.match_id] = { match_state: match.match_state };
         });
 
@@ -103,7 +112,7 @@ const UserPage = () => {
     localStorage.setItem("vexPassword", enteredPassword);
     setShowPasswordModal(false);
     handleWithdrawFunds();
-    localStorage.removeItem('vexPassword');
+    localStorage.removeItem("vexPassword");
     setPassword(null);
   };
 
@@ -114,7 +123,9 @@ const UserPage = () => {
     }
 
     const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
-    const formattedAmount = BigInt(parseFloat(withdrawAmount) * Math.pow(10, decimals)).toString();
+    const formattedAmount = BigInt(
+      parseFloat(withdrawAmount) * Math.pow(10, decimals),
+    ).toString();
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR
 
@@ -126,7 +137,7 @@ const UserPage = () => {
         gas,
         deposit,
         null,
-        password
+        password,
       );
       console.log("Withdrawal successful:", result);
       alert("Withdrawal Successful!");
@@ -142,7 +153,13 @@ const UserPage = () => {
       <div className="user-page">
         <Sidebar2 />
         <div className="user-content">
-          <h2 style={{ textAlign: 'center', color: 'var(--primary-color)', marginTop: '20%' }}>
+          <h2
+            style={{
+              textAlign: "center",
+              color: "var(--primary-color)",
+              marginTop: "20%",
+            }}
+          >
             Please Login to access the user page
           </h2>
         </div>
@@ -157,14 +174,25 @@ const UserPage = () => {
         <section className="account-details">
           <h2>Account Details</h2>
           <div className="account-info">
-            <h2><strong>Username:</strong> {accountId || "Not logged in"}</h2>
+            <h2>
+              <strong>Username:</strong> {accountId || "Not logged in"}
+            </h2>
             <section className="vex-section">
-              <button className="vex-button" onClick={() => setShowWithdrawModal(true)}>Withdraw Funds</button>
+              <button
+                className="vex-button"
+                onClick={() => setShowWithdrawModal(true)}
+              >
+                Withdraw Funds
+              </button>
               <button className="vex-button">Export Private Key</button>
             </section>
           </div>
         </section>
-        <UserBets userBets={userBets} wallet={wallet} signedAccountId={accountId} />
+        <UserBets
+          userBets={userBets}
+          wallet={wallet}
+          signedAccountId={accountId}
+        />
         <section className="past-bets">
           <h2>Past Bets</h2>
           <ul>
@@ -177,8 +205,8 @@ const UserPage = () => {
               <h3>Withdraw Funds</h3>
               <label className="withdraw-label">
                 Token:
-                <select 
-                  value={withdrawToken} 
+                <select
+                  value={withdrawToken}
                   onChange={(e) => setWithdrawToken(e.target.value)}
                   className="withdraw-select"
                 >
@@ -207,8 +235,19 @@ const UserPage = () => {
                 />
               </label>
               <div className="withdraw-modal-buttons">
-                <button onClick={() => setShowWithdrawModal(false)} className="withdraw-button cancel-button">Cancel</button>
-                <button onClick={handleWithdrawFunds} className="withdraw-button confirm-button"> Withdraw</button>
+                <button
+                  onClick={() => setShowWithdrawModal(false)}
+                  className="withdraw-button cancel-button"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleWithdrawFunds}
+                  className="withdraw-button confirm-button"
+                >
+                  {" "}
+                  Withdraw
+                </button>
               </div>
             </div>
           </div>
@@ -220,11 +259,13 @@ const UserPage = () => {
             <h3>Enter Password</h3>
             <input
               type="password"
-              value={password || ''}
+              value={password || ""}
               onChange={(e) => setPassword(e.target.value)}
             />
             <div className="modal-buttons">
-              <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
+              <button onClick={() => setShowPasswordModal(false)}>
+                Cancel
+              </button>
               <button onClick={handlePasswordSubmit}>Submit</button>
             </div>
           </div>

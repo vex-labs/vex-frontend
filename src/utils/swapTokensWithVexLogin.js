@@ -1,18 +1,31 @@
-import { transactions, utils } from 'near-api-js';
-import { UsdcTokenContract, VexTokenContract, ReceiverId, PoolId } from '../app/config';
+import { transactions, utils } from "near-api-js";
+import {
+  UsdcTokenContract,
+  VexTokenContract,
+  ReceiverId,
+  PoolId,
+} from "../app/config";
 /**
  * Handles token swap logic for VEX login.
  * @param {boolean} swapDirection - true for VEX -> USDC, false for USDC -> VEX.
  * @param {string} formattedAmount - The amount of tokens in smallest unit in yocto
- * @param {KeyPair} keyPair - The user's key pair 
- * @param {JsonRpcProvider} provider - NEAR provider 
- * @param {string} accountId - The account ID of the user 
+ * @param {KeyPair} keyPair - The user's key pair
+ * @param {JsonRpcProvider} provider - NEAR provider
+ * @param {string} accountId - The account ID of the user
  * @returns {Promise<object>} - The prepared transaction object.
  */
-export async function swapTokensWithVexLogin(swapDirection, formattedAmount, keyPair, provider, accountId) {
+export async function swapTokensWithVexLogin(
+  swapDirection,
+  formattedAmount,
+  keyPair,
+  provider,
+  accountId,
+) {
   try {
     // Define the token contracts and other constants
-    const tokenContractId = swapDirection ? UsdcTokenContract : VexTokenContract; 
+    const tokenContractId = swapDirection
+      ? UsdcTokenContract
+      : VexTokenContract;
 
     const msg = JSON.stringify({
       force: 0,
@@ -22,26 +35,26 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
           token_in: swapDirection ? UsdcTokenContract : VexTokenContract,
           token_out: swapDirection ? VexTokenContract : UsdcTokenContract,
           amount_in: formattedAmount,
-          amount_out: '0', // Set to '0' if no specific output expected
-          min_amount_out: '1', // Set based on slippage tolerance
+          amount_out: "0", // Set to '0' if no specific output expected
+          min_amount_out: "1", // Set based on slippage tolerance
         },
       ],
     });
 
-    const gas = '100000000000000'; // 100 Tgas
-    const deposit = '1'; // 1 yoctoNEAR for cross-contract calls
+    const gas = "100000000000000"; // 100 Tgas
+    const deposit = "1"; // 1 yoctoNEAR for cross-contract calls
 
     // Create the transfer call action
     const actions = [
       transactions.functionCall(
-        'ft_transfer_call',
+        "ft_transfer_call",
         {
           receiver_id: ReceiverId,
           amount: formattedAmount,
           msg: msg,
         },
         gas,
-        deposit
+        deposit,
       ),
     ];
 
@@ -51,7 +64,7 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
     // Step 2: Query for the access key to get the current nonce and block hash
     const accessKey = await provider.query(
       `access_key/${accountId}/${publicKey.toString()}`,
-      ""
+      "",
     );
 
     // Step 3: Increment the nonce by 1, convert it to string
@@ -71,7 +84,7 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
       recentBlockHash = utils.serialize.base_decode(blockHash);
     } catch (err) {
       console.error("Error decoding block hash:", err.message);
-      throw new Error('Failed to decode block hash');
+      throw new Error("Failed to decode block hash");
     }
 
     // Step 6: Prepare the transaction object with the decoded block hash
@@ -82,17 +95,16 @@ export async function swapTokensWithVexLogin(swapDirection, formattedAmount, key
         tokenContractId, // The receiverId (contract to interact with)
         nonce.toString(), // The nonce for this access key (now in string format)
         actions, // The action (swap call)
-        recentBlockHash // Pass the decoded block hash directly here
+        recentBlockHash, // Pass the decoded block hash directly here
       );
 
       return transaction;
     } catch (err) {
       console.error("Error preparing transaction:", err.message);
-      throw new Error('Failed to prepare transaction');
+      throw new Error("Failed to prepare transaction");
     }
-
   } catch (error) {
-    console.error('Failed to prepare swap transaction with Vex login:', error);
-    throw new Error('Failed to prepare swap transaction');
+    console.error("Failed to prepare swap transaction with Vex login:", error);
+    throw new Error("Failed to prepare swap transaction");
   }
 }

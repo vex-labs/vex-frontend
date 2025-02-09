@@ -1,19 +1,17 @@
 :root {
-  --primary-color: #FF3358;
-  --secondary-color: #1E1E1E;
+  --primary-color: #ff3358;
+  --secondary-color: #1e1e1e;
   --black-color: #000;
-  --text-color: #EEE2DF;
+  --text-color: #eee2df;
   --accent-color: #ff5722;
   --white-color: #ffffff;
 }
 
-
 .earn-page {
   background-color: var(--secondary-color);
-  margin-top: 55px; 
+  margin-top: 55px;
   margin-left: 230px;
   padding: 20px;
- 
 }
 
 .earn-container {
@@ -23,8 +21,8 @@
   flex-wrap: wrap; /* Allow wrapping for smaller screens */
 }
 
-
-.swap-section, .stake-section {
+.swap-section,
+.stake-section {
   width: 49%; /* Adjust width for balance */
   border-radius: 8px;
   height: 700px;
@@ -57,7 +55,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px; 
+  padding: 20px;
   background-color: #111;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -156,7 +154,7 @@
   padding: 20px;
   background-color: #000;
   border-radius: 12px;
-  border: 2px solid #fff;  /* White border for visibility */
+  border: 2px solid #fff; /* White border for visibility */
   color: #fff;
   font-family: Arial, sans-serif;
 }
@@ -196,7 +194,9 @@ label {
   text-align: center;
   border-radius: 9999px;
   overflow: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
   color: #6e6e6edd;
   cursor: pointer;
 }
@@ -205,7 +205,9 @@ input[type="radio"]:checked + label {
   background-color: var(--black-color);
   color: #f1f3f5;
   font-weight: bold;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .staking-statistics {
@@ -224,7 +226,7 @@ input[type="radio"]:checked + label {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px;  /* Keeping the padding consistent */
+  padding: 20px; /* Keeping the padding consistent */
   background-color: #111;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -234,7 +236,7 @@ input[type="radio"]:checked + label {
 .token-info {
   display: flex;
   align-items: center;
-  gap: 10px;  /* Space between logo and text */
+  gap: 10px; /* Space between logo and text */
 }
 
 .token-logo {
