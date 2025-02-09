@@ -129,10 +129,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
           </div>
         </div>
         <div className="content-wrapper">
-          <FeaturedGames
-            matches={matches}
-            additionalMatchData={additionalMatchData}
-          />
+          <FeaturedGames />
           <div className="header-container">
             <h1 style={{ color: "white" }}>Upcoming Games</h1>
             {selectedGame && (
