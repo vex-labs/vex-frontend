@@ -25,7 +25,7 @@ export class Wallet {
   constructor({ networkId = "testnet", createAccessKeyFor = undefined }) {
     this.createAccessKeyFor = createAccessKeyFor;
     this.networkId = networkId;
-    this.selector = null // added this recently
+    this.selector = null; // added this recently
   }
 
   /**
@@ -40,18 +40,18 @@ export class Wallet {
         network: this.networkId,
         modules: [setupMyNearWallet(), setupHereWallet()],
       });
-  
+
       const walletSelector = await this.selector;
       const isSignedIn = walletSelector.isSignedIn();
-  
+
       if (isSignedIn) {
         const accountId = walletSelector.store.getState().accounts[0].accountId;
         console.log("Account Signed In:", accountId);
-  
+
         // Call the account change hook to update the signedAccountId
         accountChangeHook(accountId);
       }
-  
+
       // Subscribe to account changes
       walletSelector.store.observable
         .pipe(
@@ -62,17 +62,14 @@ export class Wallet {
           const signedAccount = accounts.find(
             (account) => account.active,
           )?.accountId;
-  
+
           console.log("Active Account Changed:", signedAccount);
           accountChangeHook(signedAccount);
         });
-  
     } catch (error) {
       console.error("Error during wallet startup:", error);
     }
   };
-  
-  
 
   /**
    * Displays a modal to login the user
@@ -86,7 +83,7 @@ export class Wallet {
           modules: [setupMyNearWallet(), setupHereWallet()],
         });
       }
-  
+
       // Ensure the selector is ready before proceeding
       if (this.selector) {
         const modal = setupModal(this.selector, {
@@ -100,15 +97,13 @@ export class Wallet {
       console.error("Error during signIn:", error);
     }
   };
-  
-  
+
   /**
    * Logout the user
    */
   signOut = async (accountChangeHook) => {
     const selectedWallet = await (await this.selector).wallet();
     selectedWallet.signOut();
-  
   };
   /**
    * Makes a read-only call to a contract

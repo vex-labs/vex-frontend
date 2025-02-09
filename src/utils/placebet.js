@@ -3,10 +3,10 @@ import { handleTransaction } from "@/utils/accountHandler";
 /**
  * Places a bet on a specified match.
  * RETRIVE PASSWORD NEEDS TO BE CHECKED
- * 
+ *
  * This function prepares and sends a transaction to place a bet on a specific match
  * using either a VEX account or a NEAR wallet.
- * 
+ *
  * @param {string} matchId - The ID of the match to bet on
  * @param {string} team - The team to bet on
  * @param {string} betAmount - The amount to bet
@@ -15,10 +15,19 @@ import { handleTransaction } from "@/utils/accountHandler";
  * @param {Object} wallet - The wallet instance to use for the transaction
  * @param {string} vexAccountId - The VEX account ID, if available
  * @param {string} password - The password for the VEX account, if saved
- * 
+ *
  * @returns {Promise<Object>} A promise that resolves to the transaction outcome
  */
-export async function placeBet(matchId, team, betAmount, contractId, tokenContractId, wallet, vexAccountId, password) {
+export async function placeBet(
+  matchId,
+  team,
+  betAmount,
+  contractId,
+  tokenContractId,
+  wallet,
+  vexAccountId,
+  password,
+) {
   try {
     // Retrieve password from local storage, if saved
 
@@ -45,9 +54,12 @@ export async function placeBet(matchId, team, betAmount, contractId, tokenContra
         gas,
         deposit,
         null, // No wallet object
-        password 
+        password,
       );
-      console.log("Bet placed successfully using relayer with VEX account!", outcome);
+      console.log(
+        "Bet placed successfully using relayer with VEX account!",
+        outcome,
+      );
       return outcome;
     } else if (wallet && wallet.selector) {
       // Use wallet directly if no vexAccountId is provided
@@ -65,7 +77,9 @@ export async function placeBet(matchId, team, betAmount, contractId, tokenContra
       console.log("Bet placed successfully using wallet!", outcome);
       return outcome;
     } else {
-      throw new Error("No valid wallet or VEX account ID available for placing a bet.");
+      throw new Error(
+        "No valid wallet or VEX account ID available for placing a bet.",
+      );
     }
   } catch (error) {
     console.error("Failed to place bet:", error.message || error);

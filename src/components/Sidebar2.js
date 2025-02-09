@@ -1,20 +1,20 @@
-import Link from 'next/link';
-import { useState } from 'react';
+import Link from "next/link";
+import { useState } from "react";
 
 /**
  * Sidebar component
  * Sidebar can toggle between collapsed and expanded states.
  * This sidebar is not dynamic and is used in the user page and earn page
  * Sidebar.js is used in the main page
- * 
+ *
  * @param {Object} props - The component props
  * @param {Function} props.onSelectGame - Function to handle game selection
  * @param {string} props.selectedGame - The currently selected game
- * 
+ *
  * @returns {JSX.Element} The rendered Sidebar component
  */
 
-const Sidebar2 = ({ }) => {
+const Sidebar2 = ({}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
@@ -26,26 +26,43 @@ const Sidebar2 = ({ }) => {
     }, 300);
   };
 
-
   const socials = [
-    { name: 'Telegram', icon: '/icons/socials/telegram.png', link: 'https://t.me/+4x6uwCjC7BgzNmRk' },
-    { name: 'x', icon: '/icons/socials/x.png', link: 'https://x.com/betvex' },
-    { name: 'TikTok', icon: '/icons/socials/tiktok.png', link: 'https://www.tiktok.com/@betvex' },
-    { name: 'Instagram', icon: '/icons/socials/instagram.png', link: 'https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr' },
+    {
+      name: "Telegram",
+      icon: "/icons/socials/telegram.png",
+      link: "https://t.me/+4x6uwCjC7BgzNmRk",
+    },
+    { name: "x", icon: "/icons/socials/x.png", link: "https://x.com/betvex" },
+    {
+      name: "TikTok",
+      icon: "/icons/socials/tiktok.png",
+      link: "https://www.tiktok.com/@betvex",
+    },
+    {
+      name: "Instagram",
+      icon: "/icons/socials/instagram.png",
+      link: "https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr",
+    },
   ];
 
   return (
-    <div className={`app-sidebar ${isCollapsed ? 'collapsed' : ''} ${isTransitioning ? 'transitioning' : ''}`}>
+    <div
+      className={`app-sidebar ${isCollapsed ? "collapsed" : ""} ${isTransitioning ? "transitioning" : ""}`}
+    >
       <ul>
         <li>
           <button className="toggle-button" onClick={toggleSidebar}>
-            {isCollapsed ? '→' : '←'}
+            {isCollapsed ? "→" : "←"}
           </button>
         </li>
         <li>
           <Link href="/" legacyBehavior>
             <a>
-              <img src="/icons/home.png" alt="Home" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/home.png"
+                alt="Home"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Home</span>}
             </a>
           </Link>
@@ -53,7 +70,11 @@ const Sidebar2 = ({ }) => {
         <li>
           <Link href="/earn" legacyBehavior>
             <a>
-              <img src="/icons/staking.png" alt="earn" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/staking.png"
+                alt="earn"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Earn</span>}
             </a>
           </Link>
@@ -61,7 +82,11 @@ const Sidebar2 = ({ }) => {
         <li>
           <Link href="/governance" legacyBehavior>
             <a>
-              <img src="/icons/governance.png" alt="Governance" style={{ width: '17px', height: '17px' }} />
+              <img
+                src="/icons/governance.png"
+                alt="Governance"
+                style={{ width: "17px", height: "17px" }}
+              />
               {!isCollapsed && <span>Governance</span>}
             </a>
           </Link>

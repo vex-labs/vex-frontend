@@ -1,6 +1,6 @@
 # Betvex Frontend
 
-Frontend for BetVex decentralised betting platform on [Near blockchain](https://near.org/) using [Next.js](https://nextjs.org/). 
+Frontend for BetVex decentralised betting platform on [Near blockchain](https://near.org/) using [Next.js](https://nextjs.org/).
 This application acts as a frontend to the BetVex smart contract while implementing additional features.
 
 ## Table of Contents
