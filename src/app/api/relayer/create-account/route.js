@@ -3,6 +3,7 @@ import { createSubAccount } from "@near-relay/server";
 import { InMemoryKeyStore } from "near-api-js/lib/key_stores";
 import { connect, KeyPair } from "near-api-js";
 import BN from "bn.js";
+import { NearRpcUrl } from "@/app/config";
 
 export async function POST(req) {
   try {
@@ -40,13 +41,13 @@ export async function POST(req) {
       {
         status: 200,
         headers: { "content-type": "application/json" },
-      },
+      }
     );
   } catch (error) {
     console.error(error);
     return NextResponse.json(
       { msg: error.toString(), error },
-      { headers: { "content-type": "application/json" }, status: 500 },
+      { headers: { "content-type": "application/json" }, status: 500 }
     );
   }
 }
@@ -60,13 +61,13 @@ async function getRelayerAccount() {
   await keyStore.setKey(
     network,
     relayerAccountId,
-    KeyPair.fromString(relayerPrivateKey),
+    KeyPair.fromString(relayerPrivateKey)
   );
 
   const config = {
     networkId: network,
     keyStore,
-    nodeUrl: `https://rpc.${network}.near.org`,
+    nodeUrl: NearRpcUrl,
   };
 
   const near = await connect(config);
@@ -79,6 +80,6 @@ export async function GET() {
     {
       status: 200,
       headers: { "content-type": "application/json" },
-    },
+    }
   );
 }

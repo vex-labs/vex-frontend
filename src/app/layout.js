@@ -9,10 +9,11 @@ import "./globals.css";
 import { providers, utils } from "near-api-js";
 import { handleCreateAccount } from "@/utils/accountHandler";
 import VexLoginPrompt from "@/components/VexLoginPrompt";
-import { Exo, Asap } from "@next/font/google";
+import { Exo, Asap } from "next/font/google";
 import Head from "next/head";
 import { GlobalProvider } from "./context/GlobalContext";
 import { NearRpcUrl } from "./config";
+import Providers from "./providers";
 
 // Initialize fonts
 const exo = Exo({
@@ -46,10 +47,13 @@ export default function RootLayout({ children }) {
   const [isVexLogin, setIsVexLogin] = useState(null);
 
   // List of token contracts with their names and addresses
-  const tokenContracts = [
-    { name: "USDC", address: "usdc.betvex.testnet" },
-    { name: "VEX", address: "token.betvex.testnet" },
-  ];
+  const tokenContracts = useMemo(
+    () => [
+      { name: "USDC", address: "usdc.betvex.testnet" },
+      { name: "VEX", address: "token.betvex.testnet" },
+    ],
+    []
+  );
 
   const wallet = useMemo(() => {
     return new Wallet({
@@ -105,7 +109,7 @@ export default function RootLayout({ children }) {
               });
               const balanceInNear = utils.format.formatNearAmount(
                 accountBalance.amount,
-                2,
+                2
               );
               balances[token.name] = balanceInNear;
             } else {
@@ -115,7 +119,7 @@ export default function RootLayout({ children }) {
                 account_id: token.address,
                 method_name: "ft_balance_of",
                 args_base64: Buffer.from(JSON.stringify(args)).toString(
-                  "base64",
+                  "base64"
                 ),
                 finality: "final",
               });
@@ -188,7 +192,7 @@ export default function RootLayout({ children }) {
     const vexAccountId = localStorage.getItem("vexAccountId");
     if (vexAccountId) {
       const accountData = JSON.parse(
-        localStorage.getItem(`near-account-${vexAccountId}`),
+        localStorage.getItem(`near-account-${vexAccountId}`)
       );
       if (accountData) {
         setSignedAccountId(accountData.accountId);
@@ -210,43 +214,45 @@ export default function RootLayout({ children }) {
         <meta name="description" content="BetVex Esports by Vex Labs" />
       </Head>
       <body className={asap.className}>
-        {isVexLogin ? (
-          <GlobalProvider>
-            <NavBar
-              isLoggedIn={true}
-              walletBalance={tokenBalances}
-              onLogin={handleLogin}
-              onLogout={handleLogout}
-              onVexLogin={() => setShowVexLogin(true)}
-              onVexLogout={handleVexLogout}
-              isVexLogin={true}
-            />
-            {children}
-          </GlobalProvider>
-        ) : (
-          <GlobalProvider>
-            <NearContext.Provider value={{ wallet, signedAccountId }}>
+        <Providers>
+          {isVexLogin ? (
+            <GlobalProvider>
               <NavBar
-                isLoggedIn={!!signedAccountId}
+                isLoggedIn={true}
                 walletBalance={tokenBalances}
                 onLogin={handleLogin}
                 onLogout={handleLogout}
                 onVexLogin={() => setShowVexLogin(true)}
                 onVexLogout={handleVexLogout}
+                isVexLogin={true}
               />
               {children}
-            </NearContext.Provider>
-          </GlobalProvider>
-        )}
-        {showVexLogin && (
-          <VexLoginPrompt
-            onLoginSuccess={(accountId) => {
-              setShowVexLogin(false);
-              setSignedAccountId(accountId);
-            }}
-            handleVexLogin={handleVexLogin}
-          />
-        )}
+            </GlobalProvider>
+          ) : (
+            <GlobalProvider>
+              <NearContext.Provider value={{ wallet, signedAccountId }}>
+                <NavBar
+                  isLoggedIn={!!signedAccountId}
+                  walletBalance={tokenBalances}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                  onVexLogin={() => setShowVexLogin(true)}
+                  onVexLogout={handleVexLogout}
+                />
+                {children}
+              </NearContext.Provider>
+            </GlobalProvider>
+          )}
+          {showVexLogin && (
+            <VexLoginPrompt
+              onLoginSuccess={(accountId) => {
+                setShowVexLogin(false);
+                setSignedAccountId(accountId);
+              }}
+              handleVexLogin={handleVexLogin}
+            />
+          )}
+        </Providers>
       </body>
     </html>
   );
