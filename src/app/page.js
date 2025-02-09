@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import { fetchMatchesByIDs } from "@/utils/fetchMatches";
 import { useNear } from "@/app/context/NearContext";
-import { NearRpcUrl } from "./config";
+import { NearRpcUrl, GuestbookNearContract } from "./config";
 
 /**
  * HomePage component
@@ -63,13 +63,13 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
         const provider = new providers.JsonRpcProvider(NearRpcUrl);
         const matches = await provider.query({
           request_type: "call_function",
-          account_id: "sexyvexycontract.testnet",
+          account_id: GuestbookNearContract,
           method_name: "get_matches",
           args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
           finality: "final",
         });
         const decodedResult = JSON.parse(
-          Buffer.from(matches.result).toString(),
+          Buffer.from(matches.result).toString()
         );
 
         console.log("Matches:", decodedResult);
@@ -100,7 +100,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
 
       localStorage.setItem(
         "additionalMatchData",
-        JSON.stringify(backendResponse),
+        JSON.stringify(backendResponse)
       );
     };
 
@@ -112,9 +112,7 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
     : matches;
 
   const filteredAdditionalData = additionalMatchData.filter((additionalMatch) =>
-    filteredMatches.some(
-      (match) => match.match_id === additionalMatch.match_id,
-    ),
+    filteredMatches.some((match) => match.match_id === additionalMatch.match_id)
   );
 
   return (
