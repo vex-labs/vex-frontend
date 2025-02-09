@@ -6,7 +6,7 @@
 
 // Mapping of contract addresses per network
 const contractPerNetwork = {
-  testnet: "sexyvexycontract.testnet",
+  testnet: "vex-contract-12.testnet",
 };
 
 // The network ID to be used ("testnet" or "mainnet")
@@ -24,4 +24,4 @@ export const BetContractId = contractPerNetwork[NetworkId];
 export const NearRpcUrl = "https://test.rpc.fastnear.com";
 
 // Backend API URL for fetching matches
-export const BackendApiUrl = "https://vexdb-production.up.railway.app/matches";
+// export const BackendApiUrl = "https://vexdb-production.up.railway.app/matches";
