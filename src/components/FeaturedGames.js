@@ -69,6 +69,22 @@ const FeaturedGames = () => {
   return (
     <div>
       <h1 style={{ color: "white" }}>Featured Games</h1>
+      {query.isLoading && (
+        <p
+          style={{
+            textAlign: "center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "1rem",
+            color: "var(--primary-color)",
+            marginTop: "64px",
+            marginBottom: "64px",
+          }}
+        >
+          Loading...
+        </p>
+      )}
       <div className="featured-grid-container">
         {query.data?.matches.map((match, index) => (
           <GameCard
