@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { handleTransaction } from "@/utils/accountHandler";
+import { GuestbookNearContract } from "@/app/config";
 
 /**
  * UserBets component
@@ -45,7 +46,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
       const isVexLogin =
         typeof window !== "undefined" &&
         localStorage.getItem("isVexLogin") === "true";
-      const contractId = "sexyvexycontract.testnet";
+      const contractId = GuestbookNearContract;
       const gas = "100000000000000";
       const deposit = "1";
 
@@ -66,7 +67,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
           gas,
           deposit,
           null,
-          passwordToUse,
+          passwordToUse
         );
 
         console.log("Claim successful!", outcome);

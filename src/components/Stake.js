@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { providers } from "near-api-js";
 import { handleTransaction } from "@/utils/accountHandler";
 import { useGlobalContext } from "@/app/context/GlobalContext";
-import { NearRpcUrl } from "@/app/config";
+import { NearRpcUrl, GuestbookNearContract } from "@/app/config";
 
 /**
  * Staking component
@@ -32,7 +32,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const [refreshBalances, setRefreshBalances] = useState(false);
 
   const tokenContractId = "token.betvex.testnet";
-  const stakingContractId = "sexyvexycontract.testnet";
+  const stakingContractId = GuestbookNearContract;
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
@@ -109,7 +109,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       // Call the view function `get_usdc_staking_rewards` on the contract
       const result = await provider.query({
         request_type: "call_function",
-        account_id: "sexyvexycontract.testnet",
+        account_id: GuestbookNearContract,
         method_name: "get_usdc_staking_rewards",
         args_base64: "", // No arguments are required
         finality: "final",
@@ -174,7 +174,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     try {
       if (parseFloat(amount) < 50) {
         setMessage(
-          "Minimum of 50 VEX is required to register in the contract.",
+          "Minimum of 50 VEX is required to register in the contract."
         );
         return;
       }
@@ -187,7 +187,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           deposit1,
           null,
-          password,
+          password
         );
 
         if (depositResult && !depositResult.error) {
@@ -199,7 +199,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
             gas,
             deposit,
             null,
-            password,
+            password
           );
 
           if (stakeResult && !stakeResult.error) {
@@ -284,7 +284,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           deposit,
           null,
-          password,
+          password
         );
 
         if (unstakeResult && !unstakeResult.error) {
@@ -297,7 +297,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
             gas,
             deposit,
             null,
-            password,
+            password
           );
 
           if (withdrawResult && !withdrawResult.error) {
@@ -360,7 +360,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       return;
     }
 
-    const contractId = "sexyvexycontract.testnet";
+    const contractId = GuestbookNearContract;
     const gas = "300000000000000"; // 300 TGas
 
     try {
@@ -372,7 +372,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           "0", // Minimal deposit in yoctoNEAR
           null,
-          password,
+          password
         );
 
         console.log("Stake swap successful!", outcome);
