@@ -13,6 +13,24 @@ const DropdownMenuDemo = (onLogout) => {
       <DropdownMenu.Portal>
         <DropdownMenu.Content className="DropdownMenuContent" sideOffset={5}>
           <DropdownMenu.Item className="DropdownMenuItem">
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: "5px",
+              }}
+            >
+              <img
+                src="/icons/user.png"
+                alt="User icon"
+                style={{ width: "20px" }}
+              />
+              test.testnet
+            </div>
+          </DropdownMenu.Item>
+          <DropdownMenu.Separator className="DropdownMenuSeparator" />
+          <DropdownMenu.Item className="DropdownMenuItem">
             <button>Settings</button>
           </DropdownMenu.Item>
           <DropdownMenu.Item className="DropdownMenuItem">
