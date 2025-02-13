@@ -342,7 +342,9 @@ button {
 /* Sidebar styles */
 .app-sidebar {
   width: 230px;
-  background-color: var(--black-color);
+  background-color: rgba(0, 0, 0, 0.2); /* Transparent background */
+  backdrop-filter: blur(8px); /* Creates the blur effect */
+  -webkit-backdrop-filter: blur(8px); /* For Safari support */
   color: var(--text-color);
   padding: 12px 12px 0px;
   position: fixed;
