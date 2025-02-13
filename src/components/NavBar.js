@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useGlobalContext } from "../app/context/GlobalContext";
+import DropdownMenuDemo from "./dropdown";
 
 /**
  * NavBar component
@@ -31,17 +32,42 @@ const NavBar = ({
 
   return (
     <nav className="nav">
-      <Link href="/" legacyBehavior>
-        <a className="logo">
-          <img
-            src="/icons/NewPrimaryLogo.svg"
-            alt="VEX"
-            height="30.5"
-            style={{ objectFit: "contain" }}
-          />
-        </a>
-      </Link>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: "20px",
+        }}
+      >
+        <Link href="/" legacyBehavior>
+          <a className="logo">
+            <img
+              src="/icons/NewPrimaryLogo.svg"
+              alt="VEX"
+              height="30.5"
+              style={{ objectFit: "contain" }}
+            />
+          </a>
+        </Link>
+        <div>
+          <Link className="nav-link" href="/">
+            Betting
+          </Link>
+          <Link className="nav-link" href="/">
+            Earn
+          </Link>
+          <Link className="nav-link" href="/">
+            Governance
+          </Link>
+          <Link className="nav-link" href="/">
+            Leaderboard
+          </Link>
+        </div>
+      </div>
       <div className="nav-buttons">
+        <button className="nav-link-learn">Learn</button>
+        <button className="nav-link-deposit">Deposit</button>
         {isLoggedIn ? (
           <>
             {isVexLogin ? (
@@ -64,6 +90,7 @@ const NavBar = ({
                     <span>Balance: Loading...</span>
                   )}
                 </div>
+
                 <button onClick={onVexLogout}>Log Out</button>
               </>
             ) : (
@@ -74,6 +101,11 @@ const NavBar = ({
                       {/* Loop through tokenBalances and display each balance */}
                       {Object.entries(tokenBalances).map(([token, balance]) => (
                         <li key={token}>
+                          <img
+                            src={`/icons/${token}.svg`}
+                            alt={`${token} icon`}
+                            className="token-icon"
+                          />
                           {token}: {balance}
                         </li>
                       ))}
@@ -82,14 +114,32 @@ const NavBar = ({
                     <span>Balance: Loading...</span>
                   )}
                 </div>
-                <button onClick={onLogout}>Log Out</button>
+                <div className="dropdown">
+                  {/* <button className="nav-link">
+                    <img
+                      src="/icons/user.png"
+                      alt="User icon"
+                      style={{ width: "20px" }}
+                    />
+                  </button>
+                  <div className="dropdown-content">
+                    <button className="nav-link " onClick={onLogout}>
+                      Log Out
+                    </button>
+                  </div> */}
+                  <DropdownMenuDemo />
+                </div>
               </>
             )}
           </>
         ) : (
           <>
-            <button onClick={onLogin}>Log In with NEAR</button>
-            <button onClick={onVexLogin}>Log In with VEX</button>
+            <button className="nav-link" onClick={onLogin}>
+              Log In with NEAR
+            </button>
+            <button className="nav-link" onClick={onVexLogin}>
+              Log In with VEX
+            </button>
           </>
         )}
       </div>
