@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
@@ -15,8 +15,6 @@ import { BetContractId, NearRpcUrl } from "@/app/config";
  *
  * @param {Object} props - The component props
  * @param {string} props.className - Additional class names for styling
- * @param {string} props.tournamentIcon - URL of the tournament icon
- * @param {string} props.tournamentName - Name of the tournament
  * @param {string} props.matchTime - Time of the match
  * @param {string} props.team1Logo - URL of the first team's logo
  * @param {string} props.team1Name - Name of the first team
@@ -33,15 +31,11 @@ import { BetContractId, NearRpcUrl } from "@/app/config";
  */
 const GameCard = ({
   className,
-  tournamentIcon,
-  tournamentName,
   matchTime,
   team1Logo,
   team1Name,
   team2Logo,
   team2Name,
-  odds1,
-  odds2,
   matchId,
   walletBalance,
   wallet,
@@ -49,8 +43,8 @@ const GameCard = ({
 }) => {
   const [isBettingMode, setIsBettingMode] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
-  const [updatedOdds1, setUpdatedOdds1] = useState(odds1);
-  const [updatedOdds2, setUpdatedOdds2] = useState(odds2);
+  const [updatedOdds1, setUpdatedOdds1] = useState("1.00");
+  const [updatedOdds2, setUpdatedOdds2] = useState("1.00");
   const [stake, setStake] = useState("");
   const [message, setMessage] = useState("Potential payout: $0.00");
   const [password, setPassword] = useState(null);
@@ -61,7 +55,7 @@ const GameCard = ({
     if (savedPassword) setPassword(savedPassword); // Set password from localStorage if available
   }, []);
 
-  const fetchMatchDetails = async () => {
+  const fetchMatchDetails = useCallback(async () => {
     try {
       const contractId = BetContractId;
 
@@ -80,10 +74,8 @@ const GameCard = ({
 
       // Decode and parse the result
       const decodedResult = JSON.parse(
-        Buffer.from(matchDetails.result).toString(),
+        Buffer.from(matchDetails.result).toString()
       );
-
-      console.log("Match Details:", decodedResult);
 
       // Update odds with the fetched data
       setUpdatedOdds1(parseFloat(decodedResult.team_1_odds).toFixed(2));
@@ -91,7 +83,7 @@ const GameCard = ({
     } catch (error) {
       console.error("Failed to fetch match details:", error);
     }
-  };
+  }, [matchId]);
 
   const fetchPotentialWinnings = async () => {
     try {
@@ -125,7 +117,7 @@ const GameCard = ({
 
       // Decode the u128 response and convert back to USDC format
       const winningsRaw = BigInt(
-        JSON.parse(Buffer.from(potentialWinnings.result).toString()),
+        JSON.parse(Buffer.from(potentialWinnings.result).toString())
       );
       const winningsUSDC = Number(winningsRaw) / 1e5;
 
@@ -178,7 +170,7 @@ const GameCard = ({
         matchId,
         selectedBet === team1Name ? "Team1" : "Team2",
         betAmount,
-        password,
+        password
       );
       setMessage("Bet placed successfully!");
       setPassword(null); // Clear password after transaction
@@ -194,10 +186,8 @@ const GameCard = ({
   };
 
   useEffect(() => {
-    if (isBettingMode) {
-      fetchMatchDetails();
-    }
-  }, [isBettingMode]);
+    fetchMatchDetails();
+  }, [fetchMatchDetails]);
 
   const handleOddsClick = (bet) => {
     setSelectedBet(bet);
@@ -291,13 +281,7 @@ const GameCard = ({
         <>
           <div className="match-header">
             <div className="match-info">
-              <img
-                src={tournamentIcon}
-                alt="Tournament"
-                className="tournament-icon"
-                style={{ marginRight: "8px" }}
-              />
-              <span>{tournamentName}</span>
+              {/* Empty Div to keep matchTime aligned */}
             </div>
             <div className="match-time">
               <span>{matchTime}</span>

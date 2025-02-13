@@ -107,12 +107,13 @@ const FeaturedGames = () => {
                 hour12: false,
               }
             )}`}
+            team1TotalBets={match.team_1_total_bets}
+            team2TotalBets={match.team_2_total_bets}
             team1Logo={TEAM_ICON_MAP[match.team_1]}
             team1Name={match.team_1 || "Team 1"}
+            matchId={match.id}
             team2Logo={TEAM_ICON_MAP[match.team_2]}
             team2Name={match.team_2 || "Team 2"}
-            odds1={parseFloat(match.team_1_odds || "1.00").toFixed(2)}
-            odds2={parseFloat(match.team_2_odds || "1.00").toFixed(2)}
           />
         ))}
       </div>
