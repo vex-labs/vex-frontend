@@ -19,6 +19,11 @@ import {
  * @returns {Promise<Object>} A promise that resolves to the transaction outcome
  */
 export async function swapTokens(wallet, swapDirection, tokenAmount) {
+  const CONFIG = {
+    tokenContractIdUSDC: "usdc.betvex.testnet",
+    tokenContractIdVEX: "token.betvex.testnet",
+  };
+
   const tokenContractId = swapDirection
     ? CONFIG.tokenContractIdUSDC
     : CONFIG.tokenContractIdVEX; // Token to transfer

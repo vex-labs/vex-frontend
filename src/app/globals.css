@@ -357,6 +357,7 @@ button {
   z-index: 50;
   transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
   box-sizing: border-box;
+  border-right: 1px solid #333333;
 
   ul {
     list-style: none;
@@ -368,7 +369,13 @@ button {
     align-items: center;
     margin-bottom: 8px;
 
-    img {
+    &[data-active="true"] {
+      background-color: #3c3c3c;
+      color: white;
+      border-radius: 5px;
+    }
+
+    img, svg {
       margin-right: 8px;
       width: 17px;
       height: 17px;

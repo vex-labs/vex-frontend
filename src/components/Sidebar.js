@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { lazy, useState } from "react";
 /**
  * Sidebar component
@@ -16,6 +17,8 @@ import { lazy, useState } from "react";
 const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const pathname = usePathname();
 
   const toggleSidebar = () => {
     setIsTransitioning(true);
@@ -79,7 +82,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             {isCollapsed ? "→" : "←"}
           </button>
         </li>
-        <li>
+        <li data-active={pathname === "/"}>
           <Link href="/" legacyBehavior>
             <a>
               <HomeIcon />
@@ -87,7 +90,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             </a>
           </Link>
         </li>
-        <li>
+        <li data-active={pathname === "/earn"}>
           <Link href="/earn" legacyBehavior>
             <a>
               <img
@@ -111,7 +114,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             </a>
           </Link>
         </li>
-        <li>
+        <li data-active={pathname === "/leaderboard"}>
           <Link href="/leaderboard" legacyBehavior>
             <a>
               <ChartIcon />
