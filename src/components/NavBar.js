@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useGlobalContext } from "../app/context/GlobalContext";
-import DropdownMenuDemo from "./dropdown";
+import UserDropdown from "./UserDropdown";
+import DepositModal from "./DepositModal";
+import { useEffect } from "react";
 
 /**
  * NavBar component
@@ -28,7 +30,11 @@ const NavBar = ({
   onVexLogout,
   isVexLogin,
 }) => {
-  const { tokenBalances } = useGlobalContext();
+  const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
+
+  useEffect(() => {
+    toggleRefreshBalances();
+  }, []);
 
   return (
     <nav className="nav">
@@ -67,7 +73,7 @@ const NavBar = ({
       </div>
       <div className="nav-buttons">
         <button className="nav-link-learn">Learn</button>
-        <button className="nav-link-deposit">Deposit</button>
+        <DepositModal />
         {isLoggedIn ? (
           <>
             {isVexLogin ? (
@@ -115,19 +121,7 @@ const NavBar = ({
                   )}
                 </div>
                 <div className="dropdown">
-                  {/* <button className="nav-link">
-                    <img
-                      src="/icons/user.png"
-                      alt="User icon"
-                      style={{ width: "20px" }}
-                    />
-                  </button>
-                  <div className="dropdown-content">
-                    <button className="nav-link " onClick={onLogout}>
-                      Log Out
-                    </button>
-                  </div> */}
-                  <DropdownMenuDemo />
+                  <UserDropdown onLogout={onLogout} />
                 </div>
               </>
             )}
