@@ -399,6 +399,10 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
 
   return (
     <div className="staking-container">
+      <button className="confirm-button first" onClick={handleStakeSwap}>
+        Distribute Rewards
+      </button>
+
       <div className="staking-header">
         <div className="radio_container">
           <input
@@ -420,10 +424,6 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           <label htmlFor="unstake">Unstake</label>
         </div>
       </div>
-
-      <button className="confirm-button" onClick={handleStakeSwap}>
-        Distribute Rewards
-      </button>
 
       <div className="staking-statistics">
         <p>Your Balance: {balance} VEX</p>
