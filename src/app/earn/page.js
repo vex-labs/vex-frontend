@@ -1,5 +1,5 @@
 "use client";
-import FAQ from "@/components/Faq";
+// import FAQ from "@/components/Faq";
 import "./earn.css";
 import Staking from "@/components/Stake";
 import Swap from "@/components/Swap";
