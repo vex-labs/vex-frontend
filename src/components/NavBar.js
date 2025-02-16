@@ -73,7 +73,7 @@ const NavBar = ({
       </div>
       <div className="nav-buttons">
         <button className="nav-link-learn">Learn</button>
-        <DepositModal />
+        {isLoggedIn && <DepositModal />}
         {isLoggedIn ? (
           <>
             {isVexLogin ? (
