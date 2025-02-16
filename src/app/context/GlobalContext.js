@@ -41,19 +41,22 @@ export const GlobalProvider = ({ children }) => {
       { name: "USDC", address: "usdc.betvex.testnet" },
       { name: "VEX", address: "token.betvex.testnet" },
     ],
-    [],
+    []
   );
 
   const toggleRefreshBalances = () => {
     setRefreshBalances((prev) => !prev);
   };
 
-  useEffect(() => {
-    const isVexLogin = localStorage.getItem("isVexLogin") === "true";
-    const accountId = isVexLogin
-      ? localStorage.getItem("vexAccountId")
-      : localStorage.getItem("signedAccountId");
+  const isVexLogin =
+    typeof window !== "undefined" &&
+    localStorage.getItem("isVexLogin") === "true";
+  const accountId = isVexLogin
+    ? localStorage.getItem("vexAccountId")
+    : JSON.parse(localStorage.getItem("near_app_wallet_auth_key")).accountId ||
+      null;
 
+  useEffect(() => {
     if (accountId) {
       console.log("Fetching balances for account:", accountId);
       const provider = new providers.JsonRpcProvider(NearRpcUrl);
@@ -75,7 +78,7 @@ export const GlobalProvider = ({ children }) => {
             const balance = JSON.parse(Buffer.from(result.result).toString());
             const decimals = token.name === "USDC" ? 6 : 18;
             const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(
-              2,
+              2
             );
             balances[token.name] = formattedBalance;
             console.log(`Balance for ${token.name}: ${formattedBalance}`);
@@ -92,7 +95,7 @@ export const GlobalProvider = ({ children }) => {
     } else {
       console.log("Account ID not found.");
     }
-  }, [refreshBalances, tokenContracts]); // tokenContracts is stable due to useMemo
+  }, [accountId, refreshBalances, tokenContracts]); // tokenContracts is stable due to useMemo
 
   return (
     <GlobalContext.Provider value={{ tokenBalances, toggleRefreshBalances }}>

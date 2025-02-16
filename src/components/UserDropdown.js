@@ -1,9 +1,21 @@
 import * as React from "react";
 import { DropdownMenu } from "radix-ui";
+import Link from "next/link";
+import { useState } from "react";
+import { useNear } from "@/app/context/NearContext";
 
-const DropdownMenuDemo = (onLogout) => {
+const UserDropdown = ({ onLogout }) => {
+  const nearContext = useNear();
+  const [open, setOpen] = useState(false);
+  const isVexLogin =
+    typeof window !== "undefined" &&
+    localStorage.getItem("isVexLogin") === "true";
+  const accountId = isVexLogin
+    ? localStorage.getItem("vexAccountId")
+    : nearContext?.signedAccountId || null;
+
   return (
-    <DropdownMenu.Root>
+    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <button className="IconButton" aria-label="Customise options">
           <img src="/icons/user.png" alt="User icon" />
@@ -19,6 +31,7 @@ const DropdownMenuDemo = (onLogout) => {
                 alignItems: "center",
                 justifyContent: "space-between",
                 gap: "5px",
+                fontSize: "16px",
               }}
             >
               <img
@@ -26,13 +39,19 @@ const DropdownMenuDemo = (onLogout) => {
                 alt="User icon"
                 style={{ width: "20px" }}
               />
-              test.testnet
+              {accountId}
             </div>
           </DropdownMenu.Item>
           <DropdownMenu.Separator className="DropdownMenuSeparator" />
-          <DropdownMenu.Item className="DropdownMenuItem">
-            <button>Settings</button>
-          </DropdownMenu.Item>
+          <Link href="/user" legacyBehavior style={{ width: "100%" }}>
+            <DropdownMenu.Item
+              className="DropdownMenuItem"
+              onClick={() => setOpen(false)}
+              style={{ cursor: "pointer" }}
+            >
+              <button>Settings</button>
+            </DropdownMenu.Item>
+          </Link>
           <DropdownMenu.Item className="DropdownMenuItem">
             <button>Withdraw</button>
           </DropdownMenu.Item>
@@ -50,4 +69,4 @@ const DropdownMenuDemo = (onLogout) => {
   );
 };
 
-export default DropdownMenuDemo;
+export default UserDropdown;

@@ -72,7 +72,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  z-index: 1000;
+  z-index: 50;
   box-sizing: border-box;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); /* Subtle shadow */
@@ -128,10 +128,10 @@ body {
   top: 10px;
   min-width: 220px;
   color: white;
-  background-color: rgba(0, 0, 0, 0.2); /* Transparent background */
+  background-color: rgba(0, 0, 0, 0.7); /* Transparent background */
   backdrop-filter: blur(8px); /* Creates the blur effect */
   -webkit-backdrop-filter: blur(8px); /* For Safari support */
-  border-radius: 6px;
+  border-radius: 12px;
 
   padding-top: 15px;
   padding-bottom: 15px;
@@ -354,7 +354,7 @@ button {
     100vh - 55px
   ); /* Adjusted to account for the new navbar height */
   overflow-y: auto;
-  z-index: 900;
+  z-index: 50;
   transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
   box-sizing: border-box;
 
@@ -472,7 +472,7 @@ button {
   border-radius: 10px 50px;
   border: 1px solid rgba(255, 255, 255, 0.05);
   text-align: center;
-  z-index: 1000;
+  z-index: 50;
 }
 
 /* Title Heading */
@@ -902,7 +902,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensure it's on top of other content */
+  z-index: 50; /* Ensure it's on top of other content */
 }
 
 /* Modal content */
@@ -1000,7 +1000,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000; /* Ensure it's on top of other content */
+  z-index: 50; /* Ensure it's on top of other content */
 }
 
 /* Withdraw Modal content with glassmorphic styling */
