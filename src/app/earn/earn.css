@@ -25,7 +25,7 @@
 .stake-section {
   width: 49%; /* Adjust width for balance */
   border-radius: 8px;
-  height: 700px;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center; /* Center content horizontally */
@@ -48,7 +48,7 @@
   border-radius: 12px;
   color: #fff;
   font-family: Arial, sans-serif;
-  border: 2px solid #fff;
+  border: 1px solid #a0a0a0;
 }
 
 .token-box {
@@ -121,6 +121,7 @@
   text-align: center;
   font-size: 24px;
   margin-bottom: 15px;
+  cursor: pointer;
 }
 
 .swap-button {
@@ -154,7 +155,7 @@
   padding: 20px;
   background-color: #000;
   border-radius: 12px;
-  border: 2px solid #fff; /* White border for visibility */
+  border: 1px solid #a0a0a0;
   color: #fff;
   font-family: Arial, sans-serif;
 }
@@ -167,11 +168,14 @@
 }
 
 .radio_container {
-  display: flex;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
   justify-content: space-around;
   align-items: center;
   background-color: var(--secondary-color);
   width: 100%;
+  padding: 0 8px;
   height: 50px;
   border-radius: 9999px;
   box-shadow: inset 0.5px 0.5px 2px 0 rgba(0, 0, 0, 0.15);
@@ -180,6 +184,7 @@
 input[type="radio"] {
   appearance: none;
   display: none;
+  text-align: center;
 }
 
 label {
@@ -201,8 +206,17 @@ label {
   cursor: pointer;
 }
 
+input[type="radio"]:not(:checked) + label {
+  width: 100%;
+  &:hover {
+    background-color: #4d4d4d;
+    color: white;
+  }
+}
+
 input[type="radio"]:checked + label {
   background-color: var(--black-color);
+  width: 100%;
   color: #f1f3f5;
   font-weight: bold;
   transition:
@@ -297,6 +311,10 @@ input[type="radio"]:checked + label {
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
+}
+
+.confirm-button.first {
+  margin-bottom: 20px;
 }
 
 .confirm-button:hover {

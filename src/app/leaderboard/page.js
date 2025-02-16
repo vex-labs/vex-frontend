@@ -1,13 +1,13 @@
 "use client";
 
 import Sidebar2 from "@/components/Sidebar2";
-import "./governance.css";
+import "./leaderboard.css";
 
-const GovernancePage = () => {
+const LeaderboardPage = () => {
   return (
     <div className="mainContent">
       <Sidebar2 />
-      <div className="container governance-content">
+      <div className="container leaderboard-content">
         <h2
           style={{
             fontSize: "4rem",
@@ -23,4 +23,4 @@ const GovernancePage = () => {
   );
 };
 
-export default GovernancePage;
+export default LeaderboardPage;

@@ -39,11 +39,6 @@ const EarnPage = () => {
           />
         </div>
       </div>
-      {/* 
-      <div className="faq-section">
-        <FAQ />
-      </div>
-      */}
     </div>
   );
 };
