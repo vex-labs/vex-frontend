@@ -52,8 +52,10 @@ export const GlobalProvider = ({ children }) => {
     typeof window !== "undefined" &&
     localStorage.getItem("isVexLogin") === "true";
   const accountId = isVexLogin
-    ? localStorage.getItem("vexAccountId")
-    : JSON.parse(localStorage.getItem("near_app_wallet_auth_key")).accountId ||
+    ? typeof window !== "undefined" && localStorage.getItem("vexAccountId")
+    : (typeof window !== "undefined" &&
+        JSON.parse(localStorage.getItem("near_app_wallet_auth_key") || "{}")
+          .accountId) ||
       null;
 
   useEffect(() => {

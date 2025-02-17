@@ -79,12 +79,11 @@ input {
 	background-color: var(--mauve-3);
 }
 .Button.green {
-	background-color: var(--green-4);
-	color: var(--green-11);
-	outline-color: var(--green-7);
-}
+	background-color: #113b29;
+	color: #3dd68c;
+	}
 .Button.green:hover {
-	background-color: var(--green-5);
+	background-color: #174933;
 }
 
 .IconButton {
@@ -103,10 +102,32 @@ input {
 	background-color: var(--gray-3);
 }
 .IconButton:hover {
-	background-color: var(--violet-4);
+	background-color: var(--gray-1);
 }
 .IconButton:focus {
 	box-shadow: 0 0 0 2px var(--violet-7);
+}
+
+.CloseButton {
+	all: unset;
+	font-family: inherit;
+	border-radius: 100%;
+	height: 25px;
+	width: 25px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--violet-11);
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	background-color: rgba(255, 255, 255, 0.1);
+}
+.CloseButton:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+.CloseButton:focus {
+	box-shadow: 0 0 0 2px white;
 }
 
 .Fieldset {
@@ -144,6 +165,40 @@ input {
 
 .Input:focus {
 	box-shadow: 0 0 0 2px #ffffff;
+}
+
+select.Input {
+	background-color: transparent;
+	border: none;
+	color: white;
+	font-size: 15px;
+	line-height: 1;
+	padding: 0;
+}
+
+select.Input:focus {
+	box-shadow: 0 0 0 2px #ffffff;
+}
+
+select.Input:focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 1px;
+}
+
+select.Input option {
+	background-color: transparent;
+	color: black;
+}
+
+select.Input option:hover {
+	background-color: var(--gray-1);
+}
+
+.deposit-amount {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 15px;
+	line-height: 1.5;
+	margin-left: 108px;
 }
 
 @keyframes overlayShow {

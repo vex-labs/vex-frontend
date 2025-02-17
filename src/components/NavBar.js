@@ -60,13 +60,13 @@ const NavBar = ({
           <Link className="nav-link" href="/">
             Betting
           </Link>
-          <Link className="nav-link" href="/">
+          <Link className="nav-link" href="/earn">
             Earn
           </Link>
-          <Link className="nav-link" href="/">
+          <Link className="nav-link" href="/governance">
             Governance
           </Link>
-          <Link className="nav-link" href="/">
+          <Link className="nav-link" href="/leaderboard">
             Leaderboard
           </Link>
         </div>
