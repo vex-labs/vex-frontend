@@ -126,7 +126,6 @@
 
 .swap-button {
   width: 100%;
-  max-width: calc(100% - 28px);
   text-align: center;
   padding: 15px;
   background-color: #00ffcc;
@@ -303,7 +302,6 @@ input[type="radio"]:checked + label {
 
 .confirm-button {
   width: 100%;
-  max-width: calc(100% - 28px);
   text-align: center;
   padding: 15px;
   background-color: #00ffcc;

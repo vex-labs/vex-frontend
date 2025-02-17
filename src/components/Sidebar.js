@@ -51,6 +51,8 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
     },
   ];
 
+  const [isGamesCollapsed, setIsGamesCollapsed] = useState(false);
+
   const socials = [
     {
       name: "Telegram",
@@ -123,21 +125,40 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
           </Link>
         </li>
       </ul>
-      <div className={`section-title`}>Popular</div>
+      <div className={`section-title`}>Games</div>
       <ul>
-        {games.map((game) => (
-          <li key={game.name}>
-            <a
-              href="#"
-              onClick={() => onSelectGame(game.name)}
-              className={game.name === selectedGame ? "selected" : ""}
-            >
-              <img src={game.icon} alt={game.label} />
-              {!isCollapsed && <span>{game.label}</span>}
-            </a>
-          </li>
-        ))}
+        {!isGamesCollapsed
+          ? games.splice(0, 5).map((game) => (
+              <li key={game.name}>
+                <a
+                  href="#"
+                  onClick={() => onSelectGame(game.name)}
+                  className={game.name === selectedGame ? "selected" : ""}
+                >
+                  <img src={game.icon} alt={game.label} />
+                  {!isCollapsed && <span>{game.label}</span>}
+                </a>
+              </li>
+            ))
+          : games.splice(0, games.length).map((game) => (
+              <li key={game.name}>
+                <a
+                  href="#"
+                  onClick={() => onSelectGame(game.name)}
+                  className={game.name === selectedGame ? "selected" : ""}
+                >
+                  <img src={game.icon} alt={game.label} />
+                  {!isCollapsed && <span>{game.label}</span>}
+                </a>
+              </li>
+            ))}
       </ul>
+      <button
+        className="more-games-button"
+        onClick={() => setIsGamesCollapsed(!isGamesCollapsed)}
+      >
+        {isGamesCollapsed ? "↑" : "↓"}
+      </button>
       <div className={`section-title`}>Socials</div>
       <ul>
         {socials.map((social) => (

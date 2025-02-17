@@ -109,11 +109,11 @@ const DepositModal = () => {
             </button>
           </div>
           <Dialog.Close asChild>
-            <button className="IconButton" aria-label="Close">
+            <button className="CloseButton" aria-label="Close">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
