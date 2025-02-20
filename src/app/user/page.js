@@ -171,7 +171,7 @@ const UserPage = () => {
     <div className="user-page">
       <Sidebar2 />
       <div className="user-content">
-        <section className="account-details">
+        {/* <section className="account-details">
           <h2>Account Details</h2>
           <div className="account-info">
             <h2>
@@ -187,7 +187,7 @@ const UserPage = () => {
               <button className="vex-button">Export Private Key</button>
             </section>
           </div>
-        </section>
+        </section> */}
         <UserBets
           userBets={userBets}
           wallet={wallet}

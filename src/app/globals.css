@@ -108,6 +108,13 @@ body {
     background: var(--accent-color-muted);
     transition: 200ms all ease-in-out;
   }
+
+  @media (max-width: 768px) {
+    background: var(--accent-color);
+    padding-top: 3px;
+    padding-bottom: 3px;
+    font-size: 16px;
+  }
 }
 .nav-link-learn {
   background: var(--secondary-color);
@@ -116,6 +123,43 @@ body {
     color: white;
     background: var(--primary-color);
     transition: 200ms all ease-in-out;
+  }
+}
+
+.desktop-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.desktop-nav-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+.left-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.mobile-nav {
+  display: none;
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
   }
 }
 
@@ -140,6 +184,9 @@ body {
   animation-duration: 400ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
+  @media (max-width: 768px) {
+    left: -185px;
+  }
 }
 .DropdownMenuContent[data-side="top"],
 .DropdownMenuSubContent[data-side="top"] {
@@ -174,6 +221,12 @@ body {
   padding-left: 25px;
   user-select: none;
   outline: none;
+
+  @media (max-width: 768px) {
+    gap: 5px;
+    align-items: center;
+    justify-content: start;
+  }
 }
 .DropdownMenuSubTrigger[data-state="open"] {
   background-color: var(--accent-color);
@@ -369,13 +422,18 @@ button {
     align-items: center;
     margin-bottom: 8px;
 
+    @media (max-width: 768px) {
+      flex-direction: column;
+    }
+
     &[data-active="true"] {
       background-color: #3c3c3c;
       color: white;
       border-radius: 5px;
     }
 
-    img, svg {
+    img,
+    svg {
       margin-right: 8px;
       width: 17px;
       height: 17px;
