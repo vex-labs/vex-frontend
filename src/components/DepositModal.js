@@ -86,6 +86,9 @@ const DepositModal = () => {
               onChange={(e) => setAmount(e.target.value)}
               value={amount}
             />
+            <button className="max-button" onClick={() => setAmount(100)}>
+              Max
+            </button>
             {/* Tell user how much they can deposit */}
           </fieldset>
           <p className="deposit-amount">
