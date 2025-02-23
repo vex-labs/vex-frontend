@@ -144,11 +144,13 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
               </button>
             )}
           </div>
-          <UpcomingGames
+          {/*
+         <UpcomingGames
             matches={filteredMatches}
             additionalMatchData={filteredAdditionalData}
             vexAccountId={vexAccountId}
           />
+          */}
         </div>
       </div>
     </div>
