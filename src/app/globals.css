@@ -47,6 +47,10 @@ body {
   height: auto;
   overflow-y: auto;
   transition: margin-left 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    margin-left: 0;
+  }
 }
 
 .app-sidebar.collapsed + .mainContent {
@@ -411,6 +415,10 @@ button {
   transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
   box-sizing: border-box;
   border-right: 1px solid #333333;
+
+  @media (max-width: 768px) {
+    display: none;
+  }
 
   ul {
     list-style: none;
