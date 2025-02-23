@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useNear } from "@/app/context/NearContext";
 import GiftModal from "./GiftModal";
 import { useGlobalContext } from "../app/context/GlobalContext";
-import DepositModal from "./DepositModal";
 import { useEffect } from "react";
 
 /**
@@ -91,9 +90,6 @@ const MobileMenuDropdown = ({ isLoggedIn, onLogout }) => {
             <DropdownMenu.Separator className="DropdownMenuSeparator" />
             <DropdownMenu.Item className="DropdownMenuItem">
               <button>Learn</button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Item className="DropdownMenuItem">
-              {isLoggedIn && <DepositModal />}
             </DropdownMenu.Item>
             <DropdownMenu.Separator className="DropdownMenuSeparator" />
             <Link href="/user" legacyBehavior style={{ width: "100%" }}>

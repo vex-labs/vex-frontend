@@ -80,7 +80,7 @@ const Sidebar2 = ({}) => {
             </a>
           </Link>
         </li>
-        <li>
+        <li data-active={pathname === "/governance"}>
           <Link href="/governance" legacyBehavior>
             <a>
               <img

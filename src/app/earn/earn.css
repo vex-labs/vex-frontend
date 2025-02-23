@@ -12,6 +12,10 @@
   margin-top: 55px;
   margin-left: 230px;
   padding: 20px;
+  @media (max-width: 768px) {
+    margin-left: 0;
+    padding: 20px;
+  }
 }
 
 .earn-container {
@@ -19,6 +23,9 @@
   justify-content: space-between;
   margin: 20px;
   flex-wrap: wrap; /* Allow wrapping for smaller screens */
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .swap-section,
@@ -30,6 +37,8 @@
   flex-direction: column;
   align-items: center; /* Center content horizontally */
   justify-content: center; /* Center content vertically */
+  @media (max-width: 768px) {
+  }
 }
 
 .placeholder {

@@ -150,6 +150,8 @@ const NavBar = ({
             />
           </a>
         </Link>
+
+        {isLoggedIn && <DepositModal />}
         <MobileMenuDropdown
           onLogout={onLogout}
           onLogin={onLogin}
