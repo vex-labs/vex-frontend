@@ -134,6 +134,8 @@
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
+
+  box-sizing: border-box;
 }
 
 .swap-button:hover {
@@ -199,9 +201,7 @@ label {
   text-align: center;
   border-radius: 9999px;
   overflow: hidden;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
   color: #6e6e6edd;
   cursor: pointer;
 }
@@ -219,9 +219,7 @@ input[type="radio"]:checked + label {
   width: 100%;
   color: #f1f3f5;
   font-weight: bold;
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .staking-statistics {
@@ -311,6 +309,7 @@ input[type="radio"]:checked + label {
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
+  box-sizing: border-box;
 }
 
 .confirm-button.first {
