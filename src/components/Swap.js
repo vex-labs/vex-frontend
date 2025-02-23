@@ -26,7 +26,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const [vexAmount, setVexAmount] = useState("");
   const [usdcAmount, setUsdcAmount] = useState("");
   const [displayUsdcAmount, setDisplayUsdcAmount] = useState("");
-  const [swapDirection, setSwapDirection] = useState(true); // true = VEX → USDC, false = USDC → VEX
+  const [swapDirection, setSwapDirection] = useState(false); // true = VEX → USDC, false = USDC → VEX
   const [password, setPassword] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [message, setMessage] = useState("");
@@ -61,7 +61,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       const poolId = 2197;
 
       const amountInYocto = BigInt(
-        Math.floor(inputAmount * Math.pow(10, swapDirection ? 18 : 6)),
+        Math.floor(inputAmount * Math.pow(10, swapDirection ? 18 : 6))
       ).toString();
 
       const args = {
@@ -134,7 +134,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0",
+      swapDirection ? vexAmount : usdcAmount || "0"
     );
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       alert("Invalid swap amount.");
@@ -142,7 +142,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6)),
+      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
     ).toString();
 
     try {
@@ -169,7 +169,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     const poolId = 2197;
 
     const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0",
+      swapDirection ? vexAmount : usdcAmount || "0"
     );
     console.log("Input Amount for Swap:", tokenAmount);
 
@@ -179,7 +179,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6)),
+      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
     ).toString();
     const minAmountOut = (
       parseFloat(swapDirection ? usdcAmount : vexAmount) * 0.95
@@ -199,7 +199,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           amount_in: formattedAmount,
           amount_out: "0",
           min_amount_out: BigInt(
-            Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18)),
+            Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
           ).toString(),
         },
       ],
@@ -220,7 +220,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         gas,
         deposit,
         wallet,
-        password,
+        password
       );
       console.log("Swap Successful:", outcome);
       setMessage("Swap Successful!");
@@ -260,10 +260,41 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     setDisplayUsdcAmount("");
   };
 
+  const handleAmountClick = (amount) => {
+    if (swapDirection) {
+      setVexAmount(amount.toString());
+      getOutputAmount(amount.toString());
+    } else {
+      setUsdcAmount(amount.toString());
+      getOutputAmount(amount.toString());
+    }
+  };
+
   return (
     <div className="swap-container">
-      <h2 className="swap-heading">Swap </h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          paddingBottom: "20px",
+        }}
+      >
+        <h2 className="swap-heading">
+          {swapDirection ? "Sell" : "Buy"} VEX Rewards
+        </h2>
 
+        <div className="swap-toggle">
+          <p> {swapDirection ? "Selling" : "Buying"}</p>
+          <label class="switch">
+            <input
+              type="checkbox"
+              checked={swapDirection}
+              onChange={toggleSwapDirection}
+            />
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
       <div className="token-box">
         <div className="token-info">
           <img
@@ -272,7 +303,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
             className="token-logo"
           />
           <div>
-            <p className="token-name">{swapDirection ? "VEX" : "USDC"}</p>
+            <p className="token-name">{swapDirection ? "VEX" : "$"}</p>
           </div>
         </div>
         <input
@@ -290,15 +321,23 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           Balance: {swapDirection ? tokenBalances.VEX : tokenBalances.USDC}
         </span>
         <div className="percentage-options">
-          <span onClick={() => handlePercentageClick(0.25)}>25%</span>
-          <span onClick={() => handlePercentageClick(0.5)}>50%</span>
-          <span onClick={() => handlePercentageClick(0.75)}>75%</span>
-          <span onClick={() => handlePercentageClick(1)}>100%</span>
+          {!swapDirection ? (
+            <>
+              <span onClick={() => handlePercentageClick(0.25)}>25%</span>
+              <span onClick={() => handlePercentageClick(0.5)}>50%</span>
+              <span onClick={() => handlePercentageClick(0.75)}>75%</span>
+              <span onClick={() => handlePercentageClick(1)}>100%</span>
+            </>
+          ) : (
+            <>
+              <div className="percentage-options">
+                <span onClick={() => handleAmountClick(50)}>50</span>
+                <span onClick={() => handleAmountClick(250)}>250</span>
+                <span onClick={() => handleAmountClick(100)}>100</span>
+              </div>
+            </>
+          )}
         </div>
-      </div>
-
-      <div className="swap-icon" onClick={toggleSwapDirection}>
-        ⇄
       </div>
 
       <div className="token-box">
@@ -309,7 +348,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
             className="token-logo"
           />
           <div>
-            <p className="token-name">{swapDirection ? "USDC" : "VEX"}</p>
+            <p className="token-name">{swapDirection ? "$" : "VEX"}</p>
           </div>
         </div>
 
@@ -326,10 +365,27 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           Balance: {swapDirection ? tokenBalances.USDC : tokenBalances.VEX}
         </span>
       </div>
+      <div className="message-box">
+        {message
+          ? message
+          : swapDirection
+          ? tokenBalances.VEX <= vexAmount
+            ? "Insufficient VEX Balance"
+            : ""
+          : displayUsdcAmount <= usdcAmount
+          ? "Insufficient USDC Balance"
+          : ""}
+      </div>
 
-      <div className="message-box">{message}</div>
-
-      <button className="swap-button" onClick={handleSwap}>
+      <button
+        className="swap-button"
+        onClick={handleSwap}
+        disabled={
+          swapDirection
+            ? tokenBalances.VEX <= vexAmount
+            : displayUsdcAmount <= usdcAmount
+        }
+      >
         Submit
       </button>
 

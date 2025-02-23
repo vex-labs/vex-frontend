@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import "./user.css";
-import UserBets from "@/components/Userbets";
 import { handleTransaction } from "@/utils/accountHandler";
 import Sidebar2 from "@/components/Sidebar2";
 import { useNear } from "@/app/context/NearContext";
 import { NearRpcUrl, GuestbookNearContract } from "../config";
+import UserBets from "@/components/Userbets";
 
 const UserPage = () => {
   const nearContext = useNear();
@@ -18,9 +18,12 @@ const UserPage = () => {
     : nearContext?.signedAccountId || null;
   const wallet = isVexLogin ? null : nearContext?.wallet || null;
 
+  const testAccountId = "user-1140876404.testnet";
+
   const [userBets, setUserBets] = useState([]);
   const [matchDetails, setMatchDetails] = useState({});
-  const [matchStates, setMatchStates] = useState({}); // For storing match states
+  const [matchStates, setMatchStates] = useState({});
+
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -40,7 +43,7 @@ const UserPage = () => {
       try {
         const contractId = GuestbookNearContract;
         const args = {
-          bettor: accountId,
+          bettor: testAccountId,
           from_index: null,
           limit: null,
         };
@@ -55,7 +58,6 @@ const UserPage = () => {
         const decodedResult = JSON.parse(
           Buffer.from(userBets.result).toString()
         );
-
         const userBetsWithState = decodedResult.map(([betId, bet]) => {
           const matchState = matchStates[bet.match_id]?.match_state || null; // Add match state if available
           return {
@@ -71,10 +73,10 @@ const UserPage = () => {
       }
     };
 
-    if (accountId) {
+    if (testAccountId) {
       fetchUserBets();
     }
-  }, [accountId, matchStates]); // Re-run when matchStates change
+  }, [testAccountId, matchStates]);
 
   // New useEffect hook to fetch matches and store match states by match_id
   useEffect(() => {
@@ -148,7 +150,7 @@ const UserPage = () => {
     }
   };
 
-  if (!accountId) {
+  if (!testAccountId) {
     return (
       <div className="user-page">
         <Sidebar2 />
@@ -171,34 +173,19 @@ const UserPage = () => {
     <div className="user-page">
       <Sidebar2 />
       <div className="user-content">
-        {/* <section className="account-details">
-          <h2>Account Details</h2>
-          <div className="account-info">
-            <h2>
-              <strong>Username:</strong> {accountId || "Not logged in"}
-            </h2>
-            <section className="vex-section">
-              <button
-                className="vex-button"
-                onClick={() => setShowWithdrawModal(true)}
-              >
-                Withdraw Funds
-              </button>
-              <button className="vex-button">Export Private Key</button>
-            </section>
-          </div>
-        </section> */}
         <UserBets
           userBets={userBets}
           wallet={wallet}
           signedAccountId={accountId}
         />
+
         <section className="past-bets">
           <h2>Past Bets</h2>
           <ul>
             <li>No past bets found.</li>
           </ul>
         </section>
+
         {showWithdrawModal && (
           <div className="withdraw-modal">
             <div className="withdraw-modal-content">
