@@ -25,8 +25,8 @@ export async function swapTokens(wallet, swapDirection, tokenAmount) {
   };
 
   const tokenContractId = swapDirection
-    ? CONFIG.tokenContractIdUSDC
-    : CONFIG.tokenContractIdVEX; // Token to transfer
+    ? CONFIG.tokenContractIdVEX
+    : CONFIG.tokenContractIdUSDC; // Token to transfer
   const receiverId = ReceiverId; // Ref.Finance contract for swapping
   const poolId = PoolId;
 
@@ -42,7 +42,7 @@ export async function swapTokens(wallet, swapDirection, tokenAmount) {
         {
           pool_id: poolId,
           token_in: tokenContractId,
-          token_out: swapDirection ? VexTokenContract : UsdcTokenContract,
+          token_out: swapDirection ? UsdcTokenContract : VexTokenContract,
           amount_in: tokenAmount,
           amount_out: "0", // Set to '0' if you don't have an exact amount
           min_amount_out: "0", // Set to '0' for no slippage tolerance (or customize this)
