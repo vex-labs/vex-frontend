@@ -53,6 +53,65 @@ h2 {
   color: var(--text-color);
 }
 
+.bet-status {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #ccc;
+  justify-content: space-between;
+}
+
+.bet-status-container {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #ccc;
+}
+
+.status-bar {
+  background-color: #1e1e1e;
+  font-size: 14px;
+  border: 1px solid black;
+  color: #ccc;
+  padding: 5px;
+  border-radius: 50px;
+}
+
+.match-id {
+  color: white;
+  font-size: 24px;
+  font-weight: semi-bold;
+}
+
+.team-name {
+  color: #ccc;
+  font-size: 18px;
+  font-weight: medium;
+}
+
+.claim-button {
+  background-color: var(--accent-color);
+  border-radius: 50px;
+}
+
+.bet-amounts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bet-numbers {
+  color: #00e6b3;
+  font-size: large;
+  font-weight: bold;
+}
+
+.winings-amount-container {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: flex-end;
+}
 .vex-section {
   display: flex;
   justify-content: space-between;
