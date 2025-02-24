@@ -426,9 +426,21 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       </div>
 
       <div className="staking-statistics">
-        <p>Your Balance: {balance} VEX</p>
-        <p>Your Staked Balance: {stakedBalance} VEX</p>
-        <p> USDC rewards: {totalUSDCRewards} USDC</p>
+        <div className="token-container">
+          <h4 className="token-title">Your Balance: </h4>
+          <p className="token-amount">{balance} VEX</p>
+        </div>
+        <div className="token-container">
+          <h4 className="token-title">Your Staked Balance: </h4>
+          <p className="token-amount">{stakedBalance} VEX</p>
+        </div>
+        <div className="token-container">
+          <h4 className="token-title">USDC rewards: </h4>
+          <p className="token-amount">
+            {" "}
+            <span className="usdc-amount">{totalUSDCRewards}</span> USDC
+          </p>
+        </div>
       </div>
 
       <div className="token-box">

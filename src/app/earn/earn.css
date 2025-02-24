@@ -399,3 +399,28 @@ input:checked + .slider:before {
   align-items: center;
   gap: 10px;
 }
+
+.token-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  background-color: #111;
+  border-radius: 10px;
+}
+
+.token-title {
+  font-size: 16px;
+  color: #ccc;
+}
+
+.token-amount {
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.usdc-amount {
+  font-size: 16px;
+  color: #00ffa3;
+}

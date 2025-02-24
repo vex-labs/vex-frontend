@@ -369,10 +369,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         {message
           ? message
           : swapDirection
-          ? tokenBalances.VEX <= vexAmount
+          ? tokenBalances.VEX >= vexAmount
             ? "Insufficient VEX Balance"
             : ""
-          : displayUsdcAmount <= usdcAmount
+          : displayUsdcAmount >= usdcAmount
           ? "Insufficient USDC Balance"
           : ""}
       </div>
@@ -382,8 +382,8 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         onClick={handleSwap}
         disabled={
           swapDirection
-            ? tokenBalances.VEX <= vexAmount
-            : displayUsdcAmount <= usdcAmount
+            ? tokenBalances.VEX >= vexAmount
+            : displayUsdcAmount >= usdcAmount
         }
       >
         Submit

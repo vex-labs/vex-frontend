@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { handleTransaction } from "@/utils/accountHandler";
 import { GuestbookNearContract } from "@/app/config";
+import { DropdownMenu } from "radix-ui";
 
 /**
  * UserBets component
@@ -98,7 +99,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
   return (
     <section className="active-bets">
       <h2>Active Bets</h2>
-      <ul>
+      <div>
         {userBets.length > 0 ? (
           userBets.map((bet, index) => {
             const {
@@ -113,50 +114,58 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
             const formattedMatchId = `${matchParts[0]} vs ${matchParts[1]}`;
 
             return (
-              <li key={index} className="bet-item">
-                <p>
-                  <strong>Bet ID:</strong> {betId}
-                </p>
-                <p>
-                  <strong>Match:</strong> {formattedMatchId}
-                </p>
-                <p>
-                  <strong>Team:</strong> {team}
-                </p>
-                <p>
-                  <strong>Bet Amount:</strong>{" "}
-                  {(bet_amount / Math.pow(10, 6)).toFixed(2)} USDC
-                </p>
-                <p>
-                  <strong>Potential Winnings:</strong>{" "}
-                  {(potential_winnings / Math.pow(10, 6)).toFixed(2)} USDC
-                </p>
-                <p>
-                  <strong>Pay State:</strong>{" "}
-                  {bet.pay_state ? bet.pay_state : "Pending"}
-                </p>
+              <div key={index} className="bet-item">
+                <div className="bet-status">
+                  <div className="bet-status-container">
+                    <p>#{betId}</p>
+                    <p className="status-bar">
+                      {bet.pay_state ? bet.pay_state : "Pending"}
+                    </p>
+                  </div>
+                  <div>
+                    {match_state !== "Future" && !claimedBets[betId] && (
+                      <button
+                        className="claim-button"
+                        onClick={() => handleClaim(betId)}
+                      >
+                        Claim
+                      </button>
+                    )}
 
-                {/* Render Claim button if match_state is not "Future" */}
-                {match_state !== "Future" && !claimedBets[betId] && (
-                  <button
-                    className="claim-button"
-                    onClick={() => handleClaim(betId)}
-                  >
-                    Claim
-                  </button>
-                )}
-
-                {/* Display Claim Successful message if claim is successful */}
-                {claimedBets[betId] && (
-                  <p className="claim-successful-message">Claim Successful!</p>
-                )}
-              </li>
+                    {/* Display Claim Successful message if claim is successful */}
+                    {claimedBets[betId] && (
+                      <p className="claim-successful-message">
+                        Claim Successful!
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="bet-information">
+                  <p className="match-id">{formattedMatchId}</p>
+                  <p className="team-name">{team}</p>
+                </div>
+                <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                <div className="bet-amounts">
+                  <div className="bet-amount-container">
+                    <p className="">Bet Amount</p>
+                    <p className="bet-numbers">
+                      {(bet_amount / Math.pow(10, 6)).toFixed(2)} USDC
+                    </p>
+                  </div>
+                  <div className="winings-amount-container">
+                    <p>Potential Winnings</p>
+                    <p className="bet-numbers">
+                      {(potential_winnings / Math.pow(10, 6)).toFixed(2)} USDC
+                    </p>
+                  </div>
+                </div>
+              </div>
             );
           })
         ) : (
           <li>No bets found.</li>
         )}
-      </ul>
+      </div>
 
       {/* Password Modal */}
       {showPasswordModal && (
