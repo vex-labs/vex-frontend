@@ -6,6 +6,7 @@ import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
 import { useEffect, useState } from "react";
 import MobileMenuDropdown from "./MobileMenuDropdown";
+import { usePathname } from "next/navigation";
 
 /**
  * NavBar component
@@ -44,15 +45,16 @@ const NavBar = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Set the active link based on current path
+  const pathname = usePathname();
+
   useEffect(() => {
-    const path = window.location.pathname;
+    const path = pathname;
     if (path === "/") setActiveLink("betting");
     else if (path.includes("/earn")) setActiveLink("earn");
     else if (path.includes("/governance")) setActiveLink("governance");
     else if (path.includes("/leaderboard")) setActiveLink("leaderboard");
     else setActiveLink("");
-  }, []);
+  }, [pathname]);
 
   // Refresh balance on component mount
   useEffect(() => {
