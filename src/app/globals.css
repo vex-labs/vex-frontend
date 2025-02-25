@@ -1900,6 +1900,12 @@ button {
   margin-left: 60px;
 }
 
+@media (max-width: 768px) {
+  .sidebar.collapsed + .mainContent {
+    margin-left: 0;
+  }
+}
+
 /* Home Page */
 .section-header {
   display: flex;
@@ -2865,5 +2871,216 @@ button {
   }
   to {
     opacity: 1;
+  }
+}
+
+/* UpcomingGames styles */
+/* UpcomingGames Styles - Add these to your global CSS or create a new CSS file */
+
+.upcoming-games-section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h1 {
+  color: white;
+  font-size: 28px;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.match-count {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+  font-size: 14px;
+  padding: 4px 10px;
+  border-radius: 50px;
+  font-weight: 500;
+}
+
+/* Skeleton loading state */
+.skeleton-card {
+  animation: pulse 1.5s infinite ease-in-out;
+  min-height: 258px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.skeleton-header {
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.skeleton-body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-grow: 1;
+}
+
+.skeleton-team {
+  width: 80px;
+  height: 80px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.skeleton-vs {
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+}
+
+.skeleton-odds {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.skeleton-odds::before,
+.skeleton-odds::after {
+  content: "";
+  height: 40px;
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+/* Error state */
+.upcoming-error-container {
+  background-color: rgba(255, 51, 88, 0.1);
+  border: 1px solid rgba(255, 51, 88, 0.2);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.error-icon {
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.upcoming-error-container h3 {
+  font-size: 20px;
+  margin: 0;
+  color: white;
+}
+
+.upcoming-error-container p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+.retry-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #ff4f6e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
+}
+
+/* Empty state */
+.upcoming-empty-container {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 8px;
+}
+
+.upcoming-empty-container h3 {
+  font-size: 20px;
+  margin: 0;
+  color: white;
+}
+
+.upcoming-empty-container p {
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Card hover effect */
+.upcoming-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.upcoming-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .section-header h1 {
+    font-size: 24px;
+  }
+
+  .upcoming-error-container,
+  .upcoming-empty-container {
+    padding: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .upcoming-grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .upcoming-card-4-col {
+    grid-column: span 1;
   }
 }
