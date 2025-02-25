@@ -1,7 +1,17 @@
 import * as React from "react";
 import { Dialog } from "radix-ui";
 import "./GiftModal.css";
-import { Gift, ArrowRight, DollarSign, PlusCircle } from "lucide-react";
+import {
+  Gift,
+  ArrowRight,
+  DollarSign,
+  AlertCircle,
+  CheckCircle,
+  Search,
+  Loader,
+} from "lucide-react";
+import { NearRpcUrl, QueryURL } from "@/app/config";
+import { gql, request } from "graphql-request";
 
 const GiftModal = ({ open, setIsOpen }) => {
   const [amount, setAmount] = React.useState(1.0);
@@ -9,6 +19,12 @@ const GiftModal = ({ open, setIsOpen }) => {
   const [username, setUsername] = React.useState("");
   const [message, setMessage] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isCheckingAccount, setIsCheckingAccount] = React.useState(false);
+  const [accountStatus, setAccountStatus] = React.useState(null);
+  const [accountType, setAccountType] = React.useState(null);
+  const quickAmounts = [5, 10, 25, 50, 100];
+
+  const debouncedUsername = useDebounce(username, 500);
 
   // Handle amount change with validation
   const handleAmountChange = (e) => {
@@ -24,7 +40,172 @@ const GiftModal = ({ open, setIsOpen }) => {
       setMessage("");
     }
   };
-  const quickAmounts = [5, 10, 25, 50, 100];
+
+  // Handle username change
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+
+    // Reset account status until debounce finishes
+    if (accountStatus) {
+      setAccountStatus(null);
+      setAccountType(null);
+    }
+  };
+
+  // Determine account type based on input pattern
+  React.useEffect(() => {
+    if (!debouncedUsername || debouncedUsername.trim() === "") {
+      setAccountType(null);
+      setAccountStatus(null);
+      return;
+    }
+
+    const determineAccountType = () => {
+      const username = debouncedUsername.trim();
+
+      // Check for Ethereum-style address (starts with 0x)
+      if (username.startsWith("0x")) {
+        return "ethereum";
+      }
+
+      // Check for .testnet or .near account
+      if (username.endsWith(".testnet") || username.endsWith(".near")) {
+        return "near";
+      }
+
+      // Check for simple username (which could be a BetVEX user or top-level NEAR account)
+      if (username.length > 0) {
+        // Top-level accounts are shorter than 32 characters
+        if (username.length < 32 && !username.includes(".")) {
+          return "toplevel";
+        } else {
+          return "betvex";
+        }
+      }
+
+      return null;
+    };
+
+    const newAccountType = determineAccountType();
+    setAccountType(newAccountType);
+
+    // If the account type has changed, check if it exists
+    if (newAccountType) {
+      checkAccountExists(debouncedUsername, newAccountType);
+    }
+  }, [debouncedUsername]);
+
+  // Check if account exists
+  const checkAccountExists = async (username, type) => {
+    if (!username || username.trim() === "") return;
+
+    setIsCheckingAccount(true);
+    setAccountStatus(null);
+
+    try {
+      // For BetVEX users, check in our GraphQL database
+      if (type === "betvex") {
+        const formattedUsername = username.trim();
+        const fullUsername = `${formattedUsername}.users.betvex.testnet`;
+
+        const query = gql`
+          {
+            users({where: {id: "${fullUsername}"}}) {
+              id
+            }
+          }
+        `;
+
+        const result = await request(QueryURL, query);
+
+        if (result.users && result.users.length > 0) {
+          setAccountStatus("exists");
+        } else {
+          // If not found as BetVEX user, check if it's a top-level account
+          setAccountType("toplevel");
+          await checkNearAccount(username);
+        }
+      }
+      // For NEAR accounts (including top-level), check via NEAR API
+      else if (type === "near" || type === "toplevel") {
+        await checkNearAccount(username);
+      }
+      // For Ethereum addresses, do a basic format validation
+      else if (type === "ethereum") {
+        // Simple format validation for Ethereum addresses
+        const isValidFormat = /^0x[a-fA-F0-9]{40}$/.test(username);
+        setAccountStatus(isValidFormat ? "exists" : "invalid");
+      }
+    } catch (error) {
+      console.error("Error checking account:", error);
+      setAccountStatus("error");
+    } finally {
+      setIsCheckingAccount(false);
+    }
+  };
+
+  // Check if NEAR account exists
+  const checkNearAccount = async (accountId) => {
+    try {
+      // Prepare the JSON-RPC payload for the view_account method
+      const payload = {
+        jsonrpc: "2.0",
+        id: "dontcare",
+        method: "query",
+        params: {
+          request_type: "view_account",
+          finality: "final",
+          account_id: accountId,
+        },
+      };
+
+      const response = await fetch(NearRpcUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+      console.log("Response from NEAR RPC:", data);
+
+      // If an error is returned, handle account not found or other errors.
+      if (data.error) {
+        // Check for a specific error indicating the account does not exist
+        if (data.error.data && data.error.data.name === "UNKNOWN_ACCOUNT") {
+          setAccountStatus("not_found");
+        } else {
+          setAccountStatus("error");
+        }
+      } else if (data.result) {
+        // Account exists if the result is returned successfully
+        setAccountStatus("exists");
+      }
+    } catch (error) {
+      console.error("Error checking NEAR account:", error);
+      setAccountStatus("error");
+    }
+  };
+
+  // Get formatted recipient ID based on account type
+  const getFormattedRecipientId = () => {
+    if (!username) return "";
+
+    const cleanUsername = username.trim();
+
+    switch (accountType) {
+      case "betvex":
+        return `${cleanUsername}.users.betvex.testnet`;
+      case "near":
+        return cleanUsername; // Already has .testnet or .near
+      case "toplevel":
+        return cleanUsername; // Top-level account
+      case "ethereum":
+        return cleanUsername; // Ethereum address
+      default:
+        return cleanUsername;
+    }
+  };
 
   // Handle gift submission
   const handleGift = () => {
@@ -38,13 +219,19 @@ const GiftModal = ({ open, setIsOpen }) => {
       return;
     }
 
+    if (accountStatus !== "exists") {
+      setMessage("Please enter a valid recipient account");
+      return;
+    }
+
     setIsSubmitting(true);
+    const formattedRecipient = getFormattedRecipientId();
 
     // Simulate API call
     setTimeout(() => {
       setIsSubmitting(false);
       setMessage(
-        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${username} successfully!`
+        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
       );
 
       // Reset form after successful submission
@@ -52,6 +239,8 @@ const GiftModal = ({ open, setIsOpen }) => {
         setAmount(1.0);
         setUsername("");
         setMessage("");
+        setAccountStatus(null);
+        setAccountType(null);
         setIsOpen(false);
       }, 2000);
     }, 1500);
@@ -60,6 +249,71 @@ const GiftModal = ({ open, setIsOpen }) => {
   // Handle modal content click to prevent close on content click
   const handleContentClick = (e) => {
     e.stopPropagation();
+  };
+
+  // Render account status indicator
+  const renderAccountStatus = () => {
+    if (isCheckingAccount) {
+      return (
+        <span className="account-status checking">
+          <Loader size={16} className="spinning" />
+          Checking...
+        </span>
+      );
+    }
+
+    if (!username || !accountStatus) return null;
+
+    switch (accountStatus) {
+      case "exists":
+        return (
+          <span className="account-status valid">
+            <CheckCircle size={16} />
+            Valid account
+          </span>
+        );
+      case "invalid":
+        return (
+          <span className="account-status invalid">
+            <AlertCircle size={16} />
+            Invalid account
+          </span>
+        );
+      case "error":
+        return (
+          <span className="account-status error">
+            <AlertCircle size={16} />
+            Error checking account
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  // Render account type description
+  const renderAccountTypeDescription = () => {
+    if (!accountType || !username) return null;
+
+    let description = "";
+    switch (accountType) {
+      case "betvex":
+        description = `BetVEX user: ${username}.users.betvex.testnet`;
+        break;
+      case "near":
+        description = `NEAR account: ${username}`;
+        break;
+      case "toplevel":
+        description = `NEAR top-level account: ${username}`;
+        break;
+      case "ethereum":
+        description = `Ethereum address: ${username}`;
+        break;
+      default:
+        return null;
+    }
+
+    return <div className="account-type-description">{description}</div>;
   };
 
   return (
@@ -115,18 +369,20 @@ const GiftModal = ({ open, setIsOpen }) => {
             {/* Username Input */}
             <div className="form-group">
               <label className="form-label" htmlFor="username">
-                Recipient Username
+                Recipient Username or Address
               </label>
               <div className="username-input-wrapper">
                 <input
                   className="form-input"
                   id="username"
                   type="text"
-                  placeholder="Enter recipient's username"
-                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Enter recipient's username or address"
+                  onChange={handleUsernameChange}
                   value={username}
                 />
+                <div className="username-status">{renderAccountStatus()}</div>
               </div>
+              {renderAccountTypeDescription()}
             </div>
 
             {/* Amount Input */}
@@ -155,7 +411,7 @@ const GiftModal = ({ open, setIsOpen }) => {
                   <button
                     key={quickAmount}
                     className={`quick-amount-button ${
-                      amount === quickAmount ? "active" : ""
+                      parseFloat(amount) === quickAmount ? "active" : ""
                     }`}
                     onClick={() => setAmount(quickAmount)}
                   >
@@ -191,7 +447,12 @@ const GiftModal = ({ open, setIsOpen }) => {
               <button
                 className={`gift-button ${isSubmitting ? "submitting" : ""}`}
                 onClick={handleGift}
-                disabled={isSubmitting || !username || amount < 1}
+                disabled={
+                  isSubmitting ||
+                  !username ||
+                  amount < 1 ||
+                  accountStatus !== "exists"
+                }
               >
                 {isSubmitting ? (
                   <span className="loading-spinner"></span>
@@ -232,5 +493,22 @@ const GiftModal = ({ open, setIsOpen }) => {
     </Dialog.Root>
   );
 };
+
+// Custom hook for debouncing values
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = React.useState(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 export default GiftModal;

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import GameCard from "./GameCard";
 import { QueryURL } from "@/app/config";
 import { gql, request } from "graphql-request";
@@ -47,6 +47,7 @@ const FeaturedGames = ({
   selectedGame,
   wallet,
   vexAccountId,
+  onUpdateAvailableGames,
 }) => {
   // Build the GraphQL query with game filter if provided
   const buildQuery = () => {
@@ -111,6 +112,19 @@ const FeaturedGames = ({
 
     return `${dateStr} ${timeStr}`;
   };
+
+  useEffect(() => {
+    if (data?.matches) {
+      const gamesSet = new Set();
+      data.matches.forEach((match) => {
+        if (match.game) gamesSet.add(match.game);
+      });
+      // Update parent component with available games
+      if (onUpdateAvailableGames && gamesSet.size > 0) {
+        onUpdateAvailableGames(Array.from(gamesSet));
+      }
+    }
+  }, [data?.matches, onUpdateAvailableGames]);
 
   // Render loading skeleton
   const renderSkeleton = () => (
