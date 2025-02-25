@@ -4,6 +4,7 @@ import { QueryURL } from "@/app/config";
 import { gql, request } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
 import { RefreshCw, AlertCircle } from "lucide-react";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 
 // Team icon mapping with fallback handling
 const TEAM_ICON_MAP = {
@@ -36,10 +37,17 @@ const TEAM_ICON_MAP = {
  * @param {Object} props - Component props
  * @param {boolean} props.isLoading - Global loading state from parent
  * @param {string} props.selectedGame - Currently selected game filter
+ * @param {Object} props.wallet - Wallet object for handling transactions
+ * @param {string} props.vexAccountId - User's VEX account ID
  *
  * @returns {JSX.Element} The rendered FeaturedGames component
  */
-const FeaturedGames = ({ isLoading: parentIsLoading, selectedGame }) => {
+const FeaturedGames = ({
+  isLoading: parentIsLoading,
+  selectedGame,
+  wallet,
+  vexAccountId,
+}) => {
   // Build the GraphQL query with game filter if provided
   const buildQuery = () => {
     let whereClause = "{ match_state: Future }";
@@ -70,6 +78,8 @@ const FeaturedGames = ({ isLoading: parentIsLoading, selectedGame }) => {
       }
     `;
   };
+
+  const { tokenBalances } = useGlobalContext();
 
   // Fetch featured games with React Query
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -183,6 +193,9 @@ const FeaturedGames = ({ isLoading: parentIsLoading, selectedGame }) => {
               matchId={match.id}
               team2Logo={getTeamLogo(match.team_2)}
               team2Name={match.team_2 || "Team 2"}
+              wallet={wallet}
+              vexAccountId={vexAccountId}
+              walletBalance={tokenBalances.USDC}
             />
           ))}
         </div>

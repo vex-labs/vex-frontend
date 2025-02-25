@@ -215,40 +215,25 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           console.error("Deposit transaction failed:", depositResult.error);
         }
       } else {
-        const depositResult = await wallet.callMethod({
+        const stakeResult = await wallet.callMethod({
           contractId: tokenContractId,
           method: "ft_transfer_call",
           args: {
-            receiver_id: stakingContractId,
             amount: formattedAmount,
-            msg: "Deposit",
+            receiver_id: stakingContractId,
+            msg: JSON.stringify("Stake"),
           },
           gas,
-          deposit: 1,
+          deposit: "1",
         });
 
-        if (depositResult && !depositResult.error) {
-          console.log("Deposit successful. Proceeding to stake.");
-
-          const stakeResult = await wallet.callMethod({
-            contractId: stakingContractId,
-            method: "stake",
-            args: { amount: formattedAmount },
-            gas,
-            deposit,
-          });
-
-          if (stakeResult && !stakeResult.error) {
-            setMessage("Stake successful!");
-            setRefreshBalances((prev) => !prev); // Trigger balance refresh
-            toggleRefreshBalances();
-          } else {
-            setMessage("Failed to stake. Please try again.");
-            console.error("Stake transaction failed:", stakeResult.error);
-          }
+        if (stakeResult && !stakeResult.error) {
+          setMessage("Stake successful!");
+          setRefreshBalances((prev) => !prev); // Trigger balance refresh
+          toggleRefreshBalances();
         } else {
-          setMessage("Failed to deposit. Please try again.");
-          console.error("Deposit transaction failed:", depositResult.error);
+          setMessage("Failed to stake. Please try again.");
+          console.error("Stake transaction failed:", stakeResult.error);
         }
       }
     } catch (error) {

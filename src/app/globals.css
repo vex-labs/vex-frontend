@@ -1172,7 +1172,6 @@ button {
 
 .stake-container input {
   width: 100%;
-  padding: 10px;
   border: none;
   border-radius: 5px;
   font-size: 1em;
@@ -1348,104 +1347,6 @@ button {
 .odds-value {
   font-size: 18px;
   font-weight: bold;
-}
-
-/* Modal background */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50; /* Ensure it's on top of other content */
-}
-
-/* Modal content */
-.modal-content {
-  background: rgba(250, 250, 250, 0.15);
-  box-shadow: 1px 1px 15px 1px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  border-radius: 10px 50px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  width: 320px;
-  padding: 30px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  animation: fadeIn 0.3s ease; /* Smooth fade-in effect */
-}
-
-/* Modal heading */
-.modal-content h3 {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #ffffff;
-  margin-bottom: 20px;
-}
-
-/* Password input */
-.modal-content input[type="password"] {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0 20px;
-  background-color: rgba(255, 255, 255, 0.1);
-  color: #ffffffdb;
-  border: none;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: background-color 450ms;
-}
-
-.modal-content input[type="password"]:hover {
-  background-color: rgba(255, 255, 255, 0.15);
-}
-
-.modal-content input::placeholder {
-  color: #ffffffdb;
-  font-size: 0.9rem;
-}
-
-/* Modal buttons container */
-.modal-buttons {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  justify-content: space-between;
-}
-
-/* Modal buttons */
-.modal-buttons button {
-  width: 100%;
-  padding: 10px;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 25px;
-  cursor: pointer;
-  transition: background-color 450ms;
-}
-
-/* Primary and Cancel buttons */
-.modal-buttons button:last-of-type {
-  background-color: rgba(255, 255, 255, 0.8);
-  color: #000;
-}
-
-.modal-buttons button:last-of-type:hover {
-  background-color: rgba(255, 255, 255, 1);
-}
-
-.modal-buttons button:first-of-type {
-  background-color: rgba(255, 255, 255, 0.3);
-  color: #ffffff;
-}
-
-.modal-buttons button:first-of-type:hover {
-  background-color: rgba(255, 255, 255, 0.5);
 }
 
 /* Withdraw Modal background */
@@ -2340,7 +2241,7 @@ button {
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
   width: auto;
-  height: 258px;
+  height: auto;
   color: white;
   position: relative;
   transition: all 0.3s ease;
@@ -2546,7 +2447,7 @@ button {
 
 .stake-input {
   width: 100%;
-  padding: 12px 12px 12px 28px;
+  padding: 12px 12px 12px 24px;
   background: transparent;
   border: none;
   color: white;
@@ -2696,11 +2597,13 @@ button {
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
   animation: fadeIn 0.2s ease;
+  cursor: pointer;
 }
 
 @keyframes fadeIn {
@@ -2710,16 +2613,6 @@ button {
   to {
     opacity: 1;
   }
-}
-
-.modal-content {
-  background: rgba(30, 30, 30, 0.95);
-  border-radius: 16px;
-  width: 100%;
-  max-width: 350px;
-  padding: 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .modal-content h3 {
@@ -2858,5 +2751,119 @@ button {
   .place-bet-button {
     font-size: 13px;
     padding: 10px;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  cursor: pointer; /* Indicates clickable background */
+}
+
+.modal-content {
+  background: rgba(30, 30, 30, 0.95);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 350px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: default; /* Reset cursor for content */
+  position: relative;
+  z-index: 1001;
+}
+
+.modal-description {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
+.modal-content h3 {
+  color: white;
+  font-size: 20px;
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+.password-input {
+  width: 100%;
+  padding: 14px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.password-input:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+  outline: none;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modal-buttons button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-modal-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: none;
+}
+
+.cancel-modal-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.submit-modal-button {
+  background-color: var(--green-button);
+  color: #111;
+  border: none;
+  font-weight: 600;
+}
+
+.submit-modal-button:hover:not(:disabled) {
+  background-color: #00ffbf;
+  transform: translateY(-2px);
+}
+
+.submit-modal-button:disabled {
+  background-color: rgba(0, 230, 179, 0.4);
+  color: rgba(0, 0, 0, 0.6);
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
