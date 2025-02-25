@@ -1,41 +1,95 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import {
+  Home,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Users,
+} from "lucide-react";
 
 /**
- * Sidebar component
- * Sidebar can toggle between collapsed and expanded states.
- * This sidebar is not dynamic and is used in the user page and earn page
- * Sidebar.js is used in the main page
+ * Sidebar2 component
+ * Enhanced version with improved UI/UX
+ * Used in the user page and earn page
  *
- * @param {Object} props - The component props
- * @param {Function} props.onSelectGame - Function to handle game selection
- * @param {string} props.selectedGame - The currently selected game
- *
- * @returns {JSX.Element} The rendered Sidebar component
+ * @returns {JSX.Element} The rendered Sidebar2 component
  */
 
-const Sidebar2 = ({}) => {
+const Sidebar2 = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isSocialsExpanded, setIsSocialsExpanded] = useState(true);
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   const pathname = usePathname();
 
-  const toggleSidebar = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setIsCollapsed(!isCollapsed);
-      setIsTransitioning(false);
-    }, 300);
-  };
+  // Check if sidebar should be collapsed on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024 && !isCollapsed) {
+        setIsCollapsed(true);
+      }
+    };
 
+    // Initial check
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [isCollapsed]);
+
+  // Main navigation items
+  const mainNavItems = [
+    {
+      name: "home",
+      label: "Home",
+      path: "/",
+      icon: <Home size={20} strokeWidth={1.5} />,
+    },
+    {
+      name: "earn",
+      label: "Earn",
+      path: "/earn",
+      icon: (
+        <img src="/icons/staking.png" alt="earn" className="sidebar-icon" />
+      ),
+    },
+    {
+      name: "governance",
+      label: "Governance",
+      path: "/governance",
+      icon: (
+        <img
+          src="/icons/governance.png"
+          alt="Governance"
+          className="sidebar-icon"
+        />
+      ),
+    },
+    {
+      name: "leaderboard",
+      label: "Leaderboard",
+      path: "/leaderboard",
+      icon: <BarChart3 size={20} strokeWidth={1.5} />,
+    },
+  ];
+
+  // Social media links
   const socials = [
     {
       name: "Telegram",
       icon: "/icons/socials/telegram.png",
       link: "https://t.me/+4x6uwCjC7BgzNmRk",
     },
-    { name: "x", icon: "/icons/socials/x.png", link: "https://x.com/betvex" },
+    {
+      name: "X (Twitter)",
+      icon: "/icons/socials/x.png",
+      link: "https://x.com/betvex",
+    },
     {
       name: "TikTok",
       icon: "/icons/socials/tiktok.png",
@@ -44,126 +98,154 @@ const Sidebar2 = ({}) => {
     {
       name: "Instagram",
       icon: "/icons/socials/instagram.png",
-      link: "https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr",
+      link: "https://www.instagram.com/getvexy",
     },
   ];
 
-  return (
+  // Toggle sidebar expansion
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  // Render a section header with expandable toggle
+  const renderSectionHeader = (title, section, isExpanded, toggleFn) => (
     <div
-      className={`app-sidebar ${isCollapsed ? "collapsed" : ""} ${
-        isTransitioning ? "transitioning" : ""
-      }`}
+      className={`sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
+      onClick={() => !isCollapsed && toggleFn()}
+      onMouseEnter={() => setHoveredItem(`section-${section}`)}
+      onMouseLeave={() => setHoveredItem(null)}
     >
-      <ul>
-        <li>
-          <button className="toggle-button" onClick={toggleSidebar}>
-            {isCollapsed ? "→" : "←"}
-          </button>
-        </li>
-        <li data-active={pathname === "/"}>
-          <Link href="/" legacyBehavior>
-            <a>
-              <HomeIcon />
-              {!isCollapsed && <span>Home</span>}
-            </a>
-          </Link>
-        </li>
-        <li data-active={pathname === "/earn"}>
-          <Link href="/earn" legacyBehavior>
-            <a>
-              <img
-                src="/icons/staking.png"
-                alt="earn"
-                style={{ width: "17px", height: "17px" }}
-              />
-              {!isCollapsed && <span>Earn</span>}
-            </a>
-          </Link>
-        </li>
-        <li data-active={pathname === "/governance"}>
-          <Link href="/governance" legacyBehavior>
-            <a>
-              <img
-                src="/icons/governance.png"
-                alt="Governance"
-                style={{ width: "17px", height: "17px" }}
-              />
-              {!isCollapsed && <span>Governance</span>}
-            </a>
-          </Link>
-        </li>
-        <li data-active={pathname === "/leaderboard"}>
-          <Link href="/leaderboard" legacyBehavior>
-            <a>
-              <ChartIcon />
-              {!isCollapsed && <span>Leaderboard</span>}
-            </a>
-          </Link>
-        </li>
-      </ul>
-      <div className={`section-title`}>Socials</div>
-      <ul>
-        {socials.map((social) => (
-          <li key={social.name}>
-            <a href={social.link} target="_blank" rel="noopener noreferrer">
-              <img src={social.icon} alt={social.name} />
-              {!isCollapsed && <span>{social.name}</span>}
-            </a>
-          </li>
-        ))}
-      </ul>
-      <div className={`section-title`}>User Area</div>
-      <ul>
-        <li>
-          <Link href="/user" legacyBehavior>
-            <a>
-              <img src="/icons/user.png" alt="User Area" />
-              {!isCollapsed && <span>User Area</span>}
-            </a>
-          </Link>
-        </li>
-      </ul>
+      <span className="section-title">{title}</span>
+      {!isCollapsed && (
+        <button
+          className="section-toggle-button"
+          aria-label={isExpanded ? `Collapse ${title}` : `Expand ${title}`}
+        >
+          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+      )}
     </div>
+  );
+
+  return (
+    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+      {/* Collapse Toggle Button */}
+      <button
+        className="sidebar-toggle"
+        onClick={toggleSidebar}
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+      </button>
+
+      {/* Main Navigation */}
+      <nav className="sidebar-nav">
+        <ul className="nav-list main-nav">
+          {mainNavItems.map((item) => (
+            <li
+              key={item.name}
+              className={`nav-item ${pathname === item.path ? "active" : ""}`}
+              onMouseEnter={() => setHoveredItem(item.name)}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              <Link href={item.path} className="nav-link">
+                <span className="nav-icon">{item.icon}</span>
+                {(!isCollapsed || hoveredItem === item.name) && (
+                  <span className={`nav-label ${isCollapsed ? "tooltip" : ""}`}>
+                    {item.label}
+                  </span>
+                )}
+                {pathname === item.path && (
+                  <span className="active-indicator" />
+                )}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Social Links Section */}
+      <div className="sidebar-section">
+        {renderSectionHeader("Socials", "socials", isSocialsExpanded, () =>
+          setIsSocialsExpanded(!isSocialsExpanded)
+        )}
+
+        {(isSocialsExpanded || isCollapsed) && (
+          <ul
+            className={`nav-list socials-list ${
+              !isSocialsExpanded && !isCollapsed ? "hidden" : ""
+            }`}
+          >
+            {socials.map((social) => (
+              <li
+                key={social.name}
+                className="nav-item social-item"
+                onMouseEnter={() => setHoveredItem(`social-${social.name}`)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <a
+                  href={social.link}
+                  className="nav-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="nav-icon">
+                    <img
+                      src={social.icon}
+                      alt={social.name}
+                      className="social-icon"
+                    />
+                  </span>
+                  {(!isCollapsed ||
+                    hoveredItem === `social-${social.name}`) && (
+                    <span
+                      className={`nav-label ${isCollapsed ? "tooltip" : ""}`}
+                    >
+                      <span>{social.name}</span>
+                      <ExternalLink size={12} className="external-link-icon" />
+                    </span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* User Section */}
+      <div className="sidebar-section user-section">
+        {isCollapsed ? (
+          <div className="sidebar-section-header collapsed">
+            <span className="section-title">User</span>
+          </div>
+        ) : (
+          <div className="sidebar-section-header">
+            <span className="section-title">User Area</span>
+          </div>
+        )}
+
+        <ul className="nav-list">
+          <li
+            className={`nav-item ${pathname === "/user" ? "active" : ""}`}
+            onMouseEnter={() => setHoveredItem("user")}
+            onMouseLeave={() => setHoveredItem(null)}
+          >
+            <Link href="/user" className="nav-link">
+              <span className="nav-icon">
+                <Users size={20} strokeWidth={1.5} />
+              </span>
+              {(!isCollapsed || hoveredItem === "user") && (
+                <span className={`nav-label ${isCollapsed ? "tooltip" : ""}`}>
+                  User Profile
+                </span>
+              )}
+              {pathname === "/user" && <span className="active-indicator" />}
+            </Link>
+          </li>
+        </ul>
+      </div>
+    </aside>
   );
 };
 
 export default Sidebar2;
-
-function ChartIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="18" x2="18" y1="20" y2="10" />
-      <line x1="12" x2="12" y1="20" y2="4" />
-      <line x1="6" x2="6" y1="20" y2="14" />
-    </svg>
-  );
-}
-
-function HomeIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="17"
-      height="17"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-      <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-    </svg>
-  );
-}

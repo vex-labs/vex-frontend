@@ -4,14 +4,13 @@ import Link from "next/link";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import MobileMenuDropdown from "./MobileMenuDropdown";
 
 /**
  * NavBar component
  *
- * This is the Navbar that is rendered in every page
- * Navbar is dynamic and changes based on provided props
+ * Enhanced navbar with improved UI/UX and responsive behavior
  *
  * @param {Object} props - The component props
  * @param {boolean} props.isLoggedIn - Indicates if the user is logged in
@@ -32,13 +31,45 @@ const NavBar = ({
   isVexLogin,
 }) => {
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
+  const [activeLink, setActiveLink] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
 
+  // Monitor scroll position for navbar styling
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Set the active link based on current path
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === "/") setActiveLink("betting");
+    else if (path.includes("/earn")) setActiveLink("earn");
+    else if (path.includes("/governance")) setActiveLink("governance");
+    else if (path.includes("/leaderboard")) setActiveLink("leaderboard");
+    else setActiveLink("");
+  }, []);
+
+  // Refresh balance on component mount
   useEffect(() => {
     toggleRefreshBalances();
   }, []);
 
+  // Format token balances with proper decimals
+  const formatBalance = (balance) => {
+    if (!balance) return "0.00";
+
+    // Convert to number and format with 2 decimal places
+    const numBalance = parseFloat(balance);
+    return numBalance.toFixed(2);
+  };
+
   return (
-    <nav className="nav">
+    <nav className={`nav ${isScrolled ? "nav-scrolled" : ""}`}>
       <div className="desktop-nav">
         <div className="desktop-nav-content">
           <div className="left-container">
@@ -52,93 +83,107 @@ const NavBar = ({
                 />
               </a>
             </Link>
-            <div>
-              <Link className="nav-link" href="/">
+            <div className="nav-links">
+              <Link
+                href="/"
+                className={`nav-link ${
+                  activeLink === "betting" ? "nav-link-active" : ""
+                }`}
+                onClick={() => setActiveLink("betting")}
+              >
                 Betting
               </Link>
-              <Link className="nav-link" href="/earn">
+              <Link
+                href="/earn"
+                className={`nav-link ${
+                  activeLink === "earn" ? "nav-link-active" : ""
+                }`}
+                onClick={() => setActiveLink("earn")}
+              >
                 Earn
               </Link>
-              <Link className="nav-link" href="/governance">
+              <Link
+                href="/governance"
+                className={`nav-link ${
+                  activeLink === "governance" ? "nav-link-active" : ""
+                }`}
+                onClick={() => setActiveLink("governance")}
+              >
                 Governance
               </Link>
-              <Link className="nav-link" href="/leaderboard">
+              <Link
+                href="/leaderboard"
+                className={`nav-link ${
+                  activeLink === "leaderboard" ? "nav-link-active" : ""
+                }`}
+                onClick={() => setActiveLink("leaderboard")}
+              >
                 Leaderboard
               </Link>
             </div>
           </div>
+
           <div className="nav-buttons">
-            <button className="nav-link-learn">Learn</button>
+            <button className="nav-link-learn">
+              <span>Learn</span>
+            </button>
+
             {isLoggedIn && <DepositModal />}
+
             {isLoggedIn ? (
               <>
-                {isVexLogin ? (
-                  <>
-                    <div className="wallet-balance">
-                      {Object.keys(tokenBalances).length > 0 ? (
-                        <ul>
-                          {Object.entries(tokenBalances).map(
-                            ([token, balance]) => (
-                              <li key={token}>
-                                <img
-                                  src={`/icons/${token}.svg`}
-                                  alt={`${token} icon`}
-                                  className="token-icon"
-                                />
-                                <span className="token-balance">{balance}</span>
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      ) : (
-                        <span>Balance: Loading...</span>
-                      )}
+                <div className="wallet-balance-container">
+                  {Object.keys(tokenBalances).length > 0 ? (
+                    <div className="token-list">
+                      {Object.entries(tokenBalances).map(([token, balance]) => (
+                        <div key={token} className="token-item">
+                          <img
+                            src={`/icons/${token}.svg`}
+                            alt={`${token} icon`}
+                            className="token-icon"
+                          />
+                          <span className="token-balance">
+                            {formatBalance(balance)}
+                          </span>
+                        </div>
+                      ))}
                     </div>
+                  ) : (
+                    <div className="loading-balance">
+                      <div className="loading-pulse"></div>
+                      <span>Loading balance...</span>
+                    </div>
+                  )}
+                </div>
 
-                    <button onClick={onVexLogout}>Log Out</button>
-                  </>
+                {isVexLogin ? (
+                  <button onClick={onVexLogout} className="logout-button">
+                    Log Out
+                  </button>
                 ) : (
-                  <>
-                    <div className="wallet-balance">
-                      {Object.keys(tokenBalances).length > 0 ? (
-                        <ul>
-                          {/* Loop through tokenBalances and display each balance */}
-                          {Object.entries(tokenBalances).map(
-                            ([token, balance]) => (
-                              <li key={token}>
-                                <img
-                                  src={`/icons/${token}.svg`}
-                                  alt={`${token} icon`}
-                                  className="token-icon"
-                                />
-                                {token}: {balance}
-                              </li>
-                            )
-                          )}
-                        </ul>
-                      ) : (
-                        <span>Balance: Loading...</span>
-                      )}
-                    </div>
-                    <div className="dropdown">
-                      <UserDropdown onLogout={onLogout} />
-                    </div>
-                  </>
+                  <UserDropdown onLogout={onLogout} />
                 )}
               </>
             ) : (
-              <>
-                <button className="nav-link" onClick={onLogin}>
-                  Log In with NEAR
+              <div className="auth-buttons">
+                <button className="login-button near-login" onClick={onLogin}>
+                  <img
+                    src="/icons/NEAR.png"
+                    alt="NEAR"
+                    className="login-icon"
+                  />
+                  <span>NEAR Wallet</span>
                 </button>
-                <button className="nav-link" onClick={onVexLogin}>
-                  Log In with VEX
+                <button className="login-button vex-login" onClick={onVexLogin}>
+                  <img src="/icons/VEX.svg" alt="VEX" className="login-icon" />
+                  <span>VEX Wallet</span>
                 </button>
-              </>
+              </div>
             )}
           </div>
         </div>
       </div>
+
       <div className="mobile-nav">
         <Link href="/" legacyBehavior>
           <a className="logo">
@@ -151,14 +196,38 @@ const NavBar = ({
           </a>
         </Link>
 
-        {isLoggedIn && <DepositModal />}
-        <MobileMenuDropdown
-          onLogout={onLogout}
-          onLogin={onLogin}
-          isLoggedIn={isLoggedIn}
-          isVexLogin={isVexLogin}
-          onVexLogin={onVexLogin}
-        />
+        <div className="mobile-actions">
+          {isLoggedIn && (
+            <>
+              <div className="mobile-balance">
+                {Object.keys(tokenBalances).length > 0 &&
+                  Object.entries(tokenBalances).map(([token, balance], index) =>
+                    index === 0 ? (
+                      <div key={token} className="token-item-mobile">
+                        <img
+                          src={`/icons/${token}.svg`}
+                          alt={token}
+                          className="token-icon-mobile"
+                        />
+                        <span>{formatBalance(balance)}</span>
+                      </div>
+                    ) : null
+                  )}
+              </div>
+              <DepositModal />
+            </>
+          )}
+
+          <MobileMenuDropdown
+            onLogout={onLogout}
+            onLogin={onLogin}
+            isLoggedIn={isLoggedIn}
+            isVexLogin={isVexLogin}
+            onVexLogin={onVexLogin}
+            activeLink={activeLink}
+            setActiveLink={setActiveLink}
+          />
+        </div>
       </div>
     </nav>
   );
