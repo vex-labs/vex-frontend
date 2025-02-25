@@ -3,6 +3,7 @@ import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
 import { ArrowLeft, AlertCircle, CheckCircle, DollarSign } from "lucide-react";
+import { createPortal } from "react-dom";
 
 const games = [
   {
@@ -93,7 +94,7 @@ const GameCard = ({
     text: "Enter stake amount to see potential payout",
     type: "info",
   });
-  const [password, setPassword] = useState(null);
+  const [password, setPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isLoadingOdds, setIsLoadingOdds] = useState(true);
   const [isCalculatingWinnings, setIsCalculatingWinnings] = useState(false);
@@ -107,8 +108,8 @@ const GameCard = ({
 
   // Handle password retrieval on component mount
   useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) setPassword(savedPassword);
+    const savedPassword = localStorage.getItem("vexPassword") || "";
+    setPassword(savedPassword);
   }, []);
 
   // Fetch match details and odds from the blockchain
@@ -281,11 +282,13 @@ const GameCard = ({
       const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString();
 
       await placeBet(
-        wallet,
-        vexAccountId,
         matchId,
         selectedBet === team1Name ? "Team1" : "Team2",
         betAmount,
+        BetContractId,
+        "usdc.betvex.testnet",
+        wallet,
+        vexAccountId,
         password
       );
 
@@ -324,6 +327,7 @@ const GameCard = ({
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
     if (!wallet && !vexAccountId) {
+      console.log("No wallet or VEX account ID available");
       // If user is not logged in, we could show a login prompt
       return;
     }
@@ -607,35 +611,40 @@ const GameCard = ({
       )}
 
       {/* Password Modal */}
-      {showPasswordModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Enter Password</h3>
-            <input
-              type="password"
-              value={password || ""}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your wallet password"
-              className="password-input"
-            />
-            <div className="modal-buttons">
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="cancel-modal-button"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePasswordSubmit}
-                className="submit-modal-button"
-                disabled={!password}
-              >
-                Submit
-              </button>
+      {showPasswordModal &&
+        createPortal(
+          <div className="modal">
+            <div className="modal-content">
+              <h3>Enter Password</h3>
+              <p className="modal-description">
+                Please enter your wallet password to place the bet
+              </p>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Your wallet password"
+                className="password-input"
+              />
+              <div className="modal-buttons">
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="cancel-modal-button"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handlePasswordSubmit}
+                  className="submit-modal-button"
+                  disabled={!password}
+                >
+                  Submit
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 };

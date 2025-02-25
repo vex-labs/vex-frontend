@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { providers } from "near-api-js";
 import { fetchMatchesByIDs } from "@/utils/fetchMatches";
 import { useNear } from "@/app/context/NearContext";
-import { NearRpcUrl, GuestbookNearContract } from "./config";
-
+import { NearRpcUrl, GuestbookNearContract, NetworkId } from "./config";
+import { Wallet } from "./wallet/Wallet";
 import Sidebar from "@/components/Sidebar";
 import FeaturedGames from "@/components/FeaturedGames";
 import UpcomingGames from "@/components/UpcomingGames";
@@ -32,6 +32,8 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const wallet = isVexLogin ? null : nearContext?.wallet || null;
 
   const signedAccountId = isVexLogin
     ? null
@@ -201,7 +203,12 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
         <div className="content-wrapper">
           {/* Featured Games Section */}
           <section className="featured-section">
-            <FeaturedGames isLoading={isLoading} selectedGame={selectedGame} />
+            <FeaturedGames
+              isLoading={isLoading}
+              selectedGame={selectedGame}
+              wallet={wallet}
+              vexAccountId={vexAccountId}
+            />
           </section>
 
           {/* Upcoming Games Section */}

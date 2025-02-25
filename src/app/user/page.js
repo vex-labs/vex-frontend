@@ -18,8 +18,6 @@ const UserPage = () => {
     : nearContext?.signedAccountId || null;
   const wallet = isVexLogin ? null : nearContext?.wallet || null;
 
-  const testAccountId = "user-1140876404.testnet";
-
   const [userBets, setUserBets] = useState([]);
   const [matchDetails, setMatchDetails] = useState({});
   const [matchStates, setMatchStates] = useState({});
@@ -43,7 +41,7 @@ const UserPage = () => {
       try {
         const contractId = GuestbookNearContract;
         const args = {
-          bettor: testAccountId,
+          bettor: accountId,
           from_index: null,
           limit: null,
         };
@@ -73,10 +71,10 @@ const UserPage = () => {
       }
     };
 
-    if (testAccountId) {
+    if (accountId) {
       fetchUserBets();
     }
-  }, [testAccountId, matchStates]);
+  }, [accountId, matchStates]);
 
   // New useEffect hook to fetch matches and store match states by match_id
   useEffect(() => {
@@ -150,7 +148,7 @@ const UserPage = () => {
     }
   };
 
-  if (!testAccountId) {
+  if (!accountId) {
     return (
       <div className="user-page">
         <Sidebar2 />

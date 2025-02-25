@@ -26,7 +26,7 @@ export async function placeBet(
   tokenContractId,
   wallet,
   vexAccountId,
-  password,
+  password
 ) {
   try {
     // Retrieve password from local storage, if saved
@@ -54,15 +54,15 @@ export async function placeBet(
         gas,
         deposit,
         null, // No wallet object
-        password,
+        password
       );
       console.log(
         "Bet placed successfully using relayer with VEX account!",
-        outcome,
+        outcome
       );
       return outcome;
     } else if (wallet && wallet.selector) {
-      // Use wallet directly if no vexAccountId is provided
+      console.log("here");
       const outcome = await wallet.callMethod({
         contractId: tokenContractId,
         method: "ft_transfer_call",
@@ -78,7 +78,7 @@ export async function placeBet(
       return outcome;
     } else {
       throw new Error(
-        "No valid wallet or VEX account ID available for placing a bet.",
+        "No valid wallet or VEX account ID available for placing a bet."
       );
     }
   } catch (error) {

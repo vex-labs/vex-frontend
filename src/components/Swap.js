@@ -285,13 +285,13 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
 
         <div className="swap-toggle">
           <p> {swapDirection ? "Selling" : "Buying"}</p>
-          <label class="switch">
+          <label className="switch">
             <input
               type="checkbox"
               checked={swapDirection}
               onChange={toggleSwapDirection}
             />
-            <span class="slider round"></span>
+            <span className="slider round"></span>
           </label>
         </div>
       </div>
