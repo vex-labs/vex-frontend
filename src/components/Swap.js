@@ -332,8 +332,8 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
             <>
               <div className="percentage-options">
                 <span onClick={() => handleAmountClick(50)}>50</span>
-                <span onClick={() => handleAmountClick(250)}>250</span>
                 <span onClick={() => handleAmountClick(100)}>100</span>
+                <span onClick={() => handleAmountClick(250)}>250</span>
               </div>
             </>
           )}
@@ -369,12 +369,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         {message
           ? message
           : swapDirection
-          ? tokenBalances.VEX >= vexAmount
-            ? "Insufficient VEX Balance"
-            : ""
-          : displayUsdcAmount >= usdcAmount
-          ? "Insufficient USDC Balance"
-          : ""}
+          ? Number(tokenBalances.VEX) < Number(vexAmount) &&
+            "Insufficient VEX Balance"
+          : Number(tokenBalances.USDC) < Number(usdcAmount) &&
+            "Insufficient USDC Balance"}
       </div>
 
       <button
@@ -382,8 +380,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         onClick={handleSwap}
         disabled={
           swapDirection
-            ? tokenBalances.VEX >= vexAmount
-            : displayUsdcAmount >= usdcAmount
+            ? !Number(vexAmount) ||
+              Number(tokenBalances.VEX) < Number(vexAmount)
+            : !Number(usdcAmount) ||
+              Number(tokenBalances.USDC) < Number(usdcAmount)
         }
       >
         Submit
