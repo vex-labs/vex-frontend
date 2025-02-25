@@ -224,7 +224,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
             msg: "Deposit",
           },
           gas,
-          deposit1,
+          deposit: 1,
         });
 
         if (depositResult && !depositResult.error) {
