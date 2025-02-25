@@ -1,14 +1,16 @@
 import * as React from "react";
 import { DropdownMenu } from "radix-ui";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNear } from "@/app/context/NearContext";
 import GiftModal from "./GiftModal";
+import { LogOut, Gift, Settings, ArrowDown, UserCircle } from "lucide-react";
 
 const UserDropdown = ({ onLogout }) => {
   const nearContext = useNear();
   const [open, setOpen] = useState(false);
   const [giftModalOpen, setGiftModalOpen] = useState(false);
+  const [activeItem, setActiveItem] = useState(null);
   const isVexLogin =
     typeof window !== "undefined" &&
     localStorage.getItem("isVexLogin") === "true";
@@ -16,62 +18,189 @@ const UserDropdown = ({ onLogout }) => {
     ? localStorage.getItem("vexAccountId")
     : nearContext?.signedAccountId || null;
 
+  // Format account ID if too long
+  const displayAccountId =
+    accountId && accountId.length > 16
+      ? `${accountId.slice(0, 8)}...${accountId.slice(-8)}`
+      : accountId;
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e, action) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      action();
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Create refs for dropdown button and content
+      const dropdownButton = document.querySelector(".IconButton");
+      const dropdownContent = document.querySelector(".DropdownMenuContent");
+
+      // Check if click is outside both the button and dropdown content
+      if (
+        open &&
+        dropdownButton &&
+        dropdownContent &&
+        !dropdownButton.contains(event.target) &&
+        !dropdownContent.contains(event.target)
+      ) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [open]);
+
+  // Menu items configuration
+  const menuItems = [
+    {
+      id: "settings",
+      label: "Settings",
+      icon: Settings,
+      action: () => {
+        setOpen(false);
+      },
+      link: "/user",
+    },
+    {
+      id: "withdraw",
+      label: "Withdraw",
+      icon: ArrowDown,
+      action: () => {
+        console.log("Withdraw clicked");
+      },
+    },
+    {
+      id: "gift",
+      label: "Gift USDC/VEX",
+      icon: Gift,
+      action: () => {
+        setGiftModalOpen(true);
+        setOpen(false);
+      },
+    },
+    {
+      id: "logout",
+      label: "Logout",
+      icon: LogOut,
+      action: onLogout,
+      danger: true,
+    },
+  ];
+
   return (
     <>
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
-          <button className="IconButton" aria-label="Customise options">
-            <img src="/icons/user.png" alt="User icon" />
+          <button
+            className="IconButton"
+            aria-label="User menu"
+            onClick={(e) => {
+              e.stopPropagation();
+              // Toggle dropdown
+              setOpen((prev) => !prev);
+            }}
+          >
+            <div className="user-avatar">
+              <img src="/icons/user.png" alt="User icon" />
+              {open && <div className="avatar-ring"></div>}
+            </div>
           </button>
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal>
-          <DropdownMenu.Content className="DropdownMenuContent" sideOffset={5}>
-            <DropdownMenu.Item className="DropdownMenuItem">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "5px",
-                  fontSize: "16px",
-                }}
-              >
-                <img
-                  src="/icons/user.png"
-                  alt="User icon"
-                  style={{ width: "20px" }}
-                />
-                {accountId}
+          <DropdownMenu.Content
+            className="DropdownMenuContent"
+            sideOffset={5}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="user-profile-header">
+              <div className="user-avatar-large">
+                <img src="/icons/user.png" alt="user icon" />
               </div>
-            </DropdownMenu.Item>
+              <div className="user-info">
+                <span className="user-account-id">{displayAccountId}</span>
+                <span className="user-wallet-type">
+                  {isVexLogin ? "VEX Wallet" : "NEAR Wallet"}
+                </span>
+              </div>
+            </div>
+
             <DropdownMenu.Separator className="DropdownMenuSeparator" />
-            <Link href="/user" legacyBehavior style={{ width: "100%" }}>
-              <DropdownMenu.Item
-                className="DropdownMenuItem"
-                onClick={() => setOpen(false)}
-                style={{ cursor: "pointer" }}
-              >
-                <button>Settings</button>
-              </DropdownMenu.Item>
-            </Link>
-            <DropdownMenu.Item className="DropdownMenuItem">
-              <button>Withdraw</button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="DropdownMenuSeparator" />
-            <DropdownMenu.Item
-              className="DropdownMenuItem"
-              onClick={() => setGiftModalOpen(true)}
-            >
-              <button>Gift USDC/VEX</button>
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator className="DropdownMenuSeparator" />
-            <DropdownMenu.Item className="DropdownMenuItem">
-              <button onClick={onLogout}>Logout</button>
-            </DropdownMenu.Item>
+
+            <div className="menu-items-container">
+              {menuItems.map((item) => (
+                <React.Fragment key={item.id}>
+                  {item.link ? (
+                    <Link
+                      href={item.link}
+                      passHref
+                      style={{
+                        display: "block",
+                        width: "100%",
+                        color: "white",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <DropdownMenu.Item
+                        className={`DropdownMenuItem ${
+                          activeItem === item.id ? "active" : ""
+                        } ${item.danger ? "danger-item" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          item.action();
+                        }}
+                        onMouseEnter={() => setActiveItem(item.id)}
+                        onMouseLeave={() => setActiveItem(null)}
+                        onKeyDown={(e) => handleKeyDown(e, item.action)}
+                      >
+                        <div className="menu-item-content">
+                          <div className="menu-item-icon">
+                            <item.icon size={16} />
+                          </div>
+                          <span className="menu-item-label">{item.label}</span>
+                        </div>
+                      </DropdownMenu.Item>
+                    </Link>
+                  ) : (
+                    <DropdownMenu.Item
+                      className={`DropdownMenuItem ${
+                        activeItem === item.id ? "active" : ""
+                      } ${item.danger ? "danger-item" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        item.action();
+                      }}
+                      style={{ cursor: "pointer" }}
+                      onMouseEnter={() => setActiveItem(item.id)}
+                      onMouseLeave={() => setActiveItem(null)}
+                      onKeyDown={(e) => handleKeyDown(e, item.action)}
+                    >
+                      <div className="menu-item-content">
+                        <div className="menu-item-icon">
+                          <item.icon size={16} />
+                        </div>
+                        <span className="menu-item-label">{item.label}</span>
+                      </div>
+                    </DropdownMenu.Item>
+                  )}
+
+                  {item.id !== "logout" && (
+                    <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
           </DropdownMenu.Content>
         </DropdownMenu.Portal>
       </DropdownMenu.Root>
+
       <GiftModal open={giftModalOpen} setIsOpen={setGiftModalOpen} />
     </>
   );

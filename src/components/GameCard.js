@@ -2,26 +2,66 @@ import React, { useState, useEffect, useCallback } from "react";
 import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
+import { ArrowLeft, AlertCircle, CheckCircle, DollarSign } from "lucide-react";
+
+const games = [
+  {
+    name: "counter-strike-2",
+    label: "Counter Strike 2",
+    icon: "/icons/games/csgo.png",
+  },
+  {
+    name: "lol",
+    label: "League of Legends",
+    icon: "/icons/games/lol.png",
+  },
+  {
+    name: "valorant",
+    label: "Valorant",
+    icon: "/icons/games/valorant.png",
+  },
+  {
+    name: "fortnite",
+    label: "Fortnite",
+    icon: "/icons/games/fortnite.png",
+  },
+  {
+    name: "apex",
+    label: "Apex Legends",
+    icon: "/icons/games/apex.png",
+  },
+  {
+    name: "rainbowsix",
+    label: "Rainbow Six Siege",
+    icon: "/icons/games/rainbowsix.png",
+  },
+  {
+    name: "dota2",
+    label: "Dota 2",
+    icon: "/icons/games/dota2.png",
+  },
+  {
+    name: "overwatch-2",
+    label: "Overwatch 2",
+    icon: "/icons/games/overwatch.png",
+  },
+];
 
 /**
- * GameCard component
+ * Enhanced GameCard component
  *
- * This component represents a card displaying information about a game match.
- * The game card can be in two modes: viewing the match details or placing a bet.
- * Betting mode will be replaced by a betslip.
- * It allows users to place bets on the match and view potential payouts.
- *
- * Note: For both functions "get_match" and "get_potential_winnings" different rpc calls are made to the contract.
+ * This component represents a card displaying information about a game match with improved UI/UX.
+ * It handles both viewing match details and placing bets with better error handling and visual feedback.
  *
  * @param {Object} props - The component props
  * @param {string} props.className - Additional class names for styling
  * @param {string} props.matchTime - Time of the match
+ * @param {string} props.tournamentIcon - Tournament icon URL
+ * @param {string} props.tournamentName - Tournament name
  * @param {string} props.team1Logo - URL of the first team's logo
  * @param {string} props.team1Name - Name of the first team
  * @param {string} props.team2Logo - URL of the second team's logo
  * @param {string} props.team2Name - Name of the second team
- * @param {number} props.odds1 - Betting odds for the first team
- * @param {number} props.odds2 - Betting odds for the second team
  * @param {string} props.matchId - ID of the match
  * @param {number} props.walletBalance - User's wallet balance
  * @param {Object} props.wallet - Wallet object for handling transactions
@@ -32,34 +72,50 @@ import { BetContractId, NearRpcUrl } from "@/app/config";
 const GameCard = ({
   className,
   matchTime,
+  tournamentIcon,
+  tournamentName,
   team1Logo,
   team1Name,
   team2Logo,
   team2Name,
   matchId,
-  walletBalance,
+  walletBalance = "0",
   wallet,
   vexAccountId,
 }) => {
+  // Component state
   const [isBettingMode, setIsBettingMode] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
   const [updatedOdds1, setUpdatedOdds1] = useState("1.00");
   const [updatedOdds2, setUpdatedOdds2] = useState("1.00");
   const [stake, setStake] = useState("");
-  const [message, setMessage] = useState("Potential payout: $0.00");
+  const [message, setMessage] = useState({
+    text: "Enter stake amount to see potential payout",
+    type: "info",
+  });
   const [password, setPassword] = useState(null);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isLoadingOdds, setIsLoadingOdds] = useState(true);
+  const [isCalculatingWinnings, setIsCalculatingWinnings] = useState(false);
+  const [isPlacingBet, setIsPlacingBet] = useState(false);
+  const [betSuccess, setBetSuccess] = useState(false);
 
+  // Format team names for display
+  const formatTeamName = (name) => {
+    return name ? name.replace(/_/g, " ") : "Unknown Team";
+  };
+
+  // Handle password retrieval on component mount
   useEffect(() => {
     const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) setPassword(savedPassword); // Set password from localStorage if available
+    if (savedPassword) setPassword(savedPassword);
   }, []);
 
+  // Fetch match details and odds from the blockchain
   const fetchMatchDetails = useCallback(async () => {
+    setIsLoadingOdds(true);
     try {
       const contractId = BetContractId;
-
-      // Connect to NEAR blockchain
       const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
       // Fetch match details using the match_id
@@ -82,19 +138,38 @@ const GameCard = ({
       setUpdatedOdds2(parseFloat(decodedResult.team_2_odds).toFixed(2));
     } catch (error) {
       console.error("Failed to fetch match details:", error);
+      setUpdatedOdds1("1.00");
+      setUpdatedOdds2("1.00");
+    } finally {
+      setIsLoadingOdds(false);
     }
   }, [matchId]);
 
+  // Calculate potential winnings based on stake and odds
   const fetchPotentialWinnings = async () => {
+    if (!selectedBet || !stake) return;
+
+    // Convert stake to a number first to avoid invalid inputs
+    const stakeAmount = parseFloat(stake);
+
+    if (isNaN(stakeAmount) || stakeAmount <= 0) {
+      setMessage({
+        text: "Please enter a valid stake amount",
+        type: "warning",
+      });
+      return;
+    }
+
+    if (stakeAmount > parseFloat(walletBalance || "0")) {
+      setMessage({
+        text: "Insufficient funds in your wallet",
+        type: "error",
+      });
+      return;
+    }
+
+    setIsCalculatingWinnings(true);
     try {
-      // Convert stake to a number first to avoid invalid inputs
-      const stakeAmount = parseFloat(stake);
-
-      if (isNaN(stakeAmount) || stakeAmount <= 0) {
-        setMessage("Invalid stake amount");
-        return;
-      }
-
       const contractId = BetContractId;
       const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
@@ -124,35 +199,75 @@ const GameCard = ({
       // Round to 2 decimal places for display in USDC
       const roundedWinnings = winningsUSDC.toFixed(2);
 
-      setMessage(`Potential payout: $${roundedWinnings}`);
+      setMessage({
+        text: `Potential payout: $${roundedWinnings} USDC`,
+        type: "success",
+      });
     } catch (error) {
       console.error("Failed to fetch potential winnings:", error);
-      setMessage("Error calculating potential winnings.");
+      setMessage({
+        text: "Error calculating potential winnings",
+        type: "error",
+      });
+    } finally {
+      setIsCalculatingWinnings(false);
     }
   };
 
+  // Handle stake amount changes
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
     setStake(newStake);
 
-    if (parseFloat(newStake) > parseFloat(walletBalance)) {
-      setMessage("Insufficient funds");
-    } else {
+    if (newStake && selectedBet) {
       fetchPotentialWinnings();
+    } else {
+      setMessage({
+        text: "Enter stake amount to see potential payout",
+        type: "info",
+      });
     }
   };
 
+  // Handle placing a bet
   const handlePlaceBet = async () => {
-    if (!wallet && !vexAccountId) {
-      setMessage("Wallet not initialized");
+    if (betSuccess) {
+      // If bet was already successful, just return to view mode
+      setIsBettingMode(false);
+      setBetSuccess(false);
       return;
     }
 
-    if (
-      parseFloat(stake) <= 0 ||
-      parseFloat(stake) > parseFloat(walletBalance)
-    ) {
-      setMessage("Invalid stake amount or insufficient funds.");
+    if (!wallet && !vexAccountId) {
+      setMessage({
+        text: "Wallet not initialized. Please connect your wallet first",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!selectedBet) {
+      setMessage({
+        text: "Please select a team to bet on",
+        type: "warning",
+      });
+      return;
+    }
+
+    const stakeAmount = parseFloat(stake);
+    if (isNaN(stakeAmount) || stakeAmount <= 0) {
+      setMessage({
+        text: "Please enter a valid stake amount",
+        type: "warning",
+      });
+      return;
+    }
+
+    if (stakeAmount > parseFloat(walletBalance || "0")) {
+      setMessage({
+        text: "Insufficient funds in your wallet",
+        type: "error",
+      });
       return;
     }
 
@@ -161,9 +276,10 @@ const GameCard = ({
       return;
     }
 
-    const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString();
-
+    setIsPlacingBet(true);
     try {
+      const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString();
+
       await placeBet(
         wallet,
         vexAccountId,
@@ -172,69 +288,137 @@ const GameCard = ({
         betAmount,
         password
       );
-      setMessage("Bet placed successfully!");
+
+      setBetSuccess(true);
+      setMessage({
+        text: "Bet placed successfully! You can view your active bets in your profile",
+        type: "success",
+      });
+
       setPassword(null); // Clear password after transaction
     } catch (error) {
       console.error("Failed to place bet:", error);
-      setMessage("Failed to place bet.");
+      setMessage({
+        text: error.message || "Failed to place bet. Please try again",
+        type: "error",
+      });
+    } finally {
+      setIsPlacingBet(false);
     }
   };
 
+  // Handle password submission
   const handlePasswordSubmit = () => {
-    setShowPasswordModal(false); // Close the modal
-    handlePlaceBet(); // Retry placing the bet
+    if (!password) {
+      return;
+    }
+    setShowPasswordModal(false);
+    handlePlaceBet();
   };
 
+  // Fetch match details on component mount
   useEffect(() => {
     fetchMatchDetails();
   }, [fetchMatchDetails]);
 
+  // Handle team selection for betting
   const handleOddsClick = (bet) => {
+    if (!wallet && !vexAccountId) {
+      // If user is not logged in, we could show a login prompt
+      return;
+    }
+
     setSelectedBet(bet);
     setIsBettingMode(true);
+    setMessage({
+      text: "Enter stake amount to see potential payout",
+      type: "info",
+    });
   };
 
+  // Return to match view mode
   const handleBackClick = () => {
     setIsBettingMode(false);
     setSelectedBet(null);
     setStake("");
-    setMessage("Potential payout: $0.00");
+    setBetSuccess(false);
+    setMessage({
+      text: "Enter stake amount to see potential payout",
+      type: "info",
+    });
+  };
+
+  // Get message styling based on message type
+  const getMessageClass = () => {
+    switch (message.type) {
+      case "error":
+        return "message-error";
+      case "warning":
+        return "message-warning";
+      case "success":
+        return "message-success";
+      default:
+        return "message-info";
+    }
   };
 
   return (
     <div className={`${className} ${isBettingMode ? "betting-container" : ""}`}>
       {isBettingMode ? (
+        // Betting Mode View
         <>
           <div className="back-arrow">
-            <button onClick={handleBackClick}>&larr;</button>
+            <button
+              onClick={handleBackClick}
+              className="back-button"
+              aria-label="Back to match details"
+            >
+              <ArrowLeft size={18} />
+            </button>
           </div>
+
+          <div className="match-time betting-match-time">
+            <span>{matchTime}</span>
+          </div>
+
           <div className="teams">
-            <div
-              className="team-container"
-              style={{ display: "flex", justifyContent: "flex-start" }}
-            >
+            <div className="team-container team1-container">
               <div className="team-bm">
-                <img src={team1Logo} alt={team1Name} className="team-logo" />
-                <span className="team-name">
-                  {team1Name.replace(/_/g, " ")}
-                </span>
+                <img
+                  src={team1Logo || "/icons/teams/default_team.png"}
+                  alt={formatTeamName(team1Name)}
+                  className="team-logo"
+                  onError={(e) => {
+                    e.target.src = "/icons/teams/default_team.png";
+                  }}
+                />
+                <span className="team-name">{formatTeamName(team1Name)}</span>
               </div>
             </div>
+
             <div className="vs">VS</div>
-            <div
-              className="team-container"
-              style={{ display: "flex", justifyContent: "flex-end" }}
-            >
+
+            <div className="team-container team2-container">
               <div className="team-bm">
-                <span className="team-name">
-                  {team2Name.replace(/_/g, " ")}
-                </span>
-                <img src={team2Logo} alt={team2Name} className="team-logo" />
+                <span className="team-name">{formatTeamName(team2Name)}</span>
+                <img
+                  src={team2Logo || "/icons/teams/default_team.png"}
+                  alt={formatTeamName(team2Name)}
+                  className="team-logo"
+                  onError={(e) => {
+                    e.target.src = "/icons/teams/default_team.png";
+                  }}
+                />
               </div>
             </div>
           </div>
-          <div className="match-odds">
-            <label className="odds">
+
+          <div className="match-odds betting-odds">
+            <label
+              className={`odds ${
+                selectedBet === team1Name ? "selected-odds" : ""
+              }`}
+            >
               <input
                 type="radio"
                 name="bet"
@@ -242,10 +426,21 @@ const GameCard = ({
                 checked={selectedBet === team1Name}
                 onChange={() => setSelectedBet(team1Name)}
               />
-              <span>{team1Name} Win</span>
-              <span className="odds-value">{updatedOdds1}</span>
+              <div className="odds-content">
+                <span className="odds-team">
+                  {formatTeamName(team1Name)} Win
+                </span>
+                <span className="odds-value">
+                  {isLoadingOdds ? "..." : updatedOdds1}
+                </span>
+              </div>
             </label>
-            <label className="odds">
+
+            <label
+              className={`odds ${
+                selectedBet === team2Name ? "selected-odds" : ""
+              }`}
+            >
               <input
                 type="radio"
                 name="bet"
@@ -253,61 +448,159 @@ const GameCard = ({
                 checked={selectedBet === team2Name}
                 onChange={() => setSelectedBet(team2Name)}
               />
-              <span>{team2Name} Win</span>
-              <span className="odds-value">{updatedOdds2}</span>
+              <div className="odds-content">
+                <span className="odds-team">
+                  {formatTeamName(team2Name)} Win
+                </span>
+                <span className="odds-value">
+                  {isLoadingOdds ? "..." : updatedOdds2}
+                </span>
+              </div>
             </label>
           </div>
-          <div className="bet-input-container">
-            <div className="stake-container">
-              <input
-                type="text"
-                placeholder="Stake"
-                value={stake}
-                onChange={handleStakeChange}
-              />
-            </div>
-            <div className="bet-button">
-              <button
-                onClick={handlePlaceBet}
-                disabled={parseFloat(stake) > parseFloat(walletBalance)}
-              >
-                Bet
+
+          {betSuccess ? (
+            // Success view
+            <div className="bet-success">
+              <div className="success-icon">
+                <CheckCircle size={40} />
+              </div>
+              <p className="success-message">Bet placed successfully!</p>
+              <button className="done-button" onClick={handleBackClick}>
+                Done
               </button>
             </div>
-          </div>
-          <div className="message">{message}</div>
+          ) : (
+            // Bet input view
+            <>
+              <div className="bet-input-container">
+                <div className="stake-container">
+                  <div className="stake-input-wrapper">
+                    <span className="currency-symbol">$</span>
+                    <input
+                      type="text"
+                      placeholder="0.00"
+                      value={stake}
+                      onChange={handleStakeChange}
+                      disabled={isPlacingBet}
+                      className="stake-input"
+                    />
+                    <span className="currency-label">USDC</span>
+                  </div>
+                </div>
+
+                <div className="bet-button">
+                  <button
+                    onClick={handlePlaceBet}
+                    disabled={
+                      !selectedBet ||
+                      !stake ||
+                      isPlacingBet ||
+                      parseFloat(stake) > parseFloat(walletBalance || "0")
+                    }
+                    className={`place-bet-button ${
+                      isPlacingBet ? "loading" : ""
+                    }`}
+                  >
+                    {isPlacingBet ? "Processing..." : "Place Bet"}
+                  </button>
+                </div>
+              </div>
+
+              <div className={`message ${getMessageClass()}`}>
+                {isCalculatingWinnings ? (
+                  <div className="calculating">
+                    Calculating potential winnings...
+                  </div>
+                ) : (
+                  <div className="message-content">
+                    <span className="message-icon">
+                      {message.type === "error" && <AlertCircle size={16} />}
+                      {message.type === "success" && <CheckCircle size={16} />}
+                      {message.type === "info" && <DollarSign size={16} />}
+                    </span>
+                    <span>{message.text}</span>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </>
       ) : (
+        // Match View Mode
         <>
           <div className="match-header">
             <div className="match-info">
-              {/* Empty Div to keep matchTime aligned */}
+              {games.find((game) => game.name === tournamentName) && (
+                <img
+                  src={games.find((game) => game.name === tournamentName)?.icon}
+                  alt={tournamentName || "Tournament"}
+                  className="tournament-icon"
+                  onError={(e) => {
+                    e.target.src = "/icons/events/default_tournament.png";
+                  }}
+                />
+              )}
+              {tournamentName && (
+                <span className="tournament-name">
+                  {games.find((game) => game.name === tournamentName)?.label}
+                </span>
+              )}
             </div>
             <div className="match-time">
               <span>{matchTime}</span>
             </div>
           </div>
+
           <div className="match-body">
             <div className="team">
-              <img src={team1Logo} alt={team1Name} className="team-logo" />
-              <span className="team-name">{team1Name.replace(/_/g, " ")}</span>
+              <img
+                src={team1Logo || "/icons/teams/default_team.png"}
+                alt={formatTeamName(team1Name)}
+                className="team-logo"
+                onError={(e) => {
+                  e.target.src = "/icons/teams/default_team.png";
+                }}
+              />
+              <span className="team-name">{formatTeamName(team1Name)}</span>
             </div>
+
             <div className="vs">
               <span>VS</span>
             </div>
+
             <div className="team">
-              <img src={team2Logo} alt={team2Name} className="team-logo" />
-              <span className="team-name">{team2Name.replace(/_/g, " ")}</span>
+              <img
+                src={team2Logo || "/icons/teams/default_team.png"}
+                alt={formatTeamName(team2Name)}
+                className="team-logo"
+                onError={(e) => {
+                  e.target.src = "/icons/teams/default_team.png";
+                }}
+              />
+              <span className="team-name">{formatTeamName(team2Name)}</span>
             </div>
           </div>
+
           <div className="match-odds">
-            <div className="odds" onClick={() => handleOddsClick(team1Name)}>
-              <span>{team1Name.replace(/_/g, " ")} Win </span>
-              <span className="odds-value">{updatedOdds1}</span>
+            <div
+              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+              onClick={() => !isLoadingOdds && handleOddsClick(team1Name)}
+            >
+              <span className="odds-team">{formatTeamName(team1Name)} Win</span>
+              <span className="odds-value">
+                {isLoadingOdds ? "..." : updatedOdds1}
+              </span>
             </div>
-            <div className="odds" onClick={() => handleOddsClick(team2Name)}>
-              <span>{team2Name.replace(/_/g, " ")} Win</span>
-              <span className="odds-value">{updatedOdds2}</span>
+
+            <div
+              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+              onClick={() => !isLoadingOdds && handleOddsClick(team2Name)}
+            >
+              <span className="odds-team">{formatTeamName(team2Name)} Win</span>
+              <span className="odds-value">
+                {isLoadingOdds ? "..." : updatedOdds2}
+              </span>
             </div>
           </div>
         </>
@@ -322,13 +615,23 @@ const GameCard = ({
               type="password"
               value={password || ""}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder=""
+              placeholder="Your wallet password"
+              className="password-input"
             />
             <div className="modal-buttons">
-              <button onClick={() => setShowPasswordModal(false)}>
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="cancel-modal-button"
+              >
                 Cancel
               </button>
-              <button onClick={handlePasswordSubmit}>Submit</button>
+              <button
+                onClick={handlePasswordSubmit}
+                className="submit-modal-button"
+                disabled={!password}
+              >
+                Submit
+              </button>
             </div>
           </div>
         </div>

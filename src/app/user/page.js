@@ -179,13 +179,6 @@ const UserPage = () => {
           signedAccountId={accountId}
         />
 
-        <section className="past-bets">
-          <h2>Past Bets</h2>
-          <ul>
-            <li>No past bets found.</li>
-          </ul>
-        </section>
-
         {showWithdrawModal && (
           <div className="withdraw-modal">
             <div className="withdraw-modal-content">
