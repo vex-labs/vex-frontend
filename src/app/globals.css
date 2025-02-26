@@ -8,7 +8,9 @@
   --white-color: #ffffff;
   --green-button: #00e6b3;
 }
-
+body {
+  background-color: var(--secondary-color);
+}
 .container {
   display: flex;
   margin-top: 55px;
@@ -797,6 +799,7 @@
   height: 350px;
   overflow: hidden;
   border-radius: 5px;
+  box-sizing: border-box;
 }
 .hero-background {
   width: 100%;
