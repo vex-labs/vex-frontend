@@ -48,7 +48,7 @@ const LeaderboardPage = () => {
   // Filter users based on search term
   const filteredUsers =
     data?.users.filter((user) =>
-      user.id.toLowerCase().includes(searchTerm.toLowerCase())
+      user.id.toLowerCase().includes(searchTerm.toLowerCase()),
     ) || [];
 
   // Calculate pagination
@@ -206,14 +206,14 @@ const LeaderboardPage = () => {
                         <tr
                           key={user.id}
                           className={`rank-${actualRank} ${getTrophyColor(
-                            actualRank
+                            actualRank,
                           )}`}
                         >
                           <td className="rank-cell">
                             {actualRank <= 3 ? (
                               <div
                                 className={`trophy ${getTrophyColor(
-                                  actualRank
+                                  actualRank,
                                 )}`}
                               >
                                 {actualRank}

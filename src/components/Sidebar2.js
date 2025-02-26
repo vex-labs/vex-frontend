@@ -167,7 +167,7 @@ const Sidebar2 = () => {
       {/* Social Links Section */}
       <div className="sidebar-section">
         {renderSectionHeader("Socials", "socials", isSocialsExpanded, () =>
-          setIsSocialsExpanded(!isSocialsExpanded)
+          setIsSocialsExpanded(!isSocialsExpanded),
         )}
 
         {(isSocialsExpanded || isCollapsed) && (

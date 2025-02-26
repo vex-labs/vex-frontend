@@ -67,7 +67,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
           gas,
           deposit,
           null,
-          passwordToUse
+          passwordToUse,
         );
 
         console.log("Claim successful!", outcome);
@@ -100,23 +100,23 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
     (bet) =>
       bet.match_state === "Finished" &&
       !bet.pay_state &&
-      !claimedBets[bet.betId]
+      !claimedBets[bet.betId],
   );
 
   const errorBets = userBets.filter(
     (bet) =>
-      bet.match_state === "Error" && !bet.pay_state && !claimedBets[bet.betId]
+      bet.match_state === "Error" && !bet.pay_state && !claimedBets[bet.betId],
   );
 
   const pendingBets = userBets.filter(
-    (bet) => bet.match_state === "Future" || bet.match_state === "Current"
+    (bet) => bet.match_state === "Future" || bet.match_state === "Current",
   );
 
   const settledBets = userBets.filter(
     (bet) =>
       bet.pay_state === "Paid" ||
       bet.pay_state === "RefundPaid" ||
-      claimedBets[bet.betId]
+      claimedBets[bet.betId],
   );
 
   // Get the current active bets based on selected category
@@ -193,7 +193,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
             const matchParts = match_id.split("-");
             const formattedMatchId = `${matchParts[0].replace(
               "_",
-              " "
+              " ",
             )} vs ${matchParts[1].replace("_", " ")}`;
             const isClaimable =
               (match_state === "Finished" || match_state === "Error") &&
