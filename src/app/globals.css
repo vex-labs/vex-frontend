@@ -10,6 +10,22 @@
 }
 body {
   background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+button {
+  all: unset;
+  box-sizing: border-box;
+}
+* {
+  box-sizing: border-box;
+}
+input {
+  all: unset;
+  box-sizing: border-box;
+  color: var(--text-color);
+}
+input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
 }
 .container {
   display: flex;
@@ -697,6 +713,10 @@ body {
   display: flex;
   align-items: center;
   flex-direction: row;
+
+  img {
+    margin: 0;
+  }
 }
 .team-logo {
   margin-right: 8px;
@@ -1081,8 +1101,8 @@ body {
 .sidebar {
   position: fixed;
   width: 230px;
-  height: calc(100vh - 65px);
-  top: 65px;
+  height: calc(100vh - 60px);
+  top: 60px;
   left: 0;
   background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
@@ -2156,4 +2176,196 @@ body {
   .upcoming-card-4-col {
     grid-column: span 1;
   }
+}
+
+/* Betting Modal Styles */
+.betting-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+  cursor: pointer;
+}
+
+.betting-modal-content {
+  background-color: #282828;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  color: white;
+  cursor: default;
+  position: relative;
+  z-index: 1001;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: slideUp 0.3s ease;
+}
+
+.betting-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 15px;
+}
+
+.betting-modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  color: white;
+}
+
+.close-modal-button {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  transition: all 0.2s ease;
+}
+
+.close-modal-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.match-time-modal {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.modal-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.teams-modal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 25px 0 20px 0;
+}
+
+.team-container-modal {
+  display: flex;
+  justify-content: center;
+  flex: 1;
+}
+
+.team1-container-modal {
+  justify-content: flex-start;
+}
+
+.team2-container-modal {
+  justify-content: flex-end;
+}
+
+/* Make the odds a bit more prominent when selected */
+.selected-odds {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid var(--green-button) !important;
+}
+
+.selected-odds .odds-value {
+  color: var(--green-button) !important;
+}
+
+/* Add more prominent hover effects for clickable elements */
+.place-bet-button:hover:not(:disabled) {
+  background-color: #00ffbf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 230, 179, 0.3);
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive styles for mobile */
+@media (max-width: 500px) {
+  .betting-modal-content {
+    max-width: 90%;
+    padding: 15px;
+  }
+
+  .betting-modal-header h3 {
+    font-size: 18px;
+  }
+
+  .team-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .team-name {
+    font-size: 13px;
+  }
+
+  .stake-input {
+    font-size: 14px;
+  }
+
+  .place-bet-button {
+    font-size: 14px;
+    padding: 10px 8px;
+  }
+
+  .message {
+    font-size: 12px;
+  }
+}
+
+/* Message styling classes */
+.message-error {
+  background-color: rgba(255, 82, 82, 0.1);
+  color: #ff5252;
+}
+
+.message-warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.message-success {
+  background-color: rgba(0, 230, 179, 0.1);
+  color: var(--green-button);
+}
+
+.message-info {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.7);
 }

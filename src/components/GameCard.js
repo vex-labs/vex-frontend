@@ -2,7 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
-import { ArrowLeft, AlertCircle, CheckCircle, DollarSign } from "lucide-react";
+import {
+  ArrowLeft,
+  AlertCircle,
+  CheckCircle,
+  DollarSign,
+  X,
+} from "lucide-react";
 import { createPortal } from "react-dom";
 
 const games = [
@@ -49,10 +55,10 @@ const games = [
 ];
 
 /**
- * Enhanced GameCard component
+ * Enhanced GameCard component with modal betting view
  *
- * This component represents a card displaying information about a game match with improved UI/UX.
- * It handles both viewing match details and placing bets with better error handling and visual feedback.
+ * This component represents a card displaying information about a game match.
+ * Betting functionality opens in a modal rather than changing the card itself.
  *
  * @param {Object} props - The component props
  * @param {string} props.className - Additional class names for styling
@@ -85,7 +91,7 @@ const GameCard = ({
   vexAccountId,
 }) => {
   // Component state
-  const [isBettingMode, setIsBettingMode] = useState(false);
+  const [showBettingModal, setShowBettingModal] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
   const [updatedOdds1, setUpdatedOdds1] = useState("1.00");
   const [updatedOdds2, setUpdatedOdds2] = useState("1.00");
@@ -131,7 +137,7 @@ const GameCard = ({
 
       // Decode and parse the result
       const decodedResult = JSON.parse(
-        Buffer.from(matchDetails.result).toString(),
+        Buffer.from(matchDetails.result).toString()
       );
 
       // Update odds with the fetched data
@@ -193,7 +199,7 @@ const GameCard = ({
 
       // Decode the u128 response and convert back to USDC format
       const winningsRaw = BigInt(
-        JSON.parse(Buffer.from(potentialWinnings.result).toString()),
+        JSON.parse(Buffer.from(potentialWinnings.result).toString())
       );
       const winningsUSDC = Number(winningsRaw) / 1e5;
 
@@ -233,8 +239,8 @@ const GameCard = ({
   // Handle placing a bet
   const handlePlaceBet = async () => {
     if (betSuccess) {
-      // If bet was already successful, just return to view mode
-      setIsBettingMode(false);
+      // If bet was already successful, just close the modal
+      setShowBettingModal(false);
       setBetSuccess(false);
       return;
     }
@@ -289,7 +295,7 @@ const GameCard = ({
         "usdc.betvex.testnet",
         wallet,
         vexAccountId,
-        password,
+        password
       );
 
       setBetSuccess(true);
@@ -333,16 +339,16 @@ const GameCard = ({
     }
 
     setSelectedBet(bet);
-    setIsBettingMode(true);
+    setShowBettingModal(true);
     setMessage({
       text: "Enter stake amount to see potential payout",
       type: "info",
     });
   };
 
-  // Return to match view mode
-  const handleBackClick = () => {
-    setIsBettingMode(false);
+  // Close betting modal
+  const handleCloseModal = () => {
+    setShowBettingModal(false);
     setSelectedBet(null);
     setStake("");
     setBetSuccess(false);
@@ -367,248 +373,264 @@ const GameCard = ({
   };
 
   return (
-    <div className={`${className} ${isBettingMode ? "betting-container" : ""}`}>
-      {isBettingMode ? (
-        // Betting Mode View
-        <>
-          <div className="back-arrow">
-            <button
-              onClick={handleBackClick}
-              className="back-button"
-              aria-label="Back to match details"
-            >
-              <ArrowLeft size={18} />
-            </button>
+    <>
+      <div className={className}>
+        {/* Match View Card */}
+        <div className="match-header">
+          <div className="match-info">
+            {games.find((game) => game.name === tournamentName) && (
+              <img
+                src={games.find((game) => game.name === tournamentName)?.icon}
+                alt={tournamentName || "Tournament"}
+                className="tournament-icon"
+                onError={(e) => {
+                  e.target.src = "/icons/events/default_tournament.png";
+                }}
+              />
+            )}
+            {tournamentName && (
+              <span className="tournament-name">
+                {games.find((game) => game.name === tournamentName)?.label}
+              </span>
+            )}
           </div>
-
-          <div className="match-time betting-match-time">
+          <div className="match-time">
             <span>{matchTime}</span>
           </div>
+        </div>
 
-          <div className="teams">
-            <div className="team-container team1-container">
-              <div className="team-bm">
-                <img
-                  src={team1Logo || "/icons/teams/default_team.png"}
-                  alt={formatTeamName(team1Name)}
-                  className="team-logo"
-                  onError={(e) => {
-                    e.target.src = "/icons/teams/default_team.png";
-                  }}
-                />
-                <span className="team-name">{formatTeamName(team1Name)}</span>
-              </div>
-            </div>
-
-            <div className="vs">VS</div>
-
-            <div className="team-container team2-container">
-              <div className="team-bm">
-                <span className="team-name">{formatTeamName(team2Name)}</span>
-                <img
-                  src={team2Logo || "/icons/teams/default_team.png"}
-                  alt={formatTeamName(team2Name)}
-                  className="team-logo"
-                  onError={(e) => {
-                    e.target.src = "/icons/teams/default_team.png";
-                  }}
-                />
-              </div>
-            </div>
+        <div className="match-body">
+          <div className="team">
+            <img
+              src={team1Logo || "/icons/teams/default_team.png"}
+              alt={formatTeamName(team1Name)}
+              className="team-logo"
+              onError={(e) => {
+                e.target.src = "/icons/teams/default_team.png";
+              }}
+            />
+            <span className="team-name">{formatTeamName(team1Name)}</span>
           </div>
 
-          <div className="match-odds betting-odds">
-            <label
-              className={`odds ${
-                selectedBet === team1Name ? "selected-odds" : ""
-              }`}
-            >
-              <input
-                type="radio"
-                name="bet"
-                value={team1Name}
-                checked={selectedBet === team1Name}
-                onChange={() => setSelectedBet(team1Name)}
-              />
-              <div className="odds-content">
-                <span className="odds-team">
-                  {formatTeamName(team1Name)} Win
-                </span>
-                <span className="odds-value">
-                  {isLoadingOdds ? "..." : updatedOdds1}
-                </span>
-              </div>
-            </label>
-
-            <label
-              className={`odds ${
-                selectedBet === team2Name ? "selected-odds" : ""
-              }`}
-            >
-              <input
-                type="radio"
-                name="bet"
-                value={team2Name}
-                checked={selectedBet === team2Name}
-                onChange={() => setSelectedBet(team2Name)}
-              />
-              <div className="odds-content">
-                <span className="odds-team">
-                  {formatTeamName(team2Name)} Win
-                </span>
-                <span className="odds-value">
-                  {isLoadingOdds ? "..." : updatedOdds2}
-                </span>
-              </div>
-            </label>
+          <div className="vs">
+            <span>VS</span>
           </div>
 
-          {betSuccess ? (
-            // Success view
-            <div className="bet-success">
-              <div className="success-icon">
-                <CheckCircle size={40} />
-              </div>
-              <p className="success-message">Bet placed successfully!</p>
-              <button className="done-button" onClick={handleBackClick}>
-                Done
-              </button>
-            </div>
-          ) : (
-            // Bet input view
-            <>
-              <div className="bet-input-container">
-                <div className="stake-container">
-                  <div className="stake-input-wrapper">
-                    <span className="currency-symbol">$</span>
-                    <input
-                      type="text"
-                      placeholder="0.00"
-                      value={stake}
-                      onChange={handleStakeChange}
-                      disabled={isPlacingBet}
-                      className="stake-input"
-                    />
-                    <span className="currency-label">USDC</span>
+          <div className="team">
+            <img
+              src={team2Logo || "/icons/teams/default_team.png"}
+              alt={formatTeamName(team2Name)}
+              className="team-logo"
+              onError={(e) => {
+                e.target.src = "/icons/teams/default_team.png";
+              }}
+            />
+            <span className="team-name">{formatTeamName(team2Name)}</span>
+          </div>
+        </div>
+
+        <div className="match-odds">
+          <div
+            className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+            onClick={() => !isLoadingOdds && handleOddsClick(team1Name)}
+          >
+            <span className="odds-team">{formatTeamName(team1Name)} Win</span>
+            <span className="odds-value">
+              {isLoadingOdds ? "..." : updatedOdds1}
+            </span>
+          </div>
+
+          <div
+            className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+            onClick={() => !isLoadingOdds && handleOddsClick(team2Name)}
+          >
+            <span className="odds-team">{formatTeamName(team2Name)} Win</span>
+            <span className="odds-value">
+              {isLoadingOdds ? "..." : updatedOdds2}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Betting Modal */}
+      {showBettingModal &&
+        createPortal(
+          <div className="betting-modal" onClick={handleCloseModal}>
+            <div
+              className="betting-modal-content"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="betting-modal-header">
+                <h3>Place Bet</h3>
+                <div className="modal-header-right">
+                  <div className="match-time-modal">
+                    <span>{matchTime}</span>
                   </div>
-                </div>
-
-                <div className="bet-button">
                   <button
-                    onClick={handlePlaceBet}
-                    disabled={
-                      !selectedBet ||
-                      !stake ||
-                      isPlacingBet ||
-                      parseFloat(stake) > parseFloat(walletBalance || "0")
-                    }
-                    className={`place-bet-button ${
-                      isPlacingBet ? "loading" : ""
-                    }`}
+                    className="close-modal-button"
+                    onClick={handleCloseModal}
                   >
-                    {isPlacingBet ? "Processing..." : "Place Bet"}
+                    <X size={18} />
                   </button>
                 </div>
               </div>
 
-              <div className={`message ${getMessageClass()}`}>
-                {isCalculatingWinnings ? (
-                  <div className="calculating">
-                    Calculating potential winnings...
-                  </div>
-                ) : (
-                  <div className="message-content">
-                    <span className="message-icon">
-                      {message.type === "error" && <AlertCircle size={16} />}
-                      {message.type === "success" && <CheckCircle size={16} />}
-                      {message.type === "info" && <DollarSign size={16} />}
+              <div className="teams-modal">
+                <div className="team-container-modal team1-container-modal">
+                  <div className="team-bm">
+                    <img
+                      src={team1Logo || "/icons/teams/default_team.png"}
+                      alt={formatTeamName(team1Name)}
+                      className="team-logo"
+                      onError={(e) => {
+                        e.target.src = "/icons/teams/default_team.png";
+                      }}
+                    />
+                    <span className="team-name">
+                      {formatTeamName(team1Name)}
                     </span>
-                    <span>{message.text}</span>
                   </div>
-                )}
+                </div>
+
+                <div className="vs">VS</div>
+
+                <div className="team-container-modal team2-container-modal">
+                  <div className="team-bm">
+                    <span className="team-name">
+                      {formatTeamName(team2Name)}
+                    </span>
+                    <img
+                      src={team2Logo || "/icons/teams/default_team.png"}
+                      alt={formatTeamName(team2Name)}
+                      className="team-logo"
+                      onError={(e) => {
+                        e.target.src = "/icons/teams/default_team.png";
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-            </>
-          )}
-        </>
-      ) : (
-        // Match View Mode
-        <>
-          <div className="match-header">
-            <div className="match-info">
-              {games.find((game) => game.name === tournamentName) && (
-                <img
-                  src={games.find((game) => game.name === tournamentName)?.icon}
-                  alt={tournamentName || "Tournament"}
-                  className="tournament-icon"
-                  onError={(e) => {
-                    e.target.src = "/icons/events/default_tournament.png";
-                  }}
-                />
+
+              <div className="match-odds betting-odds">
+                <label
+                  className={`odds ${
+                    selectedBet === team1Name ? "selected-odds" : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="bet"
+                    value={team1Name}
+                    checked={selectedBet === team1Name}
+                    onChange={() => setSelectedBet(team1Name)}
+                  />
+                  <div className="odds-content">
+                    <span className="odds-team">
+                      {formatTeamName(team1Name)} Win
+                    </span>
+                    <span className="odds-value">
+                      {isLoadingOdds ? "..." : updatedOdds1}
+                    </span>
+                  </div>
+                </label>
+
+                <label
+                  className={`odds ${
+                    selectedBet === team2Name ? "selected-odds" : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="bet"
+                    value={team2Name}
+                    checked={selectedBet === team2Name}
+                    onChange={() => setSelectedBet(team2Name)}
+                  />
+                  <div className="odds-content">
+                    <span className="odds-team">
+                      {formatTeamName(team2Name)} Win
+                    </span>
+                    <span className="odds-value">
+                      {isLoadingOdds ? "..." : updatedOdds2}
+                    </span>
+                  </div>
+                </label>
+              </div>
+
+              {betSuccess ? (
+                // Success view
+                <div className="bet-success">
+                  <div className="success-icon">
+                    <CheckCircle size={40} />
+                  </div>
+                  <p className="success-message">Bet placed successfully!</p>
+                  <button className="done-button" onClick={handleCloseModal}>
+                    Done
+                  </button>
+                </div>
+              ) : (
+                // Bet input view
+                <>
+                  <div className="bet-input-container">
+                    <div className="stake-container">
+                      <div className="stake-input-wrapper">
+                        <span className="currency-symbol">$</span>
+                        <input
+                          type="text"
+                          placeholder="0.00"
+                          value={stake}
+                          onChange={handleStakeChange}
+                          disabled={isPlacingBet}
+                          className="stake-input"
+                        />
+                        <span className="currency-label">USDC</span>
+                      </div>
+                    </div>
+
+                    <div className="bet-button">
+                      <button
+                        onClick={handlePlaceBet}
+                        disabled={
+                          !selectedBet ||
+                          !stake ||
+                          isPlacingBet ||
+                          parseFloat(stake) > parseFloat(walletBalance || "0")
+                        }
+                        className={`place-bet-button ${
+                          isPlacingBet ? "loading" : ""
+                        }`}
+                      >
+                        {isPlacingBet ? "Processing..." : "Place Bet"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className={`message ${getMessageClass()}`}>
+                    {isCalculatingWinnings ? (
+                      <div className="calculating">
+                        Calculating potential winnings...
+                      </div>
+                    ) : (
+                      <div className="message-content">
+                        <span className="message-icon">
+                          {message.type === "error" && (
+                            <AlertCircle size={16} />
+                          )}
+                          {message.type === "success" && (
+                            <CheckCircle size={16} />
+                          )}
+                          {message.type === "info" && <DollarSign size={16} />}
+                        </span>
+                        <span>{message.text}</span>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
-              {tournamentName && (
-                <span className="tournament-name">
-                  {games.find((game) => game.name === tournamentName)?.label}
-                </span>
-              )}
             </div>
-            <div className="match-time">
-              <span>{matchTime}</span>
-            </div>
-          </div>
-
-          <div className="match-body">
-            <div className="team">
-              <img
-                src={team1Logo || "/icons/teams/default_team.png"}
-                alt={formatTeamName(team1Name)}
-                className="team-logo"
-                onError={(e) => {
-                  e.target.src = "/icons/teams/default_team.png";
-                }}
-              />
-              <span className="team-name">{formatTeamName(team1Name)}</span>
-            </div>
-
-            <div className="vs">
-              <span>VS</span>
-            </div>
-
-            <div className="team">
-              <img
-                src={team2Logo || "/icons/teams/default_team.png"}
-                alt={formatTeamName(team2Name)}
-                className="team-logo"
-                onError={(e) => {
-                  e.target.src = "/icons/teams/default_team.png";
-                }}
-              />
-              <span className="team-name">{formatTeamName(team2Name)}</span>
-            </div>
-          </div>
-
-          <div className="match-odds">
-            <div
-              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
-              onClick={() => !isLoadingOdds && handleOddsClick(team1Name)}
-            >
-              <span className="odds-team">{formatTeamName(team1Name)} Win</span>
-              <span className="odds-value">
-                {isLoadingOdds ? "..." : updatedOdds1}
-              </span>
-            </div>
-
-            <div
-              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
-              onClick={() => !isLoadingOdds && handleOddsClick(team2Name)}
-            >
-              <span className="odds-team">{formatTeamName(team2Name)} Win</span>
-              <span className="odds-value">
-                {isLoadingOdds ? "..." : updatedOdds2}
-              </span>
-            </div>
-          </div>
-        </>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* Password Modal */}
       {showPasswordModal &&
@@ -643,9 +665,9 @@ const GameCard = ({
               </div>
             </div>
           </div>,
-          document.body,
+          document.body
         )}
-    </div>
+    </>
   );
 };
 

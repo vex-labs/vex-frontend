@@ -45,11 +45,16 @@ const LeaderboardPage = () => {
     }).format(amount / 1000000); // Assuming amount is in millions (like USDC)
   };
 
+  const usersWithRanks =
+    data?.users.map((user, index) => ({
+      ...user,
+      originalRank: index + 1,
+    })) || [];
+
   // Filter users based on search term
-  const filteredUsers =
-    data?.users.filter((user) =>
-      user.id.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+  const filteredUsers = usersWithRanks.filter((user) =>
+    user.id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -200,26 +205,25 @@ const LeaderboardPage = () => {
                 </thead>
                 <tbody>
                   {currentUsers.length > 0 ? (
-                    currentUsers.map((user, index) => {
-                      const actualRank = indexOfFirstItem + index + 1;
+                    currentUsers.map((user) => {
                       return (
                         <tr
                           key={user.id}
-                          className={`rank-${actualRank} ${getTrophyColor(
-                            actualRank,
-                          )}`}
+                          className={`rank-${
+                            user.originalRank
+                          } ${getTrophyColor(user.originalRank)}`}
                         >
                           <td className="rank-cell">
-                            {actualRank <= 3 ? (
+                            {user.originalRank <= 3 ? (
                               <div
                                 className={`trophy ${getTrophyColor(
-                                  actualRank,
+                                  user.originalRank
                                 )}`}
                               >
-                                {actualRank}
+                                {user.originalRank}
                               </div>
                             ) : (
-                              actualRank
+                              user.originalRank
                             )}
                           </td>
                           <td className="username-cell">{user.id}</td>
