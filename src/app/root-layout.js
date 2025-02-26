@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
       { name: "USDC", address: "usdc.betvex.testnet" },
       { name: "VEX", address: "token.betvex.testnet" },
     ],
-    []
+    [],
   );
 
   const wallet = useMemo(() => {
@@ -108,7 +108,7 @@ export default function RootLayout({ children }) {
               });
               const balanceInNear = utils.format.formatNearAmount(
                 accountBalance.amount,
-                2
+                2,
               );
               balances[token.name] = balanceInNear;
             } else {
@@ -118,7 +118,7 @@ export default function RootLayout({ children }) {
                 account_id: token.address,
                 method_name: "ft_balance_of",
                 args_base64: Buffer.from(JSON.stringify(args)).toString(
-                  "base64"
+                  "base64",
                 ),
                 finality: "final",
               });
@@ -191,7 +191,7 @@ export default function RootLayout({ children }) {
     const vexAccountId = localStorage.getItem("vexAccountId");
     if (vexAccountId) {
       const accountData = JSON.parse(
-        localStorage.getItem(`near-account-${vexAccountId}`)
+        localStorage.getItem(`near-account-${vexAccountId}`),
       );
       if (accountData) {
         setSignedAccountId(accountData.accountId);

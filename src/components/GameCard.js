@@ -131,7 +131,7 @@ const GameCard = ({
 
       // Decode and parse the result
       const decodedResult = JSON.parse(
-        Buffer.from(matchDetails.result).toString()
+        Buffer.from(matchDetails.result).toString(),
       );
 
       // Update odds with the fetched data
@@ -193,7 +193,7 @@ const GameCard = ({
 
       // Decode the u128 response and convert back to USDC format
       const winningsRaw = BigInt(
-        JSON.parse(Buffer.from(potentialWinnings.result).toString())
+        JSON.parse(Buffer.from(potentialWinnings.result).toString()),
       );
       const winningsUSDC = Number(winningsRaw) / 1e5;
 
@@ -289,7 +289,7 @@ const GameCard = ({
         "usdc.betvex.testnet",
         wallet,
         vexAccountId,
-        password
+        password,
       );
 
       setBetSuccess(true);
@@ -643,7 +643,7 @@ const GameCard = ({
               </div>
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </div>
   );

@@ -61,7 +61,7 @@ const DepositModal = () => {
       const contractId = "v2.faucet.nonofficial.testnet";
       // Convert amount to proper format (assuming 6 decimals for USDC)
       const amountInSmallestUnit = Math.round(
-        parseFloat(inputAmount) * 1000000
+        parseFloat(inputAmount) * 1000000,
       ).toString();
 
       const args = {

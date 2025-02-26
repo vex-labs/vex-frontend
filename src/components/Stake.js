@@ -174,7 +174,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     try {
       if (parseFloat(amount) < 50) {
         setMessage(
-          "Minimum of 50 VEX is required to register in the contract."
+          "Minimum of 50 VEX is required to register in the contract.",
         );
         return;
       }
@@ -187,7 +187,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           deposit1,
           null,
-          password
+          password,
         );
 
         if (depositResult && !depositResult.error) {
@@ -199,7 +199,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
             gas,
             deposit,
             null,
-            password
+            password,
           );
 
           if (stakeResult && !stakeResult.error) {
@@ -269,7 +269,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           deposit,
           null,
-          password
+          password,
         );
 
         if (unstakeResult && !unstakeResult.error) {
@@ -282,7 +282,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
             gas,
             deposit,
             null,
-            password
+            password,
           );
 
           if (withdrawResult && !withdrawResult.error) {
@@ -357,7 +357,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           gas,
           "0", // Minimal deposit in yoctoNEAR
           null,
-          password
+          password,
         );
 
         console.log("Stake swap successful!", outcome);

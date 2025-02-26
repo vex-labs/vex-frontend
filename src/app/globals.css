@@ -9,37 +9,10 @@
   --green-button: #00e6b3;
 }
 
-/* globals.css */
-body {
-  font-family: var(--font-primary), sans-serif;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-heading), sans-serif;
-}
-
-/* Reset default styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background-color: var(--secondary-color);
-}
-
-/* page container styles */
 .container {
   display: flex;
   margin-top: 55px;
 }
-
 .mainContent {
   flex: 1;
   padding: 0px;
@@ -47,23 +20,17 @@ body {
   height: auto;
   overflow-y: auto;
   transition: margin-left 0.3s ease-in-out;
-
   @media (max-width: 768px) {
     margin-left: 0;
   }
 }
-
 .app-sidebar.collapsed + .mainContent {
-  margin-left: 50px; /* margin when sidebar is collapsed */
+  margin-left: 50px;
 }
-
 .content-wrapper {
   padding: 20px;
   height: auto;
 }
-
-/* Enhanced navbar styles */
-/* Enhanced navbar styles */
 .nav {
   background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
@@ -83,35 +50,28 @@ body {
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
 }
-
 .nav-scrolled {
   background-color: rgba(0, 0, 0, 0.8);
   height: 60px;
   box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.5);
 }
-
 .logo {
   display: flex;
   align-items: center;
   transition: transform 0.2s ease;
 }
-
 .logo:hover {
   transform: scale(1.05);
 }
-
 .logo img {
   height: 32px;
   object-fit: contain;
 }
-
-/* Navigation links */
 .nav-links {
   display: flex;
   gap: 5px;
   margin-left: 20px;
 }
-
 .nav-link {
   padding: 8px 16px;
   border-radius: 10px;
@@ -124,18 +84,15 @@ body {
   display: flex;
   align-items: center;
 }
-
 .nav-link:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
 }
-
 .nav-link-active {
   background: rgba(255, 255, 255, 0.1);
   color: var(--primary-color);
   font-weight: 600;
 }
-
 .nav-link-active::after {
   content: "";
   position: absolute;
@@ -147,16 +104,12 @@ body {
   background-color: var(--primary-color);
   border-radius: 3px;
 }
-
-/* Navigation buttons */
 .nav-buttons {
   display: flex;
   align-items: center;
   gap: 16px;
   height: 100%;
 }
-
-/* Learn button */
 .nav-link-learn {
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
@@ -171,20 +124,16 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 .nav-link-learn:hover {
   background: var(--primary-color);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
 }
-
-/* Login buttons */
 .auth-buttons {
   display: flex;
   gap: 10px;
 }
-
 .login-button {
   padding: 8px 16px;
   border-radius: 10px;
@@ -198,38 +147,31 @@ body {
   gap: 8px;
   font-weight: 500;
 }
-
 .near-login {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
-
   img {
     /* invert colors */
     filter: invert(1);
   }
 }
-
 .near-login:hover {
   background: rgba(0, 0, 0, 0.5);
   border-color: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
 }
-
 .vex-login {
   background: var(--accent-color);
 }
-
 .vex-login:hover {
   background: var(--primary-color);
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
 }
-
 .login-icon {
   width: 16px;
   height: 16px;
 }
-
 .logout-button {
   padding: 8px 16px;
   border-radius: 10px;
@@ -241,13 +183,10 @@ body {
   font-weight: 500;
   transition: all 0.2s ease;
 }
-
 .logout-button:hover {
   background: rgba(255, 51, 88, 0.2);
   color: white;
 }
-
-/* Wallet balance */
 .wallet-balance-container {
   padding: 6px 12px;
   background: rgba(0, 0, 0, 0.3);
@@ -257,31 +196,25 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.1);
   min-width: 120px;
 }
-
 .token-list {
   display: flex;
   gap: 15px;
 }
-
 .token-item {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .token-icon {
   width: 20px;
   height: 20px;
 }
-
 .token-balance {
   color: #00e6b3;
   font-weight: 600;
   font-size: 14px;
   letter-spacing: 0.5px;
 }
-
-/* Loading animation for balance */
 .loading-balance {
   display: flex;
   align-items: center;
@@ -289,7 +222,6 @@ body {
   color: var(--text-color);
   font-size: 14px;
 }
-
 .loading-pulse {
   width: 20px;
   height: 20px;
@@ -297,23 +229,8 @@ body {
   background-color: rgba(255, 255, 255, 0.1);
   animation: pulse 1.5s infinite ease-in-out;
 }
-
 @keyframes pulse {
-  0% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
 }
-
-/* Desktop navigation layout */
 .desktop-nav {
   display: flex;
   flex-direction: column;
@@ -321,35 +238,28 @@ body {
   width: 100%;
   justify-content: space-between;
 }
-
 .desktop-nav-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
 }
-
 .left-container {
   display: flex;
   align-items: center;
 }
-
-/* Mobile navigation */
 .mobile-nav {
   display: none;
 }
-
 .mobile-actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .mobile-balance {
   display: flex;
   align-items: center;
 }
-
 .token-item-mobile {
   display: flex;
   align-items: center;
@@ -361,38 +271,30 @@ body {
   color: #00e6b3;
   font-weight: 600;
 }
-
 .token-icon-mobile {
   width: 16px;
   height: 16px;
 }
-
-/* Responsive styles */
 @media (max-width: 1024px) {
   .nav {
     padding: 0 15px;
   }
-
   .nav-link {
     padding: 8px 12px;
     font-size: 15px;
   }
-
   .wallet-balance-container {
     padding: 5px 10px;
   }
 }
-
 @media (max-width: 768px) {
   .nav {
     height: 60px;
     padding: 0 15px;
   }
-
   .desktop-nav {
     display: none;
   }
-
   .mobile-nav {
     display: flex;
     flex-direction: row;
@@ -401,32 +303,19 @@ body {
     width: 100%;
   }
 }
-
 @media (max-width: 480px) {
   .mobile-actions {
     gap: 5px;
   }
-
   .token-item-mobile {
     padding: 4px 8px;
     font-size: 12px;
   }
-
   .token-icon-mobile {
     width: 14px;
     height: 14px;
   }
 }
-
-/* reset */
-
-.dropdown {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 100%;
-}
-
 .DropdownMenuContent,
 .DropdownMenuSubContent {
   position: absolute;
@@ -434,14 +323,9 @@ body {
   top: 10px;
   min-width: 260px;
   color: white;
-  background-color: rgba(
-    30,
-    30,
-    30,
-    0.9
-  ); /* Slightly less transparent for better readability */
-  backdrop-filter: blur(15px); /* Enhanced blur effect */
-  -webkit-backdrop-filter: blur(15px); /* For Safari support */
+  background-color: rgba(30, 30, 30, 0.9);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0;
@@ -452,7 +336,6 @@ body {
   z-index: 1000;
   overflow: hidden;
 }
-
 @media (max-width: 768px) {
   .DropdownMenuContent,
   .DropdownMenuSubContent {
@@ -460,18 +343,12 @@ body {
     right: 10px;
     width: 280px;
   }
-
-  .dropdown {
-    position: static;
-  }
-
   .DropdownMenuContent {
     position: fixed;
     right: -15px;
     top: 15px;
   }
 }
-
 .DropdownMenuContent[data-side="top"],
 .DropdownMenuSubContent[data-side="top"] {
   animation-name: slideDownAndFade;
@@ -488,8 +365,6 @@ body {
 .DropdownMenuSubContent[data-side="left"] {
   animation-name: slideRightAndFade;
 }
-
-/* User profile header styling */
 .user-profile-header {
   display: flex;
   align-items: center;
@@ -501,7 +376,6 @@ body {
     rgba(255, 51, 88, 0.2)
   );
 }
-
 .user-avatar-large {
   width: 45px;
   height: 45px;
@@ -515,18 +389,15 @@ body {
   margin-right: 12px;
   box-shadow: 0 0 15px rgba(255, 51, 88, 0.3);
 }
-
 .user-avatar-large img {
   width: 28px;
   height: 28px;
   object-fit: cover;
 }
-
 .user-info {
   display: flex;
   flex-direction: column;
 }
-
 .user-account-id {
   font-size: 16px;
   font-weight: 600;
@@ -536,19 +407,14 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .user-wallet-type {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.6);
   margin-top: 2px;
 }
-
-/* Menu items container */
 .menu-items-container {
   padding: 8px 0;
 }
-
-/* Menu item styling */
 .DropdownMenuItem {
   height: auto;
   padding: 12px;
@@ -563,7 +429,6 @@ body {
   padding: 12px 16px;
   width: 100%;
 }
-
 .menu-item-icon {
   display: flex;
   align-items: center;
@@ -572,47 +437,32 @@ body {
   height: 20px;
   margin-right: 12px;
 }
-
 .menu-item-icon img {
   width: 18px;
   height: 18px;
   opacity: 0.9;
 }
-
 .menu-item-label {
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
 }
-
-/* Hovering effect */
 .DropdownMenuItem:hover,
 .DropdownMenuItem.active {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* Separator style */
 .DropdownMenuSeparator {
   height: 1px;
   background-color: rgba(255, 255, 255, 0.1);
   margin: 0;
 }
-
-/* Danger item (like logout) */
-.danger-item {
-  color: var(--primary-color) !important;
-}
-
 .danger-item:hover,
 .danger-item.active {
   background-color: rgba(255, 51, 88, 0.15) !important;
 }
-
 .danger-item .menu-item-icon img {
   filter: hue-rotate(340deg) saturate(2);
 }
-
-/* User avatar in the nav bar */
 .IconButton {
   position: relative;
   display: inline-flex;
@@ -628,13 +478,11 @@ body {
   vertical-align: middle;
   cursor: pointer;
 }
-
 .IconButton img {
   width: 24px;
   height: 24px;
   display: block;
 }
-
 .user-avatar {
   display: flex;
   align-items: center;
@@ -642,13 +490,11 @@ body {
   width: 100%;
   height: 100%;
 }
-
 .user-avatar img {
   width: 24px;
   height: 24px;
   object-fit: cover;
 }
-
 .avatar-ring {
   position: absolute;
   inset: -2px;
@@ -656,258 +502,52 @@ body {
   border-radius: 50%;
   animation: pulse 2s infinite;
 }
-
 .IconButton:hover {
   background-color: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
 }
-
 .IconButton:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(255, 51, 88, 0.3);
 }
-
-/* Animation keyframes */
 @keyframes slideUpAndFade {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
-
 @keyframes slideRightAndFade {
-  from {
-    opacity: 0;
-    transform: translateX(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
-
 @keyframes slideDownAndFade {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
-
 @keyframes slideLeftAndFade {
-  from {
-    opacity: 0;
-    transform: translateX(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
-
 @keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(255, 51, 88, 0.6);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(255, 51, 88, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(255, 51, 88, 0);
-  }
 }
-
-a,
-button {
-  margin: 0;
-  padding: 0;
-  background: none;
-  border: none;
-  font: inherit;
-  cursor: pointer;
-}
-
-.wallet-balance {
-  color: var(--text-color);
-  font-size: 14px;
-  margin-right: 15px;
-}
-
-.wallet-balance ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.wallet-balance li {
-  display: flex;
-  align-items: center;
-  gap: 4px; /* space between icon and text */
-  padding: 2px 0;
-}
-
 .token-icon {
-  width: 16px; /* smaller icon size */
+  width: 16px;
   height: 16px;
 }
-
 .token-name {
   font-weight: 500;
 }
-
 .token-balance {
   color: #fff;
 }
-
-/* Sidebar styles */
-.app-sidebar {
-  width: 230px;
-  background-color: rgba(0, 0, 0, 0.2); /* Transparent background */
-  backdrop-filter: blur(8px); /* Creates the blur effect */
-  -webkit-backdrop-filter: blur(8px); /* For Safari support */
-  color: var(--text-color);
-  padding: 12px 12px 0px;
-  position: fixed;
-  top: 55px; /* Adjusted to match the new navbar height */
-  left: 0;
-  height: calc(
-    100vh - 55px
-  ); /* Adjusted to account for the new navbar height */
-  overflow-y: auto;
-  z-index: 20;
-  transition: width 0.3s ease-in-out, padding 0.3s ease-in-out;
-  box-sizing: border-box;
-  border-right: 1px solid #333333;
-
-  @media (max-width: 768px) {
-    display: none;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-  }
-
-  li {
-    display: flex;
-    align-items: center;
-    margin-bottom: 8px;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-    }
-
-    &[data-active="true"] {
-      background-color: #3c3c3c;
-      color: white;
-      border-radius: 5px;
-    }
-
-    img,
-    svg {
-      margin-right: 8px;
-      width: 17px;
-      height: 17px;
-    }
-
-    a {
-      color: var(--text-color);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 8px;
-      border-radius: 5px;
-
-      &:hover {
-        background-color: var(--secondary-color);
-      }
-
-      span {
-        margin-left: 8px;
-        white-space: nowrap;
-      }
-    }
-  }
-
-  .toggle-button {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 18px;
-    width: 100%;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    border-radius: 5px;
-  }
-
-  .toggle-button:hover {
-    background-color: var(--accent-color);
-  }
-
-  .section-title {
-    color: var(--text-color);
-    font-weight: bold;
-    margin: 20px 0 10px;
-    transition: opacity 0.3s ease, font-size 0.3s ease, height 0.3s ease;
-    font-size: 14px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-  }
-
-  .more-games-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    padding: 8px;
-    font-size: 14px;
-    cursor: pointer;
-    color: white;
-    width: calc(100% - 20px);
-
-    &:hover {
-      background-color: var(--accent-color);
-    }
-  }
-}
-
-/* Adjustments for collapsed state */
 .app-sidebar.collapsed {
   width: 50px;
   padding: 12px 0;
   overflow-x: hidden;
 }
-
 .app-sidebar.collapsed .section-title {
   opacity: 0.5;
   font-size: 10px;
   height: 30px;
 }
-
 .app-sidebar.collapsed ul li {
   justify-content: center;
 }
-
 .app-sidebar.collapsed ul li a,
 .app-sidebar.collapsed .toggle-button {
   justify-content: center;
   padding: 8px;
 }
-
-/* Grid Containers */
 .featured-grid-container,
 .upcoming-grid-container {
   display: grid;
@@ -915,8 +555,6 @@ button {
   gap: 16px;
   margin: 16px;
 }
-
-/* Glassmorphism Login Prompt */
 .vex-login-prompt {
   position: fixed;
   top: 50%;
@@ -933,30 +571,23 @@ button {
   text-align: center;
   z-index: 50;
 }
-
-/* Title Heading */
 .vex-login-prompt h3 {
   font-size: 1.8rem;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 20px;
 }
-
-/* Label */
 .vex-login-prompt label {
   display: block;
   font-size: 1rem;
   color: #ffffff;
   margin: 15px 0 5px;
 }
-
-/* Split Username Input */
 .username-input {
   display: flex;
   width: 100%;
   margin-top: 5px;
 }
-
 .username-input input[type="text"] {
   width: 100%;
   padding: 10px;
@@ -967,12 +598,9 @@ button {
   font-size: 1rem;
   transition: background-color 450ms;
 }
-
 .username-input input[type="text"]:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
-
-/* Input Fields */
 .vex-login-prompt input[type="password"] {
   width: 100%;
   padding: 12px;
@@ -985,24 +613,18 @@ button {
   font-size: 1rem;
   transition: background-color 450ms;
 }
-
 .vex-login-prompt input[type="password"]:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
-
 .vex-login-prompt input::placeholder {
   color: #ffffffdb;
   font-size: 0.9rem;
 }
-
-/* Save Password Checkbox Label */
 .vex-login-prompt .save-password {
   font-size: 0.9rem;
   color: #ffffff;
   margin-top: 10px;
 }
-
-/* Login Button */
 .vex-login-prompt button {
   width: 100%;
   height: 45px;
@@ -1015,24 +637,9 @@ button {
   font-size: 1.1rem;
   transition: background-color 450ms;
 }
-
 .vex-login-prompt button:hover {
   background-color: rgba(255, 255, 255, 1);
 }
-
-.header-container {
-  display: flex;
-  align-items: center; /* Aligns items vertically in the center */
-  gap: 10px; /* Space between the h1 and button */
-}
-
-.remove-filters-button {
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-/* Card Styles */
 .featured-card,
 .upcoming-card {
   background-color: var(--black-color);
@@ -1044,40 +651,28 @@ button {
   max-width: 100%;
   overflow: hidden;
 }
-
-/* Card Column Spans */
 .featured-card-3-col {
   grid-column: span 3;
 }
-
 .upcoming-card-4-col {
   grid-column: span 4;
 }
-
-/* General Styles */
-* {
-  box-sizing: border-box;
-}
-
 .betting-container {
   background-color: #282828;
   padding: 10px;
   padding-top: 5px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: auto; /* Fixed width */
-  height: 258px; /* Fixed height */
+  width: auto;
+  height: 258px;
   color: white;
   position: relative;
 }
-
-/* Back Arrow Styles */
 .back-arrow {
   position: absolute;
   top: 5px;
   left: 10px;
 }
-
 .back-arrow button {
   background-color: transparent;
   border: none;
@@ -1085,49 +680,39 @@ button {
   font-size: 20px;
   cursor: pointer;
 }
-
-/* Teams Section */
 .teams {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 15px 0 10px 0;
 }
-
 .team-container {
   display: flex;
   justify-content: center;
   flex: 1;
 }
-
 .team-bm {
   display: flex;
   align-items: center;
   flex-direction: row;
 }
-
 .team-logo {
   margin-right: 8px;
 }
-
 .team-name {
   font-size: 0.8em;
 }
-
 .vs {
   font-size: 1.2em;
   text-align: center;
   width: 50px;
 }
-
-/* Match Odds Section */
 .match-odds {
   display: flex;
   justify-content: space-around;
   gap: 16px;
   margin-bottom: 10px;
 }
-
 .odds {
   background-color: #333;
   border-radius: 8px;
@@ -1137,53 +722,43 @@ button {
   cursor: pointer;
   position: relative;
 }
-
 .odds input[type="radio"] {
   position: absolute;
   opacity: 0;
   cursor: pointer;
 }
-
 .odds input[type="radio"]:checked + span {
   color: #4caf50;
 }
-
 .odds span {
   display: block;
 }
-
 .odds-value {
   font-size: 18px;
   font-weight: bold;
 }
-
-/* Bet Input and Button Section */
 .bet-input-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
-
 .stake-container {
   flex: 3;
   margin-right: 10px;
 }
-
 .stake-container input {
   width: 100%;
   border: none;
   border-radius: 5px;
   font-size: 1em;
 }
-
 .bet-button {
   flex: 1;
   display: flex;
   justify-content: center;
   box-sizing: border-box;
 }
-
 .bet-button button {
   width: 100%;
   background-color: #4caf50;
@@ -1196,20 +771,15 @@ button {
   cursor: pointer;
   transition: background-color 0.3s;
 }
-
 .bet-button button:hover {
   background-color: #45a049;
 }
-
-/* Message Section */
 .message {
   margin: 0;
   text-align: center;
   font-size: 0.9em;
   color: #f1c40f;
 }
-
-/* Regular Game Card Styles */
 .featured-card,
 .upcoming-card {
   background-color: var(--black-color);
@@ -1218,8 +788,6 @@ button {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
 }
-
-/* Faucet Section */
 .hero-section {
   padding: 20px;
   display: flex;
@@ -1230,7 +798,6 @@ button {
   overflow: hidden;
   border-radius: 5px;
 }
-
 .hero-background {
   width: 100%;
   height: 100%;
@@ -1240,14 +807,11 @@ button {
   align-items: center;
   border-radius: inherit;
 }
-
 .hero-banner {
   width: 80%;
   height: 100%;
   object-fit: cover;
 }
-
-/* Card Grid Layout */
 .featured-grid-container,
 .upcoming-grid-container {
   display: grid;
@@ -1255,17 +819,12 @@ button {
   gap: 16px;
   margin: 16px 0px 16px 0px;
 }
-
-/* Column Spans */
 .featured-card-3-col {
   grid-column: span 3;
 }
-
 .upcoming-card-4-col {
   grid-column: span 4;
 }
-
-/* Header, Body, and Odds Sections */
 .match-header,
 .match-body,
 .match-odds {
@@ -1273,32 +832,26 @@ button {
   align-items: center;
   justify-content: space-between;
 }
-
 .match-header {
   border-bottom: 1px solid #333;
   padding-bottom: 8px;
   margin-bottom: 8px;
 }
-
 .tournament-icon {
   width: 24px;
   height: 24px;
 }
-
 .match-info {
   display: flex;
   align-items: center;
 }
-
 .match-info span,
 .match-time span {
   font-size: 14px;
 }
-
 .match-body {
   padding: 16px 0;
 }
-
 .team {
   display: flex;
   flex-direction: column;
@@ -1306,32 +859,27 @@ button {
   justify-content: center;
   width: 100px;
 }
-
 .team-logo {
   width: 48px;
   height: 48px;
   margin-bottom: 8px;
 }
-
 .team-name {
   font-size: 14px;
   text-align: center;
-  white-space: nowrap; /* Prevents text from wrapping */
-  overflow: hidden; /* Hides overflowed text */
-  text-overflow: ellipsis; /* Adds ellipsis (...) for overflowed text */
-  display: inline-block; /* Ensures the properties apply correctly */
-  max-width: 100%; /* Limits width to avoid overflow outside container */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
+  max-width: 100%;
 }
-
 .vs {
   font-size: 24px;
 }
-
 .match-odds {
   justify-content: space-around;
   gap: 16px;
 }
-
 .odds {
   background-color: #333;
   border-radius: 8px;
@@ -1339,31 +887,25 @@ button {
   text-align: center;
   flex: 1;
 }
-
 .odds span {
   display: block;
 }
-
 .odds-value {
   font-size: 18px;
   font-weight: bold;
 }
-
-/* Withdraw Modal background */
 .withdraw-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50; /* Ensure it's on top of other content */
+  z-index: 50;
 }
-
-/* Withdraw Modal content with glassmorphic styling */
 .withdraw-modal-content {
   background: rgba(250, 250, 250, 0.15);
   box-shadow: 1px 1px 15px 1px rgba(0, 0, 0, 0.15);
@@ -1378,16 +920,12 @@ button {
   align-items: center;
   animation: fadeIn 0.3s ease;
 }
-
-/* Withdraw Modal heading */
 .withdraw-modal-content h3 {
   font-size: 1.8rem;
   font-weight: bold;
   color: #ffffff;
   margin-bottom: 20px;
 }
-
-/* Withdraw input labels */
 .withdraw-label {
   display: block;
   width: 100%;
@@ -1396,14 +934,6 @@ button {
   margin-bottom: 15px;
   text-align: left;
 }
-
-/* Select container to match size and style */
-.withdraw-select-container {
-  width: 100%;
-  position: relative;
-}
-
-/* Withdraw select dropdown with icon */
 .withdraw-select {
   width: 100%;
   padding: 12px;
@@ -1412,27 +942,23 @@ button {
   border: none;
   border-radius: 5px;
   font-size: 1rem;
-  appearance: none; /* Removes default arrow */
+  appearance: none;
   position: relative;
   cursor: pointer;
   font-weight: 500;
 }
-
 .withdraw-select option {
-  background-color: #000; /* For dropdown background */
+  background-color: #000;
   color: #ffffff;
   display: flex;
   align-items: center;
   padding: 10px;
 }
-
 .withdraw-select option img {
   width: 20px;
   height: 20px;
   margin-right: 10px;
 }
-
-/* Withdraw number and text inputs */
 .withdraw-input {
   width: 100%;
   padding: 12px;
@@ -1444,25 +970,19 @@ button {
   font-size: 1rem;
   transition: background-color 450ms;
 }
-
 .withdraw-input:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
-
 .withdraw-input::placeholder {
   color: #ffffffdb;
   font-size: 0.9rem;
 }
-
-/* Withdraw modal buttons container */
 .withdraw-modal-buttons {
   display: flex;
   gap: 10px;
   width: 100%;
   margin-top: 20px;
 }
-
-/* Withdraw modal buttons */
 .withdraw-button {
   width: 100%;
   padding: 10px;
@@ -1472,173 +992,89 @@ button {
   cursor: pointer;
   transition: background-color 450ms;
 }
-
-/* Confirm Withdrawal and Cancel button styles */
 .confirm-button {
   background-color: rgba(255, 255, 255, 0.8);
   color: #000;
 }
-
 .confirm-button:hover {
   background-color: rgba(255, 255, 255, 1);
 }
-
 .cancel-button {
   background-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
 }
-
 .cancel-button:hover {
   background-color: rgba(255, 255, 255, 0.5);
 }
-
-/* Confirm Withdrawal and Cancel button styles */
 .confirm-button {
   background-color: rgba(255, 255, 255, 0.8);
   color: #000;
 }
-
 .confirm-button:hover {
   background-color: rgba(255, 255, 255, 1);
 }
-
 .cancel-button {
   background-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
 }
-
 .cancel-button:hover {
   background-color: rgba(255, 255, 255, 0.5);
 }
-
-/* Fade-in animation */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
-
-/* scrollbar */
-/* Make the scrollbar thinner (for WebKit browsers like Chrome, Safari, Edge) */
-.app-sidebar {
-  overflow-y: auto;
-}
-
-.app-sidebar::-webkit-scrollbar {
-  width: 6px; /* Set the width of the scrollbar */
-}
-
-.app-sidebar::-webkit-scrollbar-track {
-  background: #f1f1f1; /* Background of the scrollbar track */
-}
-
-.app-sidebar::-webkit-scrollbar-thumb {
-  background-color: #888; /* Scrollbar color */
-  border-radius: 10px; /* Round the scrollbar edges */
-}
-
-.app-sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: #555; /* Scrollbar color on hover */
-}
-
-/* For Firefox (scrollbar-width and scrollbar-color) */
-.app-sidebar {
-  scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
-}
-
-/* Hide the scrollbar but still allow scrolling (for WebKit browsers like Chrome, Safari, Edge) */
-.app-sidebar {
-  overflow-y: auto;
-}
-
-.app-sidebar::-webkit-scrollbar {
-  display: none; /* Hides the scrollbar */
-}
-
-/* For Firefox */
-.app-sidebar {
-  scrollbar-width: none; /* Hides scrollbar in Firefox */
-}
-
-/* Responsive */
 @media (max-width: 1200px) {
   .featured-grid-container,
   .upcoming-grid-container {
-    grid-template-columns: repeat(6, 1fr); /* Make both grids the same */
+    grid-template-columns: repeat(6, 1fr);
     margin: 0;
   }
-
   .featured-card-3-col,
   .upcoming-card-4-col {
-    grid-column: span 6; /* Make both cards span 6 columns */
+    grid-column: span 6;
   }
 }
-
 @media (max-width: 800px) {
   .featured-grid-container {
     grid-template-columns: repeat(3, 1fr);
   }
-
   .featured-card-3-col {
     grid-column: span 3;
   }
-
   .upcoming-grid-container {
     grid-template-columns: repeat(3, 1fr);
   }
-
   .upcoming-card-4-col {
     grid-column: span 3;
   }
 }
-
 @media (max-width: 600px) {
   .featured-grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
-
   .featured-card-3-col {
     grid-column: span 2;
   }
-
   .upcoming-grid-container {
     grid-template-columns: repeat(2, 1fr);
   }
-
   .upcoming-card-4-col {
     grid-column: span 2;
   }
-
-  .app-sidebar {
-    width: 1fr;
-  }
 }
-
 @media (max-width: 400px) {
   .featured-grid-container {
     grid-template-columns: 1fr;
   }
-
   .featured-card-3-col {
     grid-column: span 1;
   }
   .upcoming-grid-container {
     grid-template-columns: 1fr;
   }
-
   .upcoming-card-4-col {
     grid-column: span 1;
   }
 }
-
-/* Sidebar */
-/* Enhanced Sidebar Styles */
 .sidebar {
   position: fixed;
   width: 230px;
@@ -1659,17 +1095,12 @@ button {
   scrollbar-width: none;
   padding: 16px 0 20px 0;
 }
-
 .sidebar::-webkit-scrollbar {
   display: none;
 }
-
-/* Collapsed state */
 .sidebar.collapsed {
   width: 60px;
 }
-
-/* Toggle button */
 .sidebar-toggle {
   display: flex;
   flex-shrink: 0;
@@ -1685,28 +1116,22 @@ button {
   margin: 0 auto 16px auto;
   transition: all 0.2s ease;
 }
-
 .sidebar-toggle:hover {
   background-color: var(--accent-color);
   color: white;
 }
-
-/* Navigation */
 .sidebar-nav {
   margin-bottom: 10px;
 }
-
 .nav-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
-
 .nav-item {
   position: relative;
   margin: 2px 0;
 }
-
 .nav-link {
   display: flex;
   align-items: center;
@@ -1714,18 +1139,15 @@ button {
   color: var(--text-color);
   text-decoration: none;
   border-radius: 8px;
-  /* margin: 0 8px; */
   transition: all 0.2s ease;
   position: relative;
 }
-
 .nav-icon {
   min-width: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
 .sidebar-icon,
 .game-icon,
 .social-icon {
@@ -1733,7 +1155,6 @@ button {
   height: 20px;
   object-fit: contain;
 }
-
 .nav-label {
   white-space: nowrap;
   margin-left: 10px;
@@ -1742,13 +1163,10 @@ button {
   align-items: center;
   gap: 5px;
 }
-
-/* Active state */
 .nav-item.active .nav-link {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
 }
-
 .active-indicator {
   position: absolute;
   left: -8px;
@@ -1759,17 +1177,12 @@ button {
   background-color: var(--primary-color);
   border-radius: 0 3px 3px 0;
 }
-
-/* Hover effect */
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.08);
 }
-
-/* Sections */
 .sidebar-section {
   margin-bottom: 16px;
 }
-
 .sidebar-section-header {
   display: flex;
   align-items: center;
@@ -1777,16 +1190,13 @@ button {
   padding: 12px 15px 6px 15px;
   cursor: pointer;
 }
-
 .sidebar-section-header:hover .section-title {
   color: white;
 }
-
 .sidebar-section-header.collapsed {
   padding: 12px 0 6px 0;
   justify-content: center;
 }
-
 .section-title {
   color: rgba(255, 255, 255, 0.6);
   font-size: 12px;
@@ -1795,13 +1205,11 @@ button {
   text-transform: uppercase;
   transition: color 0.2s ease;
 }
-
 .sidebar.collapsed .section-title {
   font-size: 10px;
   width: 100%;
   text-align: center;
 }
-
 .section-toggle-button {
   background: none;
   border: none;
@@ -1813,44 +1221,32 @@ button {
   justify-content: center;
   transition: all 0.2s ease;
 }
-
 .section-toggle-button:hover {
   color: white;
 }
-
-/* Games section */
 .games-list {
   max-height: 350px;
   overflow-y: auto;
   transition: max-height 0.3s ease;
 }
-
 .sidebar.collapsed .games-list {
   max-height: 300px;
 }
-
 .games-list.hidden {
   max-height: 0;
   overflow: hidden;
 }
-
-/* Social items */
 .social-item .nav-link {
   padding: 8px 15px;
 }
-
 .external-link-icon {
   opacity: 0.6;
 }
-
-/* User section */
 .user-section {
   margin-top: auto;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 8px;
 }
-
-/* Tooltip for collapsed state */
 .tooltip {
   position: absolute;
   left: 54px;
@@ -1862,65 +1258,44 @@ button {
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 45;
 }
-
-/* Animation for sidebar sections */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
-
 .nav-list {
   animation: fadeIn 0.2s ease;
 }
-
-/* Responsive adjustments */
 @media (max-width: 1024px) {
   .sidebar {
     width: 200px;
   }
 }
-
 @media (max-width: 768px) {
   .sidebar {
     left: -300px;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   }
-
   .sidebar.visible {
     left: 0;
   }
 }
-
-/* Adjust mainContent margins when sidebar is collapsed */
 .sidebar.collapsed + .mainContent {
   margin-left: 60px;
 }
-
 @media (max-width: 768px) {
   .sidebar.collapsed + .mainContent {
     margin-left: 0;
   }
 }
-
-/* Home Page */
 .section-header {
   display: flex;
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
 }
-
 .section-header h1 {
   color: white;
   font-size: 28px;
   margin: 0;
 }
-
-/* Filter button */
 .filter-button {
   display: flex;
   align-items: center;
@@ -1934,70 +1309,17 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .filter-button:hover {
   background-color: rgba(255, 51, 88, 0.15);
   border-color: rgba(255, 51, 88, 0.3);
   color: var(--primary-color);
 }
-
-.clear-filter-button {
-  background-color: var(--accent-color);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 12px;
-}
-
-.clear-filter-button:hover {
-  background-color: var(--primary-color);
-  transform: translateY(-2px);
-}
-
-/* Loading state */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  color: var(--text-color);
-}
-
 .loading-spinner {
   animation: spin 1.5s linear infinite;
   margin-bottom: 16px;
 }
-
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
 }
-
-/* Error state */
-.error-state {
-  background-color: rgba(255, 51, 88, 0.1);
-  border: 1px solid rgba(255, 51, 88, 0.2);
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  color: var(--text-color);
-}
-
-.error-state p {
-  margin-bottom: 16px;
-}
-
 .retry-button {
   background-color: var(--primary-color);
   color: white;
@@ -2008,67 +1330,44 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .retry-button:hover {
   background-color: #ff4f6e;
   transform: translateY(-2px);
 }
-
-/* Empty state */
-.empty-state {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  padding: 32px;
-  text-align: center;
-  color: var(--text-color);
-}
-
-/* Section spacing */
 .featured-section,
 .upcoming-section {
   margin-bottom: 40px;
 }
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-
   .section-header h1 {
     font-size: 24px;
   }
-
   .hero-section {
     height: 250px;
   }
-
   .content-wrapper {
     padding: 15px;
   }
 }
-
-/* Enhanced FeaturedGames styles */
-
 .featured-games-section {
   margin-bottom: 36px;
 }
-
 .section-header {
   display: flex;
   align-items: center;
   margin-bottom: 24px;
 }
-
 .section-header h1 {
   color: white;
   font-size: 28px;
   margin: 0;
   flex-grow: 1;
 }
-
 .match-count {
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--text-color);
@@ -2077,8 +1376,6 @@ button {
   border-radius: 50px;
   font-weight: 500;
 }
-
-/* Skeleton loading state */
 .skeleton-card {
   animation: pulse 1.5s infinite ease-in-out;
   min-height: 258px;
@@ -2086,14 +1383,12 @@ button {
   flex-direction: column;
   justify-content: space-between;
 }
-
 .skeleton-header {
   height: 24px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   margin-bottom: 16px;
 }
-
 .skeleton-body {
   display: flex;
   align-items: center;
@@ -2101,27 +1396,23 @@ button {
   margin-bottom: 16px;
   flex-grow: 1;
 }
-
 .skeleton-team {
   width: 80px;
   height: 80px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
-
 .skeleton-vs {
   width: 30px;
   height: 30px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
 }
-
 .skeleton-odds {
   display: flex;
   justify-content: space-between;
   gap: 16px;
 }
-
 .skeleton-odds::before,
 .skeleton-odds::after {
   content: "";
@@ -2130,20 +1421,8 @@ button {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
-
 @keyframes pulse {
-  0% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 0.4;
-  }
 }
-
-/* Error state */
 .featured-error-container {
   background-color: rgba(255, 51, 88, 0.1);
   border: 1px solid rgba(255, 51, 88, 0.2);
@@ -2157,23 +1436,19 @@ button {
   justify-content: center;
   gap: 12px;
 }
-
 .error-icon {
   color: var(--primary-color);
   margin-bottom: 8px;
 }
-
 .featured-error-container h3 {
   font-size: 20px;
   margin: 0;
   color: white;
 }
-
 .featured-error-container p {
   margin: 0;
   opacity: 0.8;
 }
-
 .retry-button {
   display: flex;
   align-items: center;
@@ -2189,14 +1464,11 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .retry-button:hover {
   background-color: #ff4f6e;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
 }
-
-/* Empty state */
 .featured-empty-container {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
@@ -2204,43 +1476,31 @@ button {
   text-align: center;
   color: var(--text-color);
 }
-
 .featured-empty-container h3 {
   font-size: 20px;
   margin: 0 0 10px 0;
   color: white;
 }
-
 .featured-empty-container p {
   margin: 0;
   opacity: 0.8;
 }
-
-/* Card hover effect */
 .featured-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .featured-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .section-header h1 {
     font-size: 24px;
   }
-
   .featured-error-container,
   .featured-empty-container {
     padding: 24px;
   }
 }
-
-/* Enhanced GameCard Styles */
-
-/* General card styles */
 .betting-container {
   background-color: #282828;
   padding: 15px;
@@ -2254,8 +1514,6 @@ button {
   display: flex;
   flex-direction: column;
 }
-
-/* Back button in betting mode */
 .back-button {
   background-color: rgba(255, 255, 255, 0.1);
   border: none;
@@ -2269,13 +1527,10 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .back-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
   transform: translateX(-2px);
 }
-
-/* Match time in betting mode */
 .betting-match-time {
   position: absolute;
   top: 15px;
@@ -2283,36 +1538,29 @@ button {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.7);
 }
-
-/* Teams section */
 .teams {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin: 20px 0 15px 0;
 }
-
 .team-container {
   display: flex;
   justify-content: center;
   flex: 1;
 }
-
 .team1-container {
   justify-content: flex-start;
 }
-
 .team2-container {
   justify-content: flex-end;
 }
-
 .team-bm {
   display: flex;
   align-items: center;
   flex-direction: row;
   gap: 10px;
 }
-
 .team-logo {
   width: 40px;
   height: 40px;
@@ -2321,7 +1569,6 @@ button {
   background-color: rgba(0, 0, 0, 0.2);
   padding: 2px;
 }
-
 .team-name {
   font-size: 14px;
   font-weight: 500;
@@ -2330,7 +1577,6 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .vs {
   font-size: 16px;
   font-weight: bold;
@@ -2338,32 +1584,25 @@ button {
   width: 40px;
   text-align: center;
 }
-
-/* Tournament info */
 .tournament-icon {
   width: 20px;
   height: 20px;
   object-fit: contain;
   margin-right: 6px;
 }
-
 .tournament-name {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
 }
-
-/* Match odds section */
 .match-odds {
   display: flex;
   justify-content: space-around;
   gap: 16px;
   margin-bottom: 15px;
 }
-
 .betting-odds {
   margin-bottom: 10px;
 }
-
 .odds {
   background-color: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -2379,49 +1618,36 @@ button {
   justify-content: center;
   gap: 5px;
 }
-
 .odds:hover {
   background-color: rgba(0, 0, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.2);
 }
-
 .odds-loading {
   cursor: default;
   opacity: 0.7;
 }
-
 .odds-content {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
 .odds-team {
   font-size: 13px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .odds-value {
   font-size: 16px;
   font-weight: bold;
   color: var(--green-button);
 }
-
-.selected-odds {
-  background-color: rgba(0, 230, 179, 0.1);
-  border-color: rgba(0, 230, 179, 0.3);
-}
-
 .odds input[type="radio"] {
   position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
 }
-
-/* Bet input styles */
 .bet-input-container {
   display: flex;
   justify-content: space-between;
@@ -2429,11 +1655,9 @@ button {
   margin-bottom: 12px;
   gap: 10px;
 }
-
 .stake-container {
   flex: 3;
 }
-
 .stake-input-wrapper {
   position: relative;
   display: flex;
@@ -2443,14 +1667,12 @@ button {
   border-radius: 8px;
   overflow: hidden;
 }
-
 .currency-symbol {
   position: absolute;
   left: 12px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 14px;
 }
-
 .stake-input {
   width: 100%;
   padding: 12px 12px 12px 24px;
@@ -2460,18 +1682,15 @@ button {
   font-size: 16px;
   font-weight: 500;
 }
-
 .currency-label {
   position: absolute;
   right: 12px;
   color: rgba(255, 255, 255, 0.6);
   font-size: 13px;
 }
-
 .bet-button {
   flex: 1;
 }
-
 .place-bet-button {
   width: 100%;
   background-color: var(--green-button);
@@ -2485,25 +1704,20 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .place-bet-button:hover:not(:disabled) {
   background-color: #00ffbf;
   transform: translateY(-2px);
 }
-
 .place-bet-button:disabled {
   background-color: rgba(0, 230, 179, 0.4);
   color: rgba(0, 0, 0, 0.6);
   cursor: not-allowed;
 }
-
 .place-bet-button.loading {
   background-color: #00b38f;
   position: relative;
   color: rgba(255, 255, 255, 0.5);
 }
-
-/* Message styles */
 .message {
   min-height: 40px;
   font-size: 13px;
@@ -2513,39 +1727,16 @@ button {
   display: flex;
   align-items: center;
 }
-
 .message-content {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .message-icon {
   display: flex;
   align-items: center;
   justify-content: center;
 }
-
-.message-info {
-  background-color: rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.message-success {
-  background-color: rgba(0, 230, 179, 0.1);
-  color: var(--green-button);
-}
-
-.message-warning {
-  background-color: rgba(255, 171, 0, 0.1);
-  color: #ffab00;
-}
-
-.message-error {
-  background-color: rgba(255, 51, 88, 0.1);
-  color: var(--primary-color);
-}
-
 .calculating {
   display: flex;
   align-items: center;
@@ -2554,8 +1745,6 @@ button {
   color: rgba(255, 255, 255, 0.7);
   font-style: italic;
 }
-
-/* Success state */
 .bet-success {
   display: flex;
   flex-direction: column;
@@ -2565,18 +1754,15 @@ button {
   padding: 20px 0;
   margin-top: 10px;
 }
-
 .success-icon {
   color: var(--green-button);
   margin-bottom: 12px;
 }
-
 .success-message {
   font-size: 16px;
   font-weight: 500;
   margin-bottom: 16px;
 }
-
 .done-button {
   background-color: var(--green-button);
   color: #111;
@@ -2588,13 +1774,10 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .done-button:hover {
   background-color: #00ffbf;
   transform: translateY(-2px);
 }
-
-/* Password modal styling */
 .modal {
   position: fixed;
   top: 0;
@@ -2611,23 +1794,14 @@ button {
   animation: fadeIn 0.2s ease;
   cursor: pointer;
 }
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
-
 .modal-content h3 {
   color: white;
   font-size: 20px;
   margin: 0 0 20px 0;
   text-align: center;
 }
-
 .password-input {
   width: 100%;
   padding: 14px;
@@ -2639,18 +1813,15 @@ button {
   margin-bottom: 20px;
   transition: all 0.2s ease;
 }
-
 .password-input:focus {
   border-color: rgba(255, 255, 255, 0.3);
   outline: none;
 }
-
 .modal-buttons {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
-
 .modal-buttons button {
   flex: 1;
   padding: 12px;
@@ -2660,61 +1831,49 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .cancel-modal-button {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
 }
-
 .cancel-modal-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-
 .submit-modal-button {
   background-color: var(--green-button);
   color: #111;
   border: none;
   font-weight: 600;
 }
-
 .submit-modal-button:hover:not(:disabled) {
   background-color: #00ffbf;
   transform: translateY(-2px);
 }
-
 .submit-modal-button:disabled {
   background-color: rgba(0, 230, 179, 0.4);
   color: rgba(0, 0, 0, 0.6);
   cursor: not-allowed;
 }
-
-/* Match header styles */
 .match-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
-
 .match-info {
   display: flex;
   align-items: center;
 }
-
 .match-time {
   font-size: 14px;
   color: rgba(255, 255, 255, 0.7);
 }
-
-/* Match body styles */
 .match-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 0;
 }
-
 .team {
   display: flex;
   flex-direction: column;
@@ -2722,60 +1881,34 @@ button {
   text-align: center;
   width: 110px;
 }
-
-/* Card hover effects */
 .featured-card:not(.betting-container):hover,
 .upcoming-card:not(.betting-container):hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
-
-/* Responsive adjustments */
 @media (max-width: 576px) {
   .odds-team {
     font-size: 12px;
   }
-
   .odds-value {
     font-size: 14px;
   }
-
   .team-name {
     font-size: 12px;
     max-width: 90px;
   }
-
   .team-logo {
     width: 32px;
     height: 32px;
   }
-
   .stake-input {
     font-size: 15px;
   }
-
   .place-bet-button {
     font-size: 13px;
     padding: 10px;
   }
 }
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-  cursor: pointer; /* Indicates clickable background */
-}
-
 .modal-content {
   background: rgba(30, 30, 30, 0.95);
   border-radius: 16px;
@@ -2784,25 +1917,22 @@ button {
   padding: 24px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: default; /* Reset cursor for content */
+  cursor: default;
   position: relative;
   z-index: 1001;
 }
-
 .modal-description {
   color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
   margin: 0 0 16px 0;
   text-align: center;
 }
-
 .modal-content h3 {
   color: white;
   font-size: 20px;
   margin: 0 0 12px 0;
   text-align: center;
 }
-
 .password-input {
   width: 100%;
   padding: 14px;
@@ -2815,18 +1945,15 @@ button {
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
-
 .password-input:focus {
   border-color: rgba(255, 255, 255, 0.3);
   outline: none;
 }
-
 .modal-buttons {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
-
 .modal-buttons button {
   flex: 1;
   padding: 12px;
@@ -2836,64 +1963,45 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .cancel-modal-button {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
   border: none;
 }
-
 .cancel-modal-button:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-
 .submit-modal-button {
   background-color: var(--green-button);
   color: #111;
   border: none;
   font-weight: 600;
 }
-
 .submit-modal-button:hover:not(:disabled) {
   background-color: #00ffbf;
   transform: translateY(-2px);
 }
-
 .submit-modal-button:disabled {
   background-color: rgba(0, 230, 179, 0.4);
   color: rgba(0, 0, 0, 0.6);
   cursor: not-allowed;
 }
-
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
-
-/* UpcomingGames styles */
-/* UpcomingGames Styles - Add these to your global CSS or create a new CSS file */
-
 .upcoming-games-section {
   margin-bottom: 40px;
 }
-
 .section-header {
   display: flex;
   align-items: center;
   margin-bottom: 24px;
 }
-
 .section-header h1 {
   color: white;
   font-size: 28px;
   margin: 0;
   flex-grow: 1;
 }
-
 .match-count {
   background-color: rgba(255, 255, 255, 0.1);
   color: var(--text-color);
@@ -2902,8 +2010,6 @@ button {
   border-radius: 50px;
   font-weight: 500;
 }
-
-/* Skeleton loading state */
 .skeleton-card {
   animation: pulse 1.5s infinite ease-in-out;
   min-height: 258px;
@@ -2911,14 +2017,12 @@ button {
   flex-direction: column;
   justify-content: space-between;
 }
-
 .skeleton-header {
   height: 24px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
   margin-bottom: 16px;
 }
-
 .skeleton-body {
   display: flex;
   align-items: center;
@@ -2926,27 +2030,23 @@ button {
   margin-bottom: 16px;
   flex-grow: 1;
 }
-
 .skeleton-team {
   width: 80px;
   height: 80px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
-
 .skeleton-vs {
   width: 30px;
   height: 30px;
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
 }
-
 .skeleton-odds {
   display: flex;
   justify-content: space-between;
   gap: 16px;
 }
-
 .skeleton-odds::before,
 .skeleton-odds::after {
   content: "";
@@ -2955,20 +2055,8 @@ button {
   background-color: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
 }
-
 @keyframes pulse {
-  0% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.6;
-  }
-  100% {
-    opacity: 0.4;
-  }
 }
-
-/* Error state */
 .upcoming-error-container {
   background-color: rgba(255, 51, 88, 0.1);
   border: 1px solid rgba(255, 51, 88, 0.2);
@@ -2982,23 +2070,19 @@ button {
   justify-content: center;
   gap: 12px;
 }
-
 .error-icon {
   color: var(--primary-color);
   margin-bottom: 8px;
 }
-
 .upcoming-error-container h3 {
   font-size: 20px;
   margin: 0;
   color: white;
 }
-
 .upcoming-error-container p {
   margin: 0;
   opacity: 0.8;
 }
-
 .retry-button {
   display: flex;
   align-items: center;
@@ -3014,14 +2098,11 @@ button {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .retry-button:hover {
   background-color: #ff4f6e;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
 }
-
-/* Empty state */
 .upcoming-empty-container {
   background-color: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
@@ -3034,52 +2115,41 @@ button {
   justify-content: center;
   gap: 12px;
 }
-
 .empty-icon {
   color: rgba(255, 255, 255, 0.5);
   margin-bottom: 8px;
 }
-
 .upcoming-empty-container h3 {
   font-size: 20px;
   margin: 0;
   color: white;
 }
-
 .upcoming-empty-container p {
   margin: 0;
   opacity: 0.8;
 }
-
-/* Card hover effect */
 .upcoming-card {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .upcoming-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
-
-/* Responsive adjustments */
 @media (max-width: 768px) {
   .section-header h1 {
     font-size: 24px;
   }
-
   .upcoming-error-container,
   .upcoming-empty-container {
     padding: 24px;
   }
 }
-
 @media (max-width: 480px) {
   .upcoming-grid-container {
     display: grid;
     grid-template-columns: 1fr;
     gap: 16px;
   }
-
   .upcoming-card-4-col {
     grid-column: span 1;
   }

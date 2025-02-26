@@ -231,7 +231,7 @@ const GiftModal = ({ open, setIsOpen }) => {
     setTimeout(() => {
       setIsSubmitting(false);
       setMessage(
-        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
+        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`,
       );
 
       // Reset form after successful submission

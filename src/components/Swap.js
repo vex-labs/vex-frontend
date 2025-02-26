@@ -61,7 +61,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       const poolId = 2197;
 
       const amountInYocto = BigInt(
-        Math.floor(inputAmount * Math.pow(10, swapDirection ? 18 : 6))
+        Math.floor(inputAmount * Math.pow(10, swapDirection ? 18 : 6)),
       ).toString();
 
       const args = {
@@ -134,7 +134,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0"
+      swapDirection ? vexAmount : usdcAmount || "0",
     );
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       alert("Invalid swap amount.");
@@ -142,7 +142,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
+      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6)),
     ).toString();
 
     try {
@@ -169,7 +169,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     const poolId = 2197;
 
     const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0"
+      swapDirection ? vexAmount : usdcAmount || "0",
     );
     console.log("Input Amount for Swap:", tokenAmount);
 
@@ -179,7 +179,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
 
     const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
+      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6)),
     ).toString();
     const minAmountOut = (
       parseFloat(swapDirection ? usdcAmount : vexAmount) * 0.95
@@ -199,7 +199,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
           amount_in: formattedAmount,
           amount_out: "0",
           min_amount_out: BigInt(
-            Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
+            Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18)),
           ).toString(),
         },
       ],
@@ -220,7 +220,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         gas,
         deposit,
         wallet,
-        password
+        password,
       );
       console.log("Swap Successful:", outcome);
       setMessage("Swap Successful!");
@@ -369,10 +369,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         {message
           ? message
           : swapDirection
-          ? Number(tokenBalances.VEX) < Number(vexAmount) &&
-            "Insufficient VEX Balance"
-          : Number(tokenBalances.USDC) < Number(usdcAmount) &&
-            "Insufficient USDC Balance"}
+            ? Number(tokenBalances.VEX) < Number(vexAmount) &&
+              "Insufficient VEX Balance"
+            : Number(tokenBalances.USDC) < Number(usdcAmount) &&
+              "Insufficient USDC Balance"}
       </div>
 
       <button
