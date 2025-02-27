@@ -47,11 +47,11 @@ export class Wallet {
     walletSelector.store.observable
       .pipe(
         map((state) => state.accounts),
-        distinctUntilChanged()
+        distinctUntilChanged(),
       )
       .subscribe((accounts) => {
         const signedAccount = accounts.find(
-          (account) => account.active
+          (account) => account.active,
         )?.accountId;
         accountChangeHook(signedAccount);
       });

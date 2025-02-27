@@ -12,7 +12,7 @@ export async function POST(request) {
     if (!username || !publicKey) {
       return NextResponse.json(
         { message: "Username and public key are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -26,7 +26,7 @@ export async function POST(request) {
       await keyStore.setKey(
         "testnet",
         ACCOUNT_ID,
-        utils.KeyPair.fromString(PRIVATE_KEY)
+        utils.KeyPair.fromString(PRIVATE_KEY),
       );
 
       const connectionConfig = {
@@ -82,7 +82,7 @@ export async function POST(request) {
             accountId: newAccountId,
             dbId: result.insertedId,
           },
-          { status: 201 }
+          { status: 201 },
         );
       } catch (createError) {
         console.error("Account creation error details:", {
@@ -103,7 +103,7 @@ export async function POST(request) {
               errorCause: createError.cause,
             },
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     } catch (error) {
@@ -124,7 +124,7 @@ export async function POST(request) {
             phase: "connection setup",
           },
         },
-        { status: 500 }
+        { status: 500 },
       );
     } finally {
       await client.close();
@@ -133,7 +133,7 @@ export async function POST(request) {
     console.error("Request parsing error:", requestError);
     return NextResponse.json(
       { message: "Invalid request format" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

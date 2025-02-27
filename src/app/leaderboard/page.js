@@ -75,7 +75,7 @@ const LeaderboardPage = () => {
 
   // Filter users based on search term
   const filteredUsers = usersWithRanks.filter((user) =>
-    user.id.toLowerCase().includes(searchTerm.toLowerCase())
+    user.id.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   // Sort users based on current sort configuration
@@ -277,7 +277,7 @@ const LeaderboardPage = () => {
                             displayRank <= 3 ? (
                               <div
                                 className={`trophy ${getTrophyColor(
-                                  displayRank
+                                  displayRank,
                                 )}`}
                               >
                                 {displayRank}

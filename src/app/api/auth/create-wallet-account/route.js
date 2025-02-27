@@ -11,7 +11,7 @@ export async function POST(request) {
     if (!accountId) {
       return NextResponse.json(
         { message: "Account ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -27,7 +27,7 @@ export async function POST(request) {
       if (existingUser) {
         return NextResponse.json(
           { message: "User already exists" },
-          { status: 200 }
+          { status: 200 },
         );
       }
 
@@ -43,7 +43,7 @@ export async function POST(request) {
       // Insert the user into the database
       const result = await collection.insertOne(userDoc);
       console.log(
-        `Wallet user document created with _id: ${result.insertedId}`
+        `Wallet user document created with _id: ${result.insertedId}`,
       );
 
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function POST(request) {
           accountId,
           dbId: result.insertedId,
         },
-        { status: 201 }
+        { status: 201 },
       );
     } catch (error) {
       console.error("Database error:", error);
@@ -60,7 +60,7 @@ export async function POST(request) {
           message: "Error creating wallet user",
           error: error.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     } finally {
       await client.close();
@@ -69,7 +69,7 @@ export async function POST(request) {
     console.error("Request parsing error:", error);
     return NextResponse.json(
       { message: "Invalid request format" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

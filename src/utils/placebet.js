@@ -23,7 +23,7 @@ export async function placeBet(
   tokenContractId,
   wallet,
   web3authAccountId,
-  nearConnection
+  nearConnection,
 ) {
   try {
     // Prepare the message for the bet
@@ -49,12 +49,12 @@ export async function placeBet(
           msg: msg,
         },
         gas,
-        attachedDeposit: deposit
+        attachedDeposit: deposit,
       });
-      
+
       console.log("Bet placed successfully using Web3Auth!", outcome);
       return outcome;
-    } 
+    }
     // If using NEAR Wallet
     else if (wallet) {
       const outcome = await wallet.callMethod({
@@ -72,7 +72,7 @@ export async function placeBet(
       return outcome;
     } else {
       throw new Error(
-        "No valid wallet or Web3Auth account available for placing a bet."
+        "No valid wallet or Web3Auth account available for placing a bet.",
       );
     }
   } catch (error) {

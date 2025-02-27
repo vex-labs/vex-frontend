@@ -80,7 +80,7 @@ const UserBets = ({ userBets }) => {
   // Fetch match results for all finished matches
   const fetchMatchResults = useCallback(async () => {
     const finishedBets = userBets.filter(
-      (bet) => bet.match_state === "Finished" && !bet.pay_state
+      (bet) => bet.match_state === "Finished" && !bet.pay_state,
     );
 
     if (finishedBets.length === 0) return;
@@ -212,18 +212,20 @@ const UserBets = ({ userBets }) => {
         bet.match_state === "Finished" &&
         !bet.pay_state &&
         !claimedBets[bet.betId] &&
-        didBetWin(bet)
+        didBetWin(bet),
     );
 
     // Pending bets are matches that haven't finished yet
     const pendingBets = userBets.filter(
-      (bet) => bet.match_state === "Future" || bet.match_state === "Current"
+      (bet) => bet.match_state === "Future" || bet.match_state === "Current",
     );
 
     // Error bets are eligible for refunds
     const errorBets = userBets.filter(
       (bet) =>
-        bet.match_state === "Error" && !bet.pay_state && !claimedBets[bet.betId]
+        bet.match_state === "Error" &&
+        !bet.pay_state &&
+        !claimedBets[bet.betId],
     );
 
     // History includes:
@@ -240,7 +242,7 @@ const UserBets = ({ userBets }) => {
         // Lost bets (finished, has results, but user didn't win)
         (bet.match_state === "Finished" &&
           matchResults[bet.match_id] &&
-          !didBetWin(bet))
+          !didBetWin(bet)),
     );
 
     return {
@@ -380,7 +382,7 @@ const UserBets = ({ userBets }) => {
             const matchParts = match_id.split("-");
             const formattedMatchId = `${matchParts[0].replace(
               "_",
-              " "
+              " ",
             )} vs ${matchParts[1].replace("_", " ")}`;
 
             // Determine if bet is claimable (only in claimable tab)
@@ -416,19 +418,19 @@ const UserBets = ({ userBets }) => {
                         activeCategory === "claimable"
                           ? "status-won"
                           : activeCategory === "pending"
-                          ? "status-pending"
-                          : activeCategory === "error"
-                          ? "status-error"
-                          : outcomeClass
+                            ? "status-pending"
+                            : activeCategory === "error"
+                              ? "status-error"
+                              : outcomeClass
                       }`}
                     >
                       {activeCategory === "claimable"
                         ? "Ready to Claim"
                         : activeCategory === "pending"
-                        ? match_state
-                        : activeCategory === "error"
-                        ? "Refund Available"
-                        : outcomeText}
+                          ? match_state
+                          : activeCategory === "error"
+                            ? "Refund Available"
+                            : outcomeText}
                     </p>
                   </div>
                   <div>
@@ -484,8 +486,8 @@ const UserBets = ({ userBets }) => {
                       {activeCategory === "claimable"
                         ? "Winnings"
                         : activeCategory === "history" && didBetWin(bet)
-                        ? "Winnings"
-                        : "Potential Winnings"}
+                          ? "Winnings"
+                          : "Potential Winnings"}
                     </p>
                     <p
                       className={`amount-value ${

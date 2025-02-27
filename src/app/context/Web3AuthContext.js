@@ -189,9 +189,8 @@ export function Web3AuthProvider({ children }) {
       setProvider(web3authProvider);
 
       // Get credentials and check for existing account
-      const { keyPair: theKeyPair } = await getNearCredentials(
-        web3authProvider
-      );
+      const { keyPair: theKeyPair } =
+        await getNearCredentials(web3authProvider);
       const publicKey = theKeyPair.getPublicKey().toString();
 
       // Check if account exists

@@ -212,8 +212,8 @@ const UpcomingGames = ({
         {searchTerm
           ? `No upcoming matches available for your search "${searchTerm}"`
           : selectedGame
-          ? `No upcoming matches available for ${selectedGame}`
-          : "No upcoming matches available at this time."}
+            ? `No upcoming matches available for ${selectedGame}`
+            : "No upcoming matches available at this time."}
       </h3>
       <p>
         {searchTerm
