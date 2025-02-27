@@ -94,6 +94,8 @@ input::placeholder {
   margin-left: 20px;
 }
 .nav-link {
+  position: relative;
+  z-index: 50;
   padding: 8px 16px;
   border-radius: 10px;
   color: var(--text-color);
@@ -1244,8 +1246,6 @@ input::placeholder {
   color: white;
 }
 .games-list {
-  max-height: 350px;
-  overflow-y: auto;
   transition: max-height 0.3s ease;
 }
 .app-sidebar.collapsed .games-list {
@@ -1267,15 +1267,7 @@ input::placeholder {
   padding-top: 8px;
 }
 .tooltip {
-  position: absolute;
-  left: 54px;
-  background-color: rgba(30, 30, 30, 0.95);
-  padding: 6px 12px;
-  border-radius: 6px;
-  white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  z-index: 45;
+  display: none;
 }
 @keyframes fadeIn {
 }
@@ -1578,8 +1570,6 @@ input::placeholder {
   width: 64px;
   height: 64px;
   object-fit: contain;
-  border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.25);
   margin-bottom: 16px;
   padding: 8px;
 }
@@ -2303,4 +2293,18 @@ input::placeholder {
 .message-info {
   background-color: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.7);
+}
+
+.show-more-games {
+  width: 100%;
+  text-align: center;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+
+  span {
+    margin-right: 5px;
+  }
 }
