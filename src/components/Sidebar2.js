@@ -32,9 +32,11 @@ const Sidebar2 = () => {
   // Check if sidebar should be collapsed on small screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024 && !isCollapsed) {
+      if (window.innerWidth < 1024) {
         setHideCollapseButton(true);
         setIsCollapsed(true);
+      } else {
+        setHideCollapseButton(false);
       }
     };
 
@@ -43,7 +45,7 @@ const Sidebar2 = () => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isCollapsed]);
+  }, []);
 
   // Main navigation items
   const mainNavItems = [

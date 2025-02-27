@@ -4,6 +4,9 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { Web3AuthProvider } from "@/app/context/Web3AuthContext";
+import { NearProvider } from "./context/NearContext";
+import { GlobalProvider } from "./context/GlobalContext";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -36,6 +39,14 @@ function getQueryClient() {
 export default function Providers({ children }) {
   const queryClient = getQueryClient();
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <Web3AuthProvider>
+      <NearProvider>
+        <GlobalProvider>
+          <QueryClientProvider client={queryClient}>
+            {children}
+          </QueryClientProvider>
+        </GlobalProvider>
+      </NearProvider>
+    </Web3AuthProvider>
   );
 }

@@ -8,8 +8,10 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { providers, utils } from "near-api-js";
+import { providers } from "near-api-js";
 import { NearRpcUrl } from "../config";
+import { useWeb3Auth } from "./Web3AuthContext";
+import { useNear } from "./NearContext";
 
 const GlobalContext = createContext();
 
@@ -32,6 +34,9 @@ export const useGlobalContext = () => useContext(GlobalContext);
  * @returns {JSX.Element} The rendered GlobalProvider component
  */
 export const GlobalProvider = ({ children }) => {
+  const { web3auth, accountId: web3authAccountId } = useWeb3Auth();
+  const { signedAccountId } = useNear();
+  
   const [tokenBalances, setTokenBalances] = useState({ USDC: "0", VEX: "0" });
   const [refreshBalances, setRefreshBalances] = useState(false);
 
@@ -48,28 +53,20 @@ export const GlobalProvider = ({ children }) => {
     setRefreshBalances((prev) => !prev);
   };
 
-  const MyNearWalletAddress = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(
-        localStorage.getItem("near_app_wallet_auth_key") || "{}"
-      ).accountId;
+  // Get the current active account ID - prefer Web3Auth, then fallback to NEAR wallet
+  const accountId = useMemo(() => {
+    // First check if Web3Auth is connected
+    if (web3auth?.connected && web3authAccountId) {
+      return web3authAccountId;
     }
-  }, []);
-
-  const MeteorWalletAddress = useMemo(() => {
-    if (typeof window !== "undefined") {
-      return JSON.parse(
-        localStorage.getItem("near_app_meteor_wallet_auth_key") || "{}"
-      ).accountId;
+    
+    // Then check if NEAR wallet is connected
+    if (signedAccountId) {
+      return signedAccountId;
     }
-  }, []);
-
-  const isVexLogin =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isVexLogin") === "true";
-  const accountId = isVexLogin
-    ? typeof window !== "undefined" && localStorage.getItem("vexAccountId")
-    : MyNearWalletAddress || MeteorWalletAddress || null;
+    
+    return null;
+  }, [web3auth?.connected, web3authAccountId, signedAccountId]);
 
   useEffect(() => {
     if (accountId) {
@@ -109,11 +106,16 @@ export const GlobalProvider = ({ children }) => {
       fetchBalances();
     } else {
       console.log("Account ID not found.");
+      setTokenBalances({ USDC: "0", VEX: "0" });
     }
   }, [accountId, refreshBalances, tokenContracts]); // tokenContracts is stable due to useMemo
 
   return (
-    <GlobalContext.Provider value={{ tokenBalances, toggleRefreshBalances }}>
+    <GlobalContext.Provider value={{ 
+      tokenBalances, 
+      toggleRefreshBalances,
+      accountId
+    }}>
       {children}
     </GlobalContext.Provider>
   );

@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useNear } from "@/app/context/NearContext";
 import Sidebar from "@/components/Sidebar";
 import FeaturedGames from "@/components/FeaturedGames";
 import UpcomingGames from "@/components/UpcomingGames";
-import { FilterX, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import "./search-styles.css";
 import MobileGameSelector from "@/components/MobileGameSelector";
 
@@ -15,32 +14,17 @@ import MobileGameSelector from "@/components/MobileGameSelector";
  * This component serves as the main page for displaying featured and upcoming games.
  * Data fetching is delegated to the FeaturedGames and UpcomingGames components.
  *
- * @param {Object} props - The component props
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
- * @param {Object} props.vexKeyPair - The VEX key pair for the user
- *
  * @returns {JSX.Element} The rendered HomePage component
  */
-export default function HomePage({ isVexLogin, vexKeyPair }) {
-  const nearContext = useNear();
+export default function HomePage() {
   const [selectedGame, setSelectedGame] = useState(null);
-  const [vexAccountId, setVexAccountId] = useState(null);
   const [availableGames, setAvailableGames] = useState([]);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const wallet = isVexLogin ? null : nearContext?.wallet || null;
-  const signedAccountId = isVexLogin
-    ? null
-    : nearContext?.signedAccountId || null;
-
-  // Get vexAccountId from localStorage
+  // Set initial loading to false after a short delay to allow components to render
   useEffect(() => {
-    const storedVexAccountId = localStorage.getItem("vexAccountId");
-    setVexAccountId(storedVexAccountId);
-
-    // Set initial loading to false after a short delay to allow components to render
     const timer = setTimeout(() => {
       setIsInitialLoading(false);
     }, 500);
@@ -190,8 +174,6 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
             <FeaturedGames
               selectedGame={selectedGame}
               searchTerm={searchTerm}
-              wallet={wallet}
-              vexAccountId={vexAccountId}
               onUpdateAvailableGames={updateAvailableGames}
             />
           </section>
@@ -205,8 +187,6 @@ export default function HomePage({ isVexLogin, vexKeyPair }) {
             <UpcomingGames
               selectedGame={selectedGame}
               searchTerm={searchTerm}
-              wallet={wallet}
-              vexAccountId={vexAccountId}
               isLoading={isInitialLoading}
             />
           </section>

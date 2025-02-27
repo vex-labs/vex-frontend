@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Book, FileUp } from "lucide-react";
+import { Menu, X, Book, FileUp, LogIn } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
 import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import "./MobileNavigation.css";
 
 /**
@@ -17,20 +18,10 @@ import "./MobileNavigation.css";
  * @param {boolean} props.isLoggedIn - Indicates if the user is logged in
  * @param {Function} props.onLogin - Function to handle user login
  * @param {Function} props.onLogout - Function to handle user logout
- * @param {Function} props.onVexLogin - Function to handle VEX login
- * @param {Function} props.onVexLogout - Function to handle VEX logout
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
  *
  * @returns {JSX.Element} The MobileNavbar component
  */
-const MobileNavbar = ({
-  isLoggedIn,
-  onLogin,
-  onLogout,
-  onVexLogin,
-  onVexLogout,
-  isVexLogin,
-}) => {
+const MobileNavbar = ({ isLoggedIn, onLogin, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const pathname = usePathname();
@@ -149,30 +140,8 @@ const MobileNavbar = ({
                     onLogin();
                   }}
                 >
-                  <img
-                    src="/icons/NEAR.png"
-                    alt="NEAR"
-                    className="mob-navbar__auth-icon"
-                    style={{
-                      filter: "invert(1)",
-                    }}
-                  />
-                  <span>Connect Wallet</span>
-                </button>
-
-                <button
-                  className="mob-navbar__auth-button mob-navbar__vex-login"
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    // Handle VEX login
-                  }}
-                >
-                  <img
-                    src="/icons/g12.svg"
-                    alt="VEX"
-                    className="mob-navbar__auth-icon"
-                  />
-                  <span>Login with VEX</span>
+                  <LogIn size={18} />
+                  <span>Login</span>
                 </button>
               </div>
             ) : (

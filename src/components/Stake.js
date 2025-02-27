@@ -12,6 +12,8 @@ import {
   CoinsIcon,
 } from "lucide-react";
 import { createPortal } from "react-dom";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useNear } from "@/app/context/NearContext";
 
 /**
  * Enhanced Staking component
@@ -20,23 +22,19 @@ import { createPortal } from "react-dom";
  * It displays the user's balance, staked balance, and total USDC rewards.
  * Users can select between staking and unstaking options, enter an amount, and submit transactions.
  *
- * @param {Object} props - The component props
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.signedAccountId - The signed-in user's account ID
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
- *
  * @returns {JSX.Element} The rendered Staking component
  */
 
-const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
+const Staking = () => {
+  // Get authentication contexts
+  const { web3auth, nearConnection, accountId: web3authAccountId } = useWeb3Auth();
+  const { wallet, signedAccountId } = useNear();
+  const { accountId } = useGlobalContext();
   const [selectedOption, setSelectedOption] = useState("stake");
   const [amount, setAmount] = useState("");
   const [balance, setBalance] = useState(0);
   const [stakedBalance, setStakedBalance] = useState(0);
   const [totalUSDCRewards, setTotalUSDCRewards] = useState(null);
-  const [vexAccountId, setVexAccountId] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "info" });
   const [refreshBalances, setRefreshBalances] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,34 +51,14 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
   }, [tokenBalances]);
 
-  // Load saved password from local storage
-  useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) {
-      setPassword(savedPassword);
-    }
-  }, []);
-
-  // Load saved VEX account ID from local storage
-  useEffect(() => {
-    if (isVexLogin) {
-      const storedVexAccountId = localStorage.getItem("vexAccountId");
-      if (storedVexAccountId) {
-        setVexAccountId(storedVexAccountId);
-      }
-    }
-  }, [isVexLogin]);
-
   // Fetch staked balance and rewards on component mount or as needed
   useEffect(() => {
-    const accountId = signedAccountId || vexAccountId;
-
     console.log("fetching staked balance");
     if (accountId) {
       fetchStakedBalance(accountId);
       rewards_ready_to_swap(stakingContractId);
     }
-  }, [signedAccountId, vexAccountId, refreshBalances]);
+  }, [accountId, refreshBalances]);
 
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
@@ -143,23 +121,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     rewards_ready_to_swap();
   }, []);
 
-  const handlePasswordSubmit = () => {
-    if (!password) {
-      return;
-    }
-
-    localStorage.setItem("vexPassword", password);
-    setShowPasswordModal(false);
-
-    // Trigger function based on selected option
-    if (selectedOption === "stake") {
-      handleStake();
-    } else if (selectedOption === "unstake") {
-      handleUnstake();
-    } else if (selectedOption === "stakeSwap") {
-      handleStakeSwap();
-    }
-  };
+  // Password handling removed as it's no longer needed with Web3Auth
 
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
@@ -168,8 +130,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       return;
     }
 
-    if (isVexLogin && !password) {
-      setShowPasswordModal(true);
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      setMessage({ text: "Please connect your wallet first", type: "error" });
       return;
     }
 
@@ -192,52 +155,45 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         return;
       }
 
-      if (isVexLogin) {
-        const depositResult = await handleTransaction(
-          tokenContractId,
-          "ft_transfer_call",
-          { receiver_id: stakingContractId, amount: formattedAmount, msg },
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+        
+        // First transfer the tokens to the staking contract
+        await account.functionCall({
+          contractId: tokenContractId,
+          methodName: "ft_transfer_call",
+          args: {
+            receiver_id: stakingContractId,
+            amount: formattedAmount,
+            msg: msg
+          },
           gas,
-          deposit1,
-          null,
-          password
-        );
-
-        if (depositResult && !depositResult.error) {
-          setMessage({
-            text: "Deposit successful. Proceeding to stake...",
-            type: "info",
-          });
-
-          const stakeResult = await handleTransaction(
-            stakingContractId,
-            "stake",
-            { amount: formattedAmount },
-            gas,
-            deposit,
-            null,
-            password
-          );
-
-          if (stakeResult && !stakeResult.error) {
-            setMessage({
-              text: "Stake transaction successful",
-              type: "success",
-            });
-            setActionSuccess(true);
-          } else {
-            setMessage({
-              text: "Failed to stake. Please try again",
-              type: "error",
-            });
-          }
-        } else {
-          setMessage({
-            text: "Failed to deposit. Please try again",
-            type: "error",
-          });
-        }
-      } else {
+          attachedDeposit: deposit1
+        });
+        
+        setMessage({
+          text: "Deposit successful. Proceeding to stake...",
+          type: "info",
+        });
+        
+        // Then stake the tokens
+        await account.functionCall({
+          contractId: stakingContractId,
+          methodName: "stake",
+          args: { amount: formattedAmount },
+          gas,
+          attachedDeposit: deposit
+        });
+        
+        setMessage({
+          text: "Stake transaction successful",
+          type: "success",
+        });
+        setActionSuccess(true);
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
         const stakeResult = await wallet.callMethod({
           contractId: tokenContractId,
           method: "ft_transfer_call",
@@ -289,8 +245,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       return;
     }
 
-    if (isVexLogin && !password) {
-      setShowPasswordModal(true);
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      setMessage({ text: "Please connect your wallet first", type: "error" });
       return;
     }
 
@@ -302,61 +259,41 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     const deposit = "0";
 
     try {
-      if (isVexLogin) {
-        const unstakeResult = await handleTransaction(
-          stakingContractId,
-          "unstake",
-          { amount: formattedAmount },
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+        
+        // First unstake tokens
+        await account.functionCall({
+          contractId: stakingContractId,
+          methodName: "unstake",
+          args: { amount: formattedAmount },
           gas,
-          deposit,
-          null,
-          password
-        );
-
-        if (unstakeResult && !unstakeResult.error) {
-          setMessage({
-            text: "Unstake successful. Proceeding to withdraw...",
-            type: "info",
-          });
-
-          const withdrawResult = await handleTransaction(
-            stakingContractId,
-            "withdraw_all",
-            {},
-            gas,
-            deposit,
-            null,
-            password
-          );
-
-          if (withdrawResult && !withdrawResult.error) {
-            setMessage({
-              text: "Withdraw transaction successful",
-              type: "success",
-            });
-            setActionSuccess(true);
-            setRefreshBalances((prev) => !prev);
-            toggleRefreshBalances();
-
-            // Reset form after successful transaction
-            setTimeout(() => {
-              setAmount("");
-              setActionSuccess(false);
-            }, 3000);
-          } else {
-            setMessage({
-              text: "Withdraw transaction failed. Please try again",
-              type: "error",
-            });
-          }
-        } else {
-          setMessage({
-            text: "Failed to unstake. Please try again",
-            type: "error",
-          });
-        }
-      } else {
-        console.log("unstaking with wallet");
+          attachedDeposit: deposit
+        });
+        
+        setMessage({
+          text: "Unstake successful. Proceeding to withdraw...",
+          type: "info",
+        });
+        
+        // Then withdraw tokens
+        await account.functionCall({
+          contractId: stakingContractId,
+          methodName: "withdraw_all",
+          args: {},
+          gas,
+          attachedDeposit: deposit
+        });
+        
+        setMessage({
+          text: "Withdraw transaction successful",
+          type: "success",
+        });
+        setActionSuccess(true);
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
         const unstakeResult = await wallet.callMethod({
           contractId: stakingContractId,
           method: "unstake",
@@ -377,15 +314,18 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           text: "Unstake successful.",
           type: "info",
         });
-        // Reset form after successful unstake
-        setTimeout(() => {
-          setAmount("");
-          setActionSuccess(false);
-          setActionSuccess(true);
-          setRefreshBalances((prev) => !prev);
-          toggleRefreshBalances();
-        }, 3000);
+        setActionSuccess(true);
       }
+      
+      // Refresh balances and reset form
+      setRefreshBalances((prev) => !prev);
+      toggleRefreshBalances();
+      
+      // Reset form after successful transaction
+      setTimeout(() => {
+        setAmount("");
+        setActionSuccess(false);
+      }, 3000);
     } catch (error) {
       setMessage({
         text: `An error occurred: ${error.message || "Please try again"}`,
@@ -399,9 +339,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
 
   // This functions swaps the rewards from the staking contract to USDC and distributes them to the users
   const handleStakeSwap = async () => {
-    if (isVexLogin && !password) {
-      setSelectedOption("stakeSwap");
-      setShowPasswordModal(true);
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      setMessage({ text: "Please connect your wallet first", type: "error" });
       return;
     }
 
@@ -412,30 +352,27 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     const gas = "300000000000000"; // 300 TGas
 
     try {
-      if (isVexLogin) {
-        const outcome = await handleTransaction(
-          contractId,
-          "perform_stake_swap",
-          {}, // No arguments required
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+        
+        await account.functionCall({
+          contractId: contractId,
+          methodName: "perform_stake_swap",
+          args: {}, // No arguments required
           gas,
-          "0", // Minimal deposit in yoctoNEAR
-          null,
-          password
-        );
-
-        console.log("Stake swap successful!", outcome);
+          attachedDeposit: "0" // Minimal deposit in yoctoNEAR
+        });
+        
+        console.log("Stake swap successful!");
         setMessage({
           text: "Rewards distributed successfully",
           type: "success",
         });
         setActionSuccess(true);
-
-        // Refresh rewards data
-        setTimeout(() => {
-          rewards_ready_to_swap();
-          setActionSuccess(false);
-        }, 3000);
-      } else if (wallet && wallet.selector) {
+      } 
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
         const outcome = await wallet.callMethod({
           contractId: contractId,
           method: "perform_stake_swap",
@@ -450,18 +387,18 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           type: "success",
         });
         setActionSuccess(true);
-
-        // Refresh rewards data
-        setTimeout(() => {
-          rewards_ready_to_swap();
-          setActionSuccess(false);
-        }, 3000);
       } else {
         setMessage({
           text: "Failed to distribute rewards. Please try again.",
           type: "error",
         });
       }
+      
+      // Refresh rewards data
+      setTimeout(() => {
+        rewards_ready_to_swap();
+        setActionSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error("Failed to perform stake swap:", error.message || error);
       setMessage({ text: "Failed to distribute rewards", type: "error" });
@@ -658,41 +595,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         )}
       </button>
 
-      {/* Password Modal */}
-      {showPasswordModal &&
-        createPortal(
-          <div className="modal">
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>Enter Password</h3>
-              <p className="modal-description">
-                Please enter your wallet password to complete this transaction
-              </p>
-              <input
-                type="password"
-                value={password || ""}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your wallet password"
-                className="password-input"
-              />
-              <div className="modal-buttons">
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="cancel-modal-button"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handlePasswordSubmit}
-                  className="submit-modal-button"
-                  disabled={!password}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+      {/* Password Modal removed */}
     </div>
   );
 };

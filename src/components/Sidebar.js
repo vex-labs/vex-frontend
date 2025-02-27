@@ -30,7 +30,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isGamesExpanded, setIsGamesExpanded] = useState(true);
   const [hideGames, setHideGames] = useState(true);
-  const [isSocialsExpanded, setIsSocialsExpanded] = useState(false);
+  const [isSocialsExpanded, setIsSocialsExpanded] = useState(true);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hideCollapseButton, setHideCollapseButton] = useState(false);
 
@@ -39,9 +39,11 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   // Check if sidebar should be collapsed on small screens
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1024 && !isCollapsed) {
+      if (window.innerWidth < 1024) {
         setHideCollapseButton(true);
         setIsCollapsed(true);
+      } else {
+        setHideCollapseButton(false);
       }
     };
 
@@ -50,7 +52,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [isCollapsed]);
+  }, []);
 
   // Main navigation items
   const mainNavItems = [

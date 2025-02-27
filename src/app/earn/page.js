@@ -4,6 +4,7 @@ import Staking from "@/components/Stake";
 import Swap from "@/components/Swap";
 import Sidebar2 from "@/components/Sidebar2";
 import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { Wallet, Coins, ArrowUpDown } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
@@ -11,31 +12,10 @@ import { providers } from "near-api-js";
 import { VexContract, NearRpcUrl } from "@/app/config";
 
 const EarnPage = () => {
-  const nearContext = useNear();
+  const { accountId } = useGlobalContext();
   const { tokenBalances } = useGlobalContext();
-
-  const isVexLogin =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isVexLogin") === "true";
-
-  const wallet = isVexLogin ? null : nearContext?.wallet || null;
-  const signedAccountId = isVexLogin
-    ? null
-    : nearContext?.signedAccountId || null;
-
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
-
   const [stakedBalance, setStakedBalance] = useState(0);
-  const [vexAccountId, setVexAccountId] = useState();
-
-  useEffect(() => {
-    if (isVexLogin) {
-      const storedVexAccountId = localStorage.getItem("vexAccountId");
-      if (storedVexAccountId) {
-        setVexAccountId(storedVexAccountId);
-      }
-    }
-  }, [isVexLogin]);
 
   const fetchStakedBalance = async (accountId) => {
     try {
@@ -61,12 +41,10 @@ const EarnPage = () => {
   };
 
   useEffect(() => {
-    const accountId = signedAccountId || vexAccountId;
-
     if (accountId) {
       fetchStakedBalance(accountId);
     }
-  }, [signedAccountId, vexAccountId, tokenBalances]);
+  }, [accountId, tokenBalances]);
 
   return (
     <div className={`earn-page`}>
@@ -134,11 +112,7 @@ const EarnPage = () => {
                 </div>
               </div>
 
-              <Swap
-                wallet={wallet}
-                signedAccountId={signedAccountId}
-                isVexLogin={isVexLogin}
-              />
+              <Swap />
             </div>
 
             <div className="earn-card stake-section">
@@ -152,11 +126,7 @@ const EarnPage = () => {
                 </div>
               </div>
 
-              <Staking
-                wallet={wallet}
-                signedAccountId={signedAccountId}
-                isVexLogin={isVexLogin}
-              />
+              <Staking />
             </div>
           </div>
         </div>

@@ -2,39 +2,25 @@
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import "./user.css";
-import { handleTransaction } from "@/utils/accountHandler";
 import Sidebar2 from "@/components/Sidebar2";
 import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 import { NearRpcUrl, VexContract } from "../config";
 import UserBets from "@/components/Userbets";
 
 const UserPage = () => {
-  const nearContext = useNear();
-  const isVexLogin =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isVexLogin") === "true";
-  const accountId = isVexLogin
-    ? localStorage.getItem("vexAccountId")
-    : nearContext?.signedAccountId || null;
-  const wallet = isVexLogin ? null : nearContext?.wallet || null;
+  const { accountId } = useGlobalContext();
+  const { wallet } = useNear();
+  const { web3auth, nearConnection } = useWeb3Auth();
 
   const [userBets, setUserBets] = useState([]);
-  const [matchDetails, setMatchDetails] = useState({});
   const [matchStates, setMatchStates] = useState({});
-
-  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
   const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
-  const [password, setPassword] = useState(null);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
-  useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) {
-      setPassword(savedPassword);
-    }
-  }, []);
+  // No longer needed with Web3Auth
 
   useEffect(() => {
     const fetchUserBets = async () => {
@@ -107,21 +93,7 @@ const UserPage = () => {
     fetchMatches();
   }, []);
 
-  const handlePasswordSubmit = (enteredPassword) => {
-    setPassword(enteredPassword);
-    localStorage.setItem("vexPassword", enteredPassword);
-    setShowPasswordModal(false);
-    handleWithdrawFunds();
-    localStorage.removeItem("vexPassword");
-    setPassword(null);
-  };
-
   const handleWithdrawFunds = async () => {
-    if (!password) {
-      setShowPasswordModal(true);
-      return;
-    }
-
     const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
     const formattedAmount = BigInt(
       parseFloat(withdrawAmount) * Math.pow(10, decimals)
@@ -130,18 +102,43 @@ const UserPage = () => {
     const deposit = "1"; // 1 yoctoNEAR
 
     try {
-      const result = await handleTransaction(
-        withdrawToken,
-        "ft_transfer",
-        { receiver_id: recipientAddress, amount: formattedAmount },
-        gas,
-        deposit,
-        null,
-        password
-      );
-      console.log("Withdrawal successful:", result);
-      alert("Withdrawal Successful!");
-      setShowWithdrawModal(false);
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(accountId);
+        await account.functionCall({
+          contractId: withdrawToken,
+          methodName: "ft_transfer",
+          args: {
+            receiver_id: recipientAddress,
+            amount: formattedAmount,
+          },
+          gas,
+          attachedDeposit: deposit,
+        });
+
+        console.log("Withdrawal successful!");
+        alert("Withdrawal Successful!");
+      }
+      // If using NEAR Wallet
+      else {
+        if (wallet) {
+          const result = await wallet.callMethod({
+            contractId: withdrawToken,
+            method: "ft_transfer",
+            args: {
+              receiver_id: recipientAddress,
+              amount: formattedAmount,
+            },
+            gas,
+            deposit,
+          });
+
+          console.log("Withdrawal successful:", result);
+          alert("Withdrawal Successful!");
+        } else {
+          throw new Error("Wallet not initialized");
+        }
+      }
     } catch (error) {
       console.error("Withdrawal failed:", error);
       alert("Withdrawal Failed.");
@@ -171,84 +168,8 @@ const UserPage = () => {
     <div className="user-page">
       <Sidebar2 />
       <div className="user-content">
-        <UserBets
-          userBets={userBets}
-          wallet={wallet}
-          signedAccountId={accountId}
-        />
-
-        {showWithdrawModal && (
-          <div className="withdraw-modal">
-            <div className="withdraw-modal-content">
-              <h3>Withdraw Funds</h3>
-              <label className="withdraw-label">
-                Token:
-                <select
-                  value={withdrawToken}
-                  onChange={(e) => setWithdrawToken(e.target.value)}
-                  className="withdraw-select"
-                >
-                  <option value="usdc.betvex.testnet">USDC</option>
-                  <option value="token.betvex.testnet">VEX</option>
-                </select>
-              </label>
-              <label className="withdraw-label">
-                Amount:
-                <input
-                  type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  placeholder="Enter amount"
-                  className="withdraw-input"
-                />
-              </label>
-              <label className="withdraw-label">
-                Recipient Address:
-                <input
-                  type="text"
-                  value={recipientAddress}
-                  onChange={(e) => setRecipientAddress(e.target.value)}
-                  placeholder="Enter recipient address"
-                  className="withdraw-input"
-                />
-              </label>
-              <div className="withdraw-modal-buttons">
-                <button
-                  onClick={() => setShowWithdrawModal(false)}
-                  className="withdraw-button cancel-button"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleWithdrawFunds}
-                  className="withdraw-button confirm-button"
-                >
-                  {" "}
-                  Withdraw
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <UserBets userBets={userBets} />
       </div>
-      {showPasswordModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Enter Password</h3>
-            <input
-              type="password"
-              value={password || ""}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div className="modal-buttons">
-              <button onClick={() => setShowPasswordModal(false)}>
-                Cancel
-              </button>
-              <button onClick={handlePasswordSubmit}>Submit</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

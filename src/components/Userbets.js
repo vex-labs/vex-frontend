@@ -13,6 +13,8 @@ import {
   HistoryIcon,
 } from "lucide-react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useNear } from "@/app/context/NearContext";
 
 /**
  * Enhanced UserBets component
@@ -24,13 +26,19 @@ import { useGlobalContext } from "@/app/context/GlobalContext";
  *
  * @param {Object} props - The component props
  * @param {Array} props.userBets - Array of user's bet objects
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.signedAccountId - The signed-in user's account ID
  *
  * @returns {JSX.Element} The rendered UserBets component
  */
 
-const UserBets = ({ userBets, wallet, signedAccountId }) => {
+const UserBets = ({ userBets }) => {
+  // Get authentication contexts
+  const {
+    web3auth,
+    nearConnection,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
+  const { wallet, signedAccountId } = useNear();
+  const { accountId } = useGlobalContext();
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [password, setPassword] = useState(null);
   const [betToClaim, setBetToClaim] = useState(null);
@@ -99,8 +107,6 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
     }
   }, [userBets]);
 
-  console.log(userBets);
-
   // Fetch match results when user bets change
   useEffect(() => {
     fetchMatchResults();
@@ -119,14 +125,12 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
     setCurrentClaimingBet(betId);
 
     try {
-      const isVexLogin =
-        typeof window !== "undefined" &&
-        localStorage.getItem("isVexLogin") === "true";
       const contractId = VexContract;
       const gas = "300000000000000";
       const args = { bet_id: betId };
 
-      if (isVexLogin) {
+      // If using Web3Auth
+      if (web3auth?.connected) {
         const passwordToUse = enteredPassword || password;
         if (!passwordToUse) {
           setBetToClaim(betId);
@@ -135,20 +139,20 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
           return;
         }
 
-        const outcome = await handleTransaction(
-          contractId,
-          "claim",
-          args,
+        const account = await nearConnection.account(web3authAccountId);
+        await account.functionCall({
+          contractId: contractId,
+          methodName: "claim",
+          args: args,
           gas,
-          "0",
-          null,
-          passwordToUse
-        );
+          attachedDeposit: "0",
+        });
 
-        console.log("Claim successful!", outcome);
+        console.log("Claim successful!");
         setClaimedBets((prev) => ({ ...prev, [betId]: true }));
-        return outcome;
-      } else if (wallet && wallet.selector) {
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
         const outcome = await wallet.callMethod({
           contractId: contractId,
           method: "claim",
@@ -159,7 +163,6 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
 
         console.log("Claim successful!", outcome);
         setClaimedBets((prev) => ({ ...prev, [betId]: true }));
-        return outcome;
       } else {
         throw new Error("Wallet is not initialized");
       }
@@ -182,7 +185,6 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
     } finally {
       setIsClaiming(false);
       setCurrentClaimingBet(null);
-      localStorage.removeItem("vexPassword");
       setPassword(null);
       setTimeout(() => {
         toggleRefreshBalances();
@@ -461,7 +463,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
                 </div>
                 <div className="bet-details">
                   <p className="match-name">{formattedMatchId}</p>
-                  <p className="team-name">
+                  <p className="team-name-bets">
                     <span className="bet-on-label">Bet on:</span>{" "}
                     {team === "Team1"
                       ? matchParts[0].replace("_", " ")
