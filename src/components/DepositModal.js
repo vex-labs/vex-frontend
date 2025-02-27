@@ -4,15 +4,10 @@ import "./DepositModal.css";
 import { useNear } from "@/app/context/NearContext";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 
 const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
-  const nearContext = useNear();
-  const isVexLogin =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isVexLogin") === "true";
-  const accountId = isVexLogin
-    ? localStorage.getItem("vexAccountId")
-    : nearContext?.signedAccountId || null;
+  const { accountId } = useGlobalContext();
   const { toggleRefreshBalances } = useGlobalContext();
 
   const [amount, setAmount] = useState(1.0);
@@ -73,13 +68,18 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error calling NEAR function");
+        const errorMessage = data.error || data.message || "Error calling NEAR function";
+        throw new Error(errorMessage);
       }
+      
+      return data;
     } catch (err) {
       console.error("Error:", err);
-      setMessage("Error calling NEAR function");
+      const errorMessage = err.message || "Error calling NEAR function";
+      setMessage(errorMessage);
+      throw err;
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -87,6 +87,15 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
     try {
       setIsLoading(true);
       setMessage("");
+      
+      if (!accountId) {
+        throw new Error("Account ID is missing. Please reconnect your wallet.");
+      }
+      
+      if (isNaN(parseFloat(inputAmount)) || parseFloat(inputAmount) <= 0) {
+        throw new Error("Please enter a valid deposit amount.");
+      }
+      
       const amountInSmallestUnit = Math.round(
         parseFloat(inputAmount) * 1000000
       ).toString();
@@ -97,18 +106,18 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
         ft_contract_id: "usdc.betvex.testnet",
       };
 
-      await callNearFunction(accountId, args);
-
+      const result = await callNearFunction(accountId, args);
+      
       setIsSuccess(true);
-      setIsLoading(false);
     } catch (error) {
       console.error("Failed to deposit funds:", error);
-      setMessage("Transaction failed. Please try again.");
-      setIsLoading(false);
+      const errorMessage = error.message || "Transaction failed. Please try again.";
+      setMessage(errorMessage);
     } finally {
-      await setTimeout(() => {
+      setIsLoading(false);
+      setTimeout(() => {
         toggleRefreshBalances();
-      }, []);
+      }, 1000);
     }
   };
 
@@ -183,7 +192,11 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                 </div>
               </div>
 
-              {message && <p className="message error-message">{message}</p>}
+              {message && (
+                <div className="message-container">
+                  <p className="message error-message">{message}</p>
+                </div>
+              )}
 
               <div className="deposit-info">
                 <div className="info-item">
@@ -206,12 +219,12 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                   className={`Button confirm-button ${
                     isLoading ? "loading" : ""
                   }`}
-                  disabled={amount > 100 || amount < 1 || isLoading}
+                  disabled={!accountId || amount > 100 || amount < 1 || isLoading || isNaN(parseFloat(amount))}
                   onClick={() => depositFunds(amount)}
                 >
                   {isLoading ? (
                     <>
-                      <span className="spinner"></span>
+                      <span className="deposit-modal-spinner"></span>
                       <span>Processing...</span>
                     </>
                   ) : (
