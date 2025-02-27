@@ -19,4 +19,9 @@ export const socials = [
     icon: "/icons/socials/instagram.png",
     link: "https://www.instagram.com/getvexy",
   },
+  {
+    name: "Mail",
+    icon: "/icons/socials/mail.png",
+    link: "mailto:support@betvex.io",
+  },
 ];
