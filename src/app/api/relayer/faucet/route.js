@@ -21,7 +21,7 @@ export async function POST(req) {
     if (!accountId || !args) {
       return NextResponse.json(
         { error: "Missing required parameters: accountId and args" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -30,7 +30,7 @@ export async function POST(req) {
       console.error("Missing RELAYER_PRIVATE_KEY environment variable");
       return NextResponse.json(
         { error: "Server configuration error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -53,7 +53,7 @@ export async function POST(req) {
       console.error("Missing RELAYER_ACCOUNT_ID environment variable");
       return NextResponse.json(
         { error: "Server configuration error" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -77,7 +77,7 @@ export async function POST(req) {
     console.error("Error calling NEAR function:", error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Unknown error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

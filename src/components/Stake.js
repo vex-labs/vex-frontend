@@ -27,7 +27,11 @@ import { useNear } from "@/app/context/NearContext";
 
 const Staking = () => {
   // Get authentication contexts
-  const { web3auth, nearConnection, accountId: web3authAccountId } = useWeb3Auth();
+  const {
+    web3auth,
+    nearConnection,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
   const { wallet, signedAccountId } = useNear();
   const { accountId } = useGlobalContext();
   const [selectedOption, setSelectedOption] = useState("stake");
@@ -158,7 +162,7 @@ const Staking = () => {
       // If using Web3Auth
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
-        
+
         // First transfer the tokens to the staking contract
         await account.functionCall({
           contractId: tokenContractId,
@@ -166,26 +170,26 @@ const Staking = () => {
           args: {
             receiver_id: stakingContractId,
             amount: formattedAmount,
-            msg: msg
+            msg: msg,
           },
           gas,
-          attachedDeposit: deposit1
+          attachedDeposit: deposit1,
         });
-        
+
         setMessage({
           text: "Deposit successful. Proceeding to stake...",
           type: "info",
         });
-        
+
         // Then stake the tokens
         await account.functionCall({
           contractId: stakingContractId,
           methodName: "stake",
           args: { amount: formattedAmount },
           gas,
-          attachedDeposit: deposit
+          attachedDeposit: deposit,
         });
-        
+
         setMessage({
           text: "Stake transaction successful",
           type: "success",
@@ -262,30 +266,30 @@ const Staking = () => {
       // If using Web3Auth
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
-        
+
         // First unstake tokens
         await account.functionCall({
           contractId: stakingContractId,
           methodName: "unstake",
           args: { amount: formattedAmount },
           gas,
-          attachedDeposit: deposit
+          attachedDeposit: deposit,
         });
-        
+
         setMessage({
           text: "Unstake successful. Proceeding to withdraw...",
           type: "info",
         });
-        
+
         // Then withdraw tokens
         await account.functionCall({
           contractId: stakingContractId,
           methodName: "withdraw_all",
           args: {},
           gas,
-          attachedDeposit: deposit
+          attachedDeposit: deposit,
         });
-        
+
         setMessage({
           text: "Withdraw transaction successful",
           type: "success",
@@ -316,11 +320,11 @@ const Staking = () => {
         });
         setActionSuccess(true);
       }
-      
+
       // Refresh balances and reset form
       setRefreshBalances((prev) => !prev);
       toggleRefreshBalances();
-      
+
       // Reset form after successful transaction
       setTimeout(() => {
         setAmount("");
@@ -355,22 +359,22 @@ const Staking = () => {
       // If using Web3Auth
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
-        
+
         await account.functionCall({
           contractId: contractId,
           methodName: "perform_stake_swap",
           args: {}, // No arguments required
           gas,
-          attachedDeposit: "0" // Minimal deposit in yoctoNEAR
+          attachedDeposit: "0", // Minimal deposit in yoctoNEAR
         });
-        
+
         console.log("Stake swap successful!");
         setMessage({
           text: "Rewards distributed successfully",
           type: "success",
         });
         setActionSuccess(true);
-      } 
+      }
       // If using NEAR Wallet
       else if (signedAccountId && wallet) {
         const outcome = await wallet.callMethod({
@@ -393,7 +397,7 @@ const Staking = () => {
           type: "error",
         });
       }
-      
+
       // Refresh rewards data
       setTimeout(() => {
         rewards_ready_to_swap();

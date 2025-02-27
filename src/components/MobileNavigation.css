@@ -82,7 +82,10 @@
   transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
-  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    visibility 0s linear 0.3s;
   overflow-y: auto;
 }
 
@@ -90,7 +93,10 @@
   transform: translateY(0);
   opacity: 1;
   visibility: visible;
-  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0s;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    visibility 0s linear 0s;
 }
 
 .mob-navbar__menu-content {

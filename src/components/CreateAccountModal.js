@@ -55,7 +55,7 @@ export const CreateAccountModal = ({ isOpen, onClose, onAccountCreated }) => {
         throw new Error(
           `Failed to create account: ${data.error}${
             data.details ? ` (${JSON.stringify(data.details)})` : ""
-          }`
+          }`,
         );
       }
 

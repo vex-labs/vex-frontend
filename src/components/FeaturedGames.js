@@ -205,8 +205,8 @@ const FeaturedGames = ({
         {searchTerm
           ? `No matches match your search "${searchTerm}"`
           : selectedGame
-          ? `No featured matches available for ${selectedGame}`
-          : "No featured matches available at this time."}
+            ? `No featured matches available for ${selectedGame}`
+            : "No featured matches available at this time."}
       </h3>
       <p>
         {searchTerm

@@ -11,7 +11,7 @@ export async function POST(request) {
     if (!publicKey) {
       return NextResponse.json(
         { message: "Public key is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -42,7 +42,7 @@ export async function POST(request) {
           message: "Error checking account",
           error: error.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     } finally {
       await client.close();
@@ -51,7 +51,7 @@ export async function POST(request) {
     console.error("Request parsing error:", requestError);
     return NextResponse.json(
       { message: "Invalid request format" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

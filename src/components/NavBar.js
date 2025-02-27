@@ -220,7 +220,7 @@ const NavBar = () => {
                                 {formatBalance(balance)}
                               </span>
                             </div>
-                          )
+                          ),
                         )}
                       </div>
                     ) : (

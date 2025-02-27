@@ -361,7 +361,9 @@ input::placeholder {
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   animation-duration: 200ms;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
   will-change: transform, opacity;
@@ -1506,7 +1508,9 @@ input::placeholder {
   opacity: 0.8;
 }
 .featured-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 .featured-card:hover {
   transform: translateY(-5px);
@@ -2119,7 +2123,9 @@ input::placeholder {
   opacity: 0.8;
 }
 .upcoming-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 }
 .upcoming-card:hover {
   transform: translateY(-5px);

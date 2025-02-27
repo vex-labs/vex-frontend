@@ -40,7 +40,7 @@ const UserPage = () => {
           finality: "final",
         });
         const decodedResult = JSON.parse(
-          Buffer.from(userBets.result).toString()
+          Buffer.from(userBets.result).toString(),
         );
         const userBetsWithState = decodedResult.map(([betId, bet]) => {
           const matchState = matchStates[bet.match_id]?.match_state || null; // Add match state if available
@@ -75,7 +75,7 @@ const UserPage = () => {
           finality: "final",
         });
         const decodedResult = JSON.parse(
-          Buffer.from(matches.result).toString()
+          Buffer.from(matches.result).toString(),
         );
 
         const states = {};
@@ -96,7 +96,7 @@ const UserPage = () => {
   const handleWithdrawFunds = async () => {
     const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
     const formattedAmount = BigInt(
-      parseFloat(withdrawAmount) * Math.pow(10, decimals)
+      parseFloat(withdrawAmount) * Math.pow(10, decimals),
     ).toString();
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR

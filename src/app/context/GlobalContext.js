@@ -36,7 +36,7 @@ export const useGlobalContext = () => useContext(GlobalContext);
 export const GlobalProvider = ({ children }) => {
   const { web3auth, accountId: web3authAccountId } = useWeb3Auth();
   const { signedAccountId } = useNear();
-  
+
   const [tokenBalances, setTokenBalances] = useState({ USDC: "0", VEX: "0" });
   const [refreshBalances, setRefreshBalances] = useState(false);
 
@@ -46,7 +46,7 @@ export const GlobalProvider = ({ children }) => {
       { name: "USDC", address: "usdc.betvex.testnet" },
       { name: "VEX", address: "token.betvex.testnet" },
     ],
-    []
+    [],
   );
 
   const toggleRefreshBalances = () => {
@@ -59,12 +59,12 @@ export const GlobalProvider = ({ children }) => {
     if (web3auth?.connected && web3authAccountId) {
       return web3authAccountId;
     }
-    
+
     // Then check if NEAR wallet is connected
     if (signedAccountId) {
       return signedAccountId;
     }
-    
+
     return null;
   }, [web3auth?.connected, web3authAccountId, signedAccountId]);
 
@@ -90,7 +90,7 @@ export const GlobalProvider = ({ children }) => {
             const balance = JSON.parse(Buffer.from(result.result).toString());
             const decimals = token.name === "USDC" ? 6 : 18;
             const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(
-              2
+              2,
             );
             balances[token.name] = formattedBalance;
             console.log(`Balance for ${token.name}: ${formattedBalance}`);
@@ -111,11 +111,13 @@ export const GlobalProvider = ({ children }) => {
   }, [accountId, refreshBalances, tokenContracts]); // tokenContracts is stable due to useMemo
 
   return (
-    <GlobalContext.Provider value={{ 
-      tokenBalances, 
-      toggleRefreshBalances,
-      accountId
-    }}>
+    <GlobalContext.Provider
+      value={{
+        tokenBalances,
+        toggleRefreshBalances,
+        accountId,
+      }}
+    >
       {children}
     </GlobalContext.Provider>
   );

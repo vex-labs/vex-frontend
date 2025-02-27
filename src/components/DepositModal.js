@@ -68,10 +68,11 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       const data = await response.json();
 
       if (!response.ok) {
-        const errorMessage = data.error || data.message || "Error calling NEAR function";
+        const errorMessage =
+          data.error || data.message || "Error calling NEAR function";
         throw new Error(errorMessage);
       }
-      
+
       return data;
     } catch (err) {
       console.error("Error:", err);
@@ -87,17 +88,17 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
     try {
       setIsLoading(true);
       setMessage("");
-      
+
       if (!accountId) {
         throw new Error("Account ID is missing. Please reconnect your wallet.");
       }
-      
+
       if (isNaN(parseFloat(inputAmount)) || parseFloat(inputAmount) <= 0) {
         throw new Error("Please enter a valid deposit amount.");
       }
-      
+
       const amountInSmallestUnit = Math.round(
-        parseFloat(inputAmount) * 1000000
+        parseFloat(inputAmount) * 1000000,
       ).toString();
 
       const args = {
@@ -107,11 +108,12 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       };
 
       const result = await callNearFunction(accountId, args);
-      
+
       setIsSuccess(true);
     } catch (error) {
       console.error("Failed to deposit funds:", error);
-      const errorMessage = error.message || "Transaction failed. Please try again.";
+      const errorMessage =
+        error.message || "Transaction failed. Please try again.";
       setMessage(errorMessage);
     } finally {
       setIsLoading(false);
@@ -219,7 +221,13 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                   className={`Button confirm-button ${
                     isLoading ? "loading" : ""
                   }`}
-                  disabled={!accountId || amount > 100 || amount < 1 || isLoading || isNaN(parseFloat(amount))}
+                  disabled={
+                    !accountId ||
+                    amount > 100 ||
+                    amount < 1 ||
+                    isLoading ||
+                    isNaN(parseFloat(amount))
+                  }
                   onClick={() => depositFunds(amount)}
                 >
                   {isLoading ? (
