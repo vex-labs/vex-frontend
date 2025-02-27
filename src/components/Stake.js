@@ -441,7 +441,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           method: "perform_stake_swap",
           args: {},
           gas,
-          deposit: "1", // Minimal deposit in yoctoNEAR
+          deposit: "0", // Minimal deposit in yoctoNEAR
         });
 
         console.log("Stake swap successful!", outcome);
