@@ -129,11 +129,6 @@ const NavBar = () => {
     return numBalance.toFixed(2);
   };
 
-  // Show nothing until client-side code runs
-  if (!isClientLoaded) {
-    return null;
-  }
-
   return (
     <>
       <MobileNavbar
@@ -220,7 +215,7 @@ const NavBar = () => {
                                 {formatBalance(balance)}
                               </span>
                             </div>
-                          ),
+                          )
                         )}
                       </div>
                     ) : (
@@ -235,13 +230,15 @@ const NavBar = () => {
                 </>
               ) : (
                 <div className="auth-buttons">
-                  <button
-                    className="login-button near-login"
-                    onClick={() => setIsLoginModalOpen(true)}
-                  >
-                    <LogIn size={18} />
-                    <span>Login</span>
-                  </button>
+                  {isClientLoaded && (
+                    <button
+                      className="login-button near-login"
+                      onClick={() => setIsLoginModalOpen(true)}
+                    >
+                      <LogIn size={18} />
+                      <span>Login</span>
+                    </button>
+                  )}
                 </div>
               )}
             </div>
