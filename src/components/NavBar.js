@@ -132,7 +132,7 @@ const NavBar = () => {
   return (
     <>
       <MobileNavbar
-        isLoggedIn={!!signedAccountId}
+        isLoggedIn={isLoggedIn}
         walletBalance={tokenBalances}
         onLogout={handleLogout}
         onLogin={() => setIsLoginModalOpen(true)}
