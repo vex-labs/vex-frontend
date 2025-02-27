@@ -191,16 +191,16 @@
 .cancel-button:hover {
   background: rgba(255, 255, 255, 0.12);
 }
-.confirm-button {
+.Button.confirm-button {
   background: #113b29;
   color: #3dd68c;
   position: relative;
 }
-.confirm-button:hover:not(:disabled) {
+.Button.confirm-button:hover:not(:disabled) {
   background: #174933;
   transform: translateY(-2px);
 }
-.confirm-button:disabled {
+.Button.confirm-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

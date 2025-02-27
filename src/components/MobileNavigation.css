@@ -1,0 +1,283 @@
+/* Mobile Navbar Styles */
+.mob-navbar {
+  display: none; /* Hidden on desktop */
+}
+
+/* Container */
+.mob-navbar__container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 1000;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Logo */
+.mob-navbar__logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.mob-navbar__logo img {
+  height: 32px;
+  width: auto;
+}
+
+/* Actions container (user dropdown and menu button) */
+.mob-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mob-navbar__user {
+  margin-right: 4px;
+}
+
+/* Menu toggle button */
+.mob-navbar__menu-toggle {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.mob-navbar__menu-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Full screen menu */
+.mob-navbar__menu {
+  position: fixed;
+  top: 65px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
+  overflow-y: auto;
+}
+
+.mob-navbar__menu--open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0s;
+}
+
+.mob-navbar__menu-content {
+  width: 100%;
+  max-width: 500px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Navigation */
+.mob-navbar__nav {
+  width: 100%;
+}
+
+.mob-navbar__nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mob-navbar__nav-item {
+  width: 100%;
+}
+
+.mob-navbar__nav-link {
+  display: block;
+  padding: 16px 20px;
+  font-size: 24px;
+  font-weight: 500;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.mob-navbar__nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.mob-navbar__nav-link--active {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--primary-color, #ff3358);
+}
+
+/* Action buttons */
+.mob-navbar__actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.mob-navbar__action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mob-navbar__action-button:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.mob-navbar__learn-button {
+  background-color: rgba(255, 87, 34, 0.15);
+  color: var(--accent-color, #ff5722);
+  border-color: rgba(255, 87, 34, 0.2);
+}
+
+.mob-navbar__learn-button:hover {
+  background-color: rgba(255, 87, 34, 0.25);
+}
+
+.mob-navbar__deposit-button {
+  background-color: rgba(0, 230, 179, 0.15);
+  color: var(--green-button, #00e6b3);
+  border-color: rgba(0, 230, 179, 0.2);
+}
+
+.mob-navbar__deposit-button:hover {
+  background-color: rgba(0, 230, 179, 0.25);
+}
+
+/* Auth buttons */
+.mob-navbar__auth {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.mob-navbar__auth-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mob-navbar__auth-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.mob-navbar__near-login {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.mob-navbar__near-login:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.mob-navbar__vex-login {
+  background-color: var(--accent-color, #ff5722);
+  color: white;
+  border: none;
+}
+
+.mob-navbar__vex-login:hover {
+  background-color: var(--primary-color, #ff3358);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
+}
+
+.mob-navbar__logout {
+  background-color: rgba(255, 51, 88, 0.1);
+  color: var(--primary-color, #ff3358);
+  border: 1px solid rgba(255, 51, 88, 0.2);
+}
+
+.mob-navbar__logout:hover {
+  background-color: rgba(255, 51, 88, 0.2);
+  color: white;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+  .mob-navbar {
+    display: block;
+    margin-bottom: 65px;
+  }
+
+  /* Hide desktop navbar when mobile is active */
+  .nav {
+    display: none;
+  }
+}
+
+/* Small screens adjustment */
+@media (max-width: 375px) {
+  .mob-navbar__menu-content {
+    padding: 24px 16px;
+  }
+
+  .mob-navbar__nav-link {
+    font-size: 20px;
+    padding: 14px 16px;
+  }
+
+  .mob-navbar__action-button,
+  .mob-navbar__auth-button {
+    padding: 14px;
+    font-size: 15px;
+  }
+}

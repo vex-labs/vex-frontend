@@ -1036,6 +1036,10 @@ input:checked + .slider:before {
   min-height: calc(100vh - 65px);
   position: relative;
   transition: margin-left 300ms ease-in-out;
+
+  @media (max-width: 768px) {
+    margin-top: 0;
+  }
 }
 
 .earn-page-content {
