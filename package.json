@@ -17,7 +17,7 @@
     "@near-wallet-selector/here-wallet": "^8.9.12",
     "@near-wallet-selector/ledger": "^8.9.12",
     "@near-wallet-selector/math-wallet": "^8.9.12",
-    "@near-wallet-selector/meteor-wallet": "^8.9.12",
+    "@near-wallet-selector/meteor-wallet": "^8.10.0",
     "@near-wallet-selector/modal-ui": "^8.9.12",
     "@near-wallet-selector/my-near-wallet": "^8.9.12",
     "@near-wallet-selector/near-wallet": "^8.9.3",
@@ -40,7 +40,8 @@
     "radix-ui": "^1.1.3",
     "react": "^18",
     "react-dom": "^18",
-    "react-pro-sidebar": "^1.1.0"
+    "react-pro-sidebar": "^1.1.0",
+    "sonner": "^2.0.1"
   },
   "devDependencies": {
     "eslint": "^8",
