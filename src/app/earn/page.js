@@ -13,7 +13,6 @@ import { GuestbookNearContract, NearRpcUrl } from "@/app/config";
 const EarnPage = () => {
   const nearContext = useNear();
   const { tokenBalances } = useGlobalContext();
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const isVexLogin =
     typeof window !== "undefined" &&
@@ -23,45 +22,6 @@ const EarnPage = () => {
   const signedAccountId = isVexLogin
     ? null
     : nearContext?.signedAccountId || null;
-
-  // Check sidebar state on component mount and when DOM changes
-  useEffect(() => {
-    // Initial check
-    checkSidebarState();
-
-    // Set up a mutation observer to detect sidebar class changes
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (
-          mutation.type === "attributes" &&
-          mutation.attributeName === "class"
-        ) {
-          checkSidebarState();
-        }
-      });
-    });
-
-    // Start observing the sidebar element
-    const sidebar = document.querySelector(".app-sidebar");
-    if (sidebar) {
-      observer.observe(sidebar, { attributes: true });
-    }
-
-    // Clean up the observer on component unmount
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
-
-  // Function to check if sidebar is collapsed
-  const checkSidebarState = () => {
-    if (typeof document !== "undefined") {
-      const sidebarElement = document.querySelector(".app-sidebar");
-      if (sidebarElement) {
-        setIsSidebarCollapsed(sidebarElement.classList.contains("collapsed"));
-      }
-    }
-  };
 
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
@@ -109,9 +69,7 @@ const EarnPage = () => {
   }, [signedAccountId, vexAccountId, tokenBalances]);
 
   return (
-    <div
-      className={`earn-page ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}
-    >
+    <div className={`earn-page`}>
       <Sidebar2 />
 
       <div className="earn-page-content">

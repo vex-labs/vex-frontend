@@ -223,7 +223,9 @@ const LeaderboardPage = () => {
                                 {user.originalRank}
                               </div>
                             ) : (
-                              user.originalRank
+                              <div className="normal-cell">
+                                {user.originalRank}
+                              </div>
                             )}
                           </td>
                           <td className="username-cell">{user.id}</td>

@@ -42,6 +42,10 @@ input::placeholder {
   @media (max-width: 768px) {
     margin-left: 0;
   }
+
+  &:has(.app-sidebar.collapsed) {
+    margin-left: 50px;
+  }
 }
 .app-sidebar.collapsed + .mainContent {
   margin-left: 50px;
