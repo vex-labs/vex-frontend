@@ -11,6 +11,7 @@ import {
   ExternalLink,
   Users,
 } from "lucide-react";
+import { socials } from "@/data/socials";
 
 /**
  * Sidebar2 component
@@ -55,7 +56,7 @@ const Sidebar2 = () => {
       label: "Earn",
       path: "/earn",
       icon: (
-        <img src="/icons/staking.png" alt="earn" className="sidebar-icon" />
+        <img src="/icons/staking.png" alt="earn" className="app-sidebar-icon" />
       ),
     },
     {
@@ -66,7 +67,7 @@ const Sidebar2 = () => {
         <img
           src="/icons/governance.png"
           alt="Governance"
-          className="sidebar-icon"
+          className="app-sidebar-icon"
         />
       ),
     },
@@ -78,30 +79,6 @@ const Sidebar2 = () => {
     },
   ];
 
-  // Social media links
-  const socials = [
-    {
-      name: "Telegram",
-      icon: "/icons/socials/telegram.png",
-      link: "https://t.me/+4x6uwCjC7BgzNmRk",
-    },
-    {
-      name: "X (Twitter)",
-      icon: "/icons/socials/x.png",
-      link: "https://x.com/betvex",
-    },
-    {
-      name: "TikTok",
-      icon: "/icons/socials/tiktok.png",
-      link: "https://www.tiktok.com/@betvex",
-    },
-    {
-      name: "Instagram",
-      icon: "/icons/socials/instagram.png",
-      link: "https://www.instagram.com/getvexy",
-    },
-  ];
-
   // Toggle sidebar expansion
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -110,7 +87,7 @@ const Sidebar2 = () => {
   // Render a section header with expandable toggle
   const renderSectionHeader = (title, section, isExpanded, toggleFn) => (
     <div
-      className={`sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
+      className={`app-sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
       onClick={() => !isCollapsed && toggleFn()}
       onMouseEnter={() => setHoveredItem(`section-${section}`)}
       onMouseLeave={() => setHoveredItem(null)}
@@ -128,10 +105,10 @@ const Sidebar2 = () => {
   );
 
   return (
-    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+    <aside className={`app-sidebar ${isCollapsed ? "collapsed" : ""}`}>
       {/* Collapse Toggle Button */}
       <button
-        className="sidebar-toggle"
+        className="app-sidebar-toggle"
         onClick={toggleSidebar}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
@@ -139,7 +116,7 @@ const Sidebar2 = () => {
       </button>
 
       {/* Main Navigation */}
-      <nav className="sidebar-nav">
+      <nav className="app-sidebar-nav">
         <ul className="nav-list main-nav">
           {mainNavItems.map((item) => (
             <li
@@ -165,9 +142,9 @@ const Sidebar2 = () => {
       </nav>
 
       {/* Social Links Section */}
-      <div className="sidebar-section">
+      <div className="app-sidebar-section">
         {renderSectionHeader("Socials", "socials", isSocialsExpanded, () =>
-          setIsSocialsExpanded(!isSocialsExpanded),
+          setIsSocialsExpanded(!isSocialsExpanded)
         )}
 
         {(isSocialsExpanded || isCollapsed) && (
@@ -213,13 +190,13 @@ const Sidebar2 = () => {
       </div>
 
       {/* User Section */}
-      <div className="sidebar-section user-section">
+      <div className="app-sidebar-section user-section">
         {isCollapsed ? (
-          <div className="sidebar-section-header collapsed">
+          <div className="app-sidebar-section-header collapsed">
             <span className="section-title">User</span>
           </div>
         ) : (
-          <div className="sidebar-section-header">
+          <div className="app-sidebar-section-header">
             <span className="section-title">User Area</span>
           </div>
         )}

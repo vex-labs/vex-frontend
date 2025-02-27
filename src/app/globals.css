@@ -45,6 +45,9 @@ input::placeholder {
 .app-sidebar.collapsed + .mainContent {
   margin-left: 50px;
 }
+.app-sidebar.collapsed + .mainContent {
+  margin-left: 50px;
+}
 .content-wrapper {
   padding: 20px;
   height: auto;
@@ -718,9 +721,6 @@ input::placeholder {
     margin: 0;
   }
 }
-.team-logo {
-  margin-right: 8px;
-}
 .team-name {
   font-size: 0.8em;
 }
@@ -742,6 +742,7 @@ input::placeholder {
   text-align: center;
   flex: 1;
   cursor: pointer;
+  width: 100%;
   position: relative;
 }
 .odds input[type="radio"] {
@@ -833,7 +834,7 @@ input::placeholder {
 .hero-banner {
   width: 80%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 .featured-grid-container,
 .upcoming-grid-container {
@@ -881,11 +882,6 @@ input::placeholder {
   align-items: center;
   justify-content: center;
   width: 100px;
-}
-.team-logo {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 8px;
 }
 .team-name {
   font-size: 14px;
@@ -1053,18 +1049,18 @@ input::placeholder {
   }
   .featured-card-3-col,
   .upcoming-card-4-col {
-    grid-column: span 6;
+    grid-column: span 3;
   }
 }
 @media (max-width: 800px) {
   .featured-grid-container {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
   }
   .featured-card-3-col {
     grid-column: span 3;
   }
   .upcoming-grid-container {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(6, 1fr);
   }
   .upcoming-card-4-col {
     grid-column: span 3;
@@ -1098,7 +1094,7 @@ input::placeholder {
     grid-column: span 1;
   }
 }
-.sidebar {
+.app-sidebar {
   position: fixed;
   width: 230px;
   height: calc(100vh - 60px);
@@ -1118,13 +1114,13 @@ input::placeholder {
   scrollbar-width: none;
   padding: 16px 0 20px 0;
 }
-.sidebar::-webkit-scrollbar {
+.app-sidebar::-webkit-scrollbar {
   display: none;
 }
-.sidebar.collapsed {
+.app-sidebar.collapsed {
   width: 60px;
 }
-.sidebar-toggle {
+.app-sidebar-toggle {
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -1139,11 +1135,11 @@ input::placeholder {
   margin: 0 auto 16px auto;
   transition: all 0.2s ease;
 }
-.sidebar-toggle:hover {
+.app-sidebar-toggle:hover {
   background-color: var(--accent-color);
   color: white;
 }
-.sidebar-nav {
+.app-sidebar-nav {
   margin-bottom: 10px;
 }
 .nav-list {
@@ -1171,7 +1167,7 @@ input::placeholder {
   align-items: center;
   justify-content: center;
 }
-.sidebar-icon,
+.app-sidebar-icon,
 .game-icon,
 .social-icon {
   width: 20px;
@@ -1203,20 +1199,20 @@ input::placeholder {
 .nav-link:hover {
   background-color: rgba(255, 255, 255, 0.08);
 }
-.sidebar-section {
+.app-sidebar-section {
   margin-bottom: 16px;
 }
-.sidebar-section-header {
+.app-sidebar-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 12px 15px 6px 15px;
   cursor: pointer;
 }
-.sidebar-section-header:hover .section-title {
+.app-sidebar-section-header:hover .section-title {
   color: white;
 }
-.sidebar-section-header.collapsed {
+.app-sidebar-section-header.collapsed {
   padding: 12px 0 6px 0;
   justify-content: center;
 }
@@ -1228,7 +1224,7 @@ input::placeholder {
   text-transform: uppercase;
   transition: color 0.2s ease;
 }
-.sidebar.collapsed .section-title {
+.app-sidebar.collapsed .section-title {
   font-size: 10px;
   width: 100%;
   text-align: center;
@@ -1252,7 +1248,7 @@ input::placeholder {
   overflow-y: auto;
   transition: max-height 0.3s ease;
 }
-.sidebar.collapsed .games-list {
+.app-sidebar.collapsed .games-list {
   max-height: 300px;
 }
 .games-list.hidden {
@@ -1287,24 +1283,24 @@ input::placeholder {
   animation: fadeIn 0.2s ease;
 }
 @media (max-width: 1024px) {
-  .sidebar {
+  .app-sidebar {
     width: 200px;
   }
 }
 @media (max-width: 768px) {
-  .sidebar {
+  .app-sidebar {
     left: -300px;
     box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
   }
-  .sidebar.visible {
+  .app-sidebar.visible {
     left: 0;
   }
 }
-.sidebar.collapsed + .mainContent {
+.app-sidebar.collapsed + .mainContent {
   margin-left: 60px;
 }
 @media (max-width: 768px) {
-  .sidebar.collapsed + .mainContent {
+  .app-sidebar.collapsed + .mainContent {
     margin-left: 0;
   }
 }
@@ -1572,12 +1568,6 @@ input::placeholder {
   justify-content: center;
   flex: 1;
 }
-.team1-container {
-  justify-content: flex-start;
-}
-.team2-container {
-  justify-content: flex-end;
-}
 .team-bm {
   display: flex;
   align-items: center;
@@ -1585,12 +1575,13 @@ input::placeholder {
   gap: 10px;
 }
 .team-logo {
-  width: 40px;
-  height: 40px;
+  width: 64px;
+  height: 64px;
   object-fit: contain;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.2);
-  padding: 2px;
+  border-radius: 12px;
+  background-color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 16px;
+  padding: 8px;
 }
 .team-name {
   font-size: 14px;
@@ -1893,7 +1884,8 @@ input::placeholder {
 }
 .match-body {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 16px;
   align-items: center;
   padding: 15px 0;
 }
@@ -1902,35 +1894,11 @@ input::placeholder {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  width: 110px;
 }
 .featured-card:not(.betting-container):hover,
 .upcoming-card:not(.betting-container):hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-}
-@media (max-width: 576px) {
-  .odds-team {
-    font-size: 12px;
-  }
-  .odds-value {
-    font-size: 14px;
-  }
-  .team-name {
-    font-size: 12px;
-    max-width: 90px;
-  }
-  .team-logo {
-    width: 32px;
-    height: 32px;
-  }
-  .stake-input {
-    font-size: 15px;
-  }
-  .place-bet-button {
-    font-size: 13px;
-    padding: 10px;
-  }
 }
 .modal-content {
   background: rgba(30, 30, 30, 0.95);
@@ -2315,40 +2283,7 @@ input::placeholder {
   }
 }
 
-/* Responsive styles for mobile */
-@media (max-width: 500px) {
-  .betting-modal-content {
-    max-width: 90%;
-    padding: 15px;
-  }
-
-  .betting-modal-header h3 {
-    font-size: 18px;
-  }
-
-  .team-logo {
-    width: 32px;
-    height: 32px;
-  }
-
-  .team-name {
-    font-size: 13px;
-  }
-
-  .stake-input {
-    font-size: 14px;
-  }
-
-  .place-bet-button {
-    font-size: 14px;
-    padding: 10px 8px;
-  }
-
-  .message {
-    font-size: 12px;
-  }
-}
-
+/* Responsive styles for mobile *
 /* Message styling classes */
 .message-error {
   background-color: rgba(255, 82, 82, 0.1);

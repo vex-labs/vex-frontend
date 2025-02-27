@@ -231,7 +231,7 @@ const GiftModal = ({ open, setIsOpen }) => {
     setTimeout(() => {
       setIsSubmitting(false);
       setMessage(
-        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`,
+        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
       );
 
       // Reset form after successful submission
@@ -330,7 +330,7 @@ const GiftModal = ({ open, setIsOpen }) => {
               <span>Send Gift</span>
             </Dialog.Title>
             <Dialog.Description className="dialog-description">
-              Send VEX or USDC tokens to your friends on the platform.
+              Send VEX or USD tokens to your friends on the platform.
             </Dialog.Description>
           </div>
 

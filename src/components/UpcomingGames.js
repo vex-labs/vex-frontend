@@ -60,6 +60,7 @@ const UpcomingGames = ({
   selectedGame,
   wallet,
   vexAccountId,
+  searchTerm,
 }) => {
   // Build the GraphQL query with game filter if provided
   const buildQuery = () => {
@@ -76,7 +77,6 @@ const UpcomingGames = ({
           where: ${whereClause}
           orderBy: date_timestamp
           orderDirection: asc
-          skip: 4 # Skip the first 4 matches (featured ones)
         ) {
           id
           game
@@ -104,6 +104,47 @@ const UpcomingGames = ({
       return await request(QueryURL, buildQuery());
     },
   });
+
+  // Filter matches by search term if one is provided
+  const filterMatchesBySearch = (matches) => {
+    if (!searchTerm || !matches) return matches;
+
+    const lowercasedSearch = searchTerm.toLowerCase();
+
+    return matches.filter((match) => {
+      // Search in team names
+      const team1NameMatch = match.team_1
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+      const team2NameMatch = match.team_2
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+
+      // Search in game name
+      const gameMatch = match.game?.toLowerCase().includes(lowercasedSearch);
+
+      // Search in date string
+      const dateMatch = match.date_string
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+
+      // Return true if any field matches the search term
+      return team1NameMatch || team2NameMatch || gameMatch || dateMatch;
+    });
+  };
+
+  // Apply search filter and then sort the matches
+  const filteredAndSortedMatches = React.useMemo(() => {
+    const filteredMatches = filterMatchesBySearch(data?.matches);
+
+    if (!filteredMatches) return [];
+
+    return filteredMatches.sort((a, b) => {
+      const maxBetsA = Math.max(a.team_1_total_bets, a.team_2_total_bets);
+      const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
+      return maxBetsB - maxBetsA; // descending order
+    });
+  }, [data?.matches, searchTerm]);
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
@@ -170,13 +211,19 @@ const UpcomingGames = ({
 
   // Render empty state
   const renderEmpty = () => (
-    <div className="upcoming-empty-container">
-      <Calendar size={32} className="empty-icon" />
+    <div className="featured-empty-container">
       <h3>
-        No upcoming matches available
-        {selectedGame ? ` for ${getGameLabel(selectedGame)}` : ""}.
+        {searchTerm
+          ? `No upcoming matches available for your search "${searchTerm}"`
+          : selectedGame
+          ? `No upcoming matches available for ${selectedGame}`
+          : "No upcoming matches available at this time."}
       </h3>
-      <p>Check back later for upcoming matches.</p>
+      <p>
+        {searchTerm
+          ? "Try a different search term or remove some filters"
+          : "Check back later for upcoming matches."}
+      </p>
     </div>
   );
 
@@ -186,11 +233,11 @@ const UpcomingGames = ({
         renderSkeleton()
       ) : isError ? (
         renderError()
-      ) : data?.matches?.length === 0 ? (
+      ) : filteredAndSortedMatches?.length === 0 ? (
         renderEmpty()
       ) : (
         <div className="upcoming-grid-container">
-          {data.matches.map((match, index) => (
+          {filteredAndSortedMatches.map((match, index) => (
             <GameCard
               key={match.id || index}
               className="upcoming-card upcoming-card-4-col"

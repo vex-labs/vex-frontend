@@ -11,6 +11,8 @@ import {
   ExternalLink,
   Users,
 } from "lucide-react";
+import { games } from "@/data/games";
+import { socials } from "@/data/socials";
 
 /**
  * Enhanced Sidebar component
@@ -58,7 +60,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       label: "Earn",
       path: "/earn",
       icon: (
-        <img src="/icons/staking.png" alt="earn" className="sidebar-icon" />
+        <img src="/icons/staking.png" alt="earn" className="app-sidebar-icon" />
       ),
     },
     {
@@ -69,7 +71,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <img
           src="/icons/governance.png"
           alt="Governance"
-          className="sidebar-icon"
+          className="app-sidebar-icon"
         />
       ),
     },
@@ -78,74 +80,6 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       label: "Leaderboard",
       path: "/leaderboard",
       icon: <BarChart3 size={20} strokeWidth={1.5} />,
-    },
-  ];
-
-  // Games list
-  const games = [
-    {
-      name: "counter-strike-2",
-      label: "Counter Strike 2",
-      icon: "/icons/games/csgo.png",
-    },
-    {
-      name: "lol",
-      label: "League of Legends",
-      icon: "/icons/games/lol.png",
-    },
-    {
-      name: "valorant",
-      label: "Valorant",
-      icon: "/icons/games/valorant.png",
-    },
-    {
-      name: "fortnite",
-      label: "Fortnite",
-      icon: "/icons/games/fortnite.png",
-    },
-    {
-      name: "apex",
-      label: "Apex Legends",
-      icon: "/icons/games/apex.png",
-    },
-    {
-      name: "rainbowsix",
-      label: "Rainbow Six Siege",
-      icon: "/icons/games/rainbowsix.png",
-    },
-    {
-      name: "dota2",
-      label: "Dota 2",
-      icon: "/icons/games/dota2.png",
-    },
-    {
-      name: "overwatch-2",
-      label: "Overwatch 2",
-      icon: "/icons/games/overwatch.png",
-    },
-  ];
-
-  // Social media links
-  const socials = [
-    {
-      name: "Telegram",
-      icon: "/icons/socials/telegram.png",
-      link: "https://t.me/+4x6uwCjC7BgzNmRk",
-    },
-    {
-      name: "X (Twitter)",
-      icon: "/icons/socials/x.png",
-      link: "https://x.com/betvex",
-    },
-    {
-      name: "TikTok",
-      icon: "/icons/socials/tiktok.png",
-      link: "https://www.tiktok.com/@betvex",
-    },
-    {
-      name: "Instagram",
-      icon: "/icons/socials/instagram.png",
-      link: "https://www.instagram.com/getvexy",
     },
   ];
 
@@ -166,7 +100,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   // Render a section header with expandable toggle
   const renderSectionHeader = (title, section, isExpanded) => (
     <div
-      className={`sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
+      className={`app-sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
       onClick={() => !isCollapsed && toggleSection(section)}
       onMouseEnter={() => setHoveredItem(`section-${section}`)}
       onMouseLeave={() => setHoveredItem(null)}
@@ -184,10 +118,10 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   );
 
   return (
-    <aside className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+    <aside className={`app-sidebar ${isCollapsed ? "collapsed" : ""}`}>
       {/* Collapse Toggle Button */}
       <button
-        className="sidebar-toggle"
+        className="app-sidebar-toggle"
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
@@ -195,7 +129,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       </button>
 
       {/* Main Navigation */}
-      <nav className="sidebar-nav">
+      <nav className="app-sidebar-nav">
         <ul className="nav-list main-nav">
           {mainNavItems.map((item) => (
             <li
@@ -221,7 +155,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       </nav>
 
       {/* Games Section */}
-      <div className="sidebar-section">
+      <div className="app-sidebar-section">
         {renderSectionHeader("Games", "games", isGamesExpanded)}
 
         {(isGamesExpanded || isCollapsed) && (
@@ -272,7 +206,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       </div>
 
       {/* Social Links Section */}
-      <div className="sidebar-section">
+      <div className="app-sidebar-section">
         {renderSectionHeader("Socials", "socials", isSocialsExpanded)}
 
         {(isSocialsExpanded || isCollapsed) && (
@@ -318,13 +252,13 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       </div>
 
       {/* User Section */}
-      <div className="sidebar-section user-section">
+      <div className="app-sidebar-section user-section">
         {isCollapsed ? (
-          <div className="sidebar-section-header collapsed">
+          <div className="app-sidebar-section-header collapsed">
             <span className="section-title">User</span>
           </div>
         ) : (
-          <div className="sidebar-section-header">
+          <div className="app-sidebar-section-header">
             <span className="section-title">User Area</span>
           </div>
         )}

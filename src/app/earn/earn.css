@@ -314,6 +314,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: auto;
 }
 
 .swap-button:hover:not(:disabled) {
@@ -526,14 +527,6 @@
   color: white;
 }
 
-.match-time-modal {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
 .teams-modal {
   display: flex;
   justify-content: space-between;
@@ -655,6 +648,10 @@
 
 .confirm-button.first {
   margin-bottom: 20px;
+}
+
+.confirm-button.last {
+  margin-top: auto;
 }
 
 .confirm-button:hover {
@@ -1038,6 +1035,7 @@ input:checked + .slider:before {
   margin-left: 230px;
   min-height: calc(100vh - 65px);
   position: relative;
+  transition: margin-left 300ms ease-in-out;
 }
 
 .earn-page-content {
@@ -1282,5 +1280,13 @@ input:checked + .slider:before {
 
   .earn-page-title {
     font-size: 24px;
+  }
+}
+
+.earn-page.sidebar-collapsed {
+  margin-left: 50px;
+
+  @media (max-width: 768px) {
+    margin-left: 0;
   }
 }

@@ -32,19 +32,22 @@ const TEAM_ICON_MAP = {
  * Enhanced FeaturedGames component
  *
  * This component renders a list of featured games with improved UI/UX,
- * loading states, error handling, and filtering support.
+ * loading states, error handling, and filtering/search support.
  *
  * @param {Object} props - Component props
  * @param {boolean} props.isLoading - Global loading state from parent
  * @param {string} props.selectedGame - Currently selected game filter
+ * @param {string} props.searchTerm - Search term for filtering matches
  * @param {Object} props.wallet - Wallet object for handling transactions
  * @param {string} props.vexAccountId - User's VEX account ID
+ * @param {Function} props.onUpdateAvailableGames - Callback to update available games
  *
  * @returns {JSX.Element} The rendered FeaturedGames component
  */
 const FeaturedGames = ({
   isLoading: parentIsLoading,
   selectedGame,
+  searchTerm = "",
   wallet,
   vexAccountId,
   onUpdateAvailableGames,
@@ -60,10 +63,7 @@ const FeaturedGames = ({
     return gql`
       {
         matches(
-          first: 4
           where: ${whereClause}
-          orderBy: date_timestamp
-          orderDirection: asc
         ) {
           id
           game
@@ -89,6 +89,49 @@ const FeaturedGames = ({
       return await request(QueryURL, buildQuery());
     },
   });
+
+  // Filter matches by search term if one is provided
+  const filterMatchesBySearch = (matches) => {
+    if (!searchTerm || !matches) return matches;
+
+    const lowercasedSearch = searchTerm.toLowerCase();
+
+    return matches.filter((match) => {
+      // Search in team names
+      const team1NameMatch = match.team_1
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+      const team2NameMatch = match.team_2
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+
+      // Search in game name
+      const gameMatch = match.game?.toLowerCase().includes(lowercasedSearch);
+
+      // Search in date string
+      const dateMatch = match.date_string
+        ?.toLowerCase()
+        .includes(lowercasedSearch);
+
+      // Return true if any field matches the search term
+      return team1NameMatch || team2NameMatch || gameMatch || dateMatch;
+    });
+  };
+
+  // Apply search filter and then sort the matches
+  const filteredAndSortedMatches = React.useMemo(() => {
+    const filteredMatches = filterMatchesBySearch(data?.matches);
+
+    if (!filteredMatches) return [];
+
+    return filteredMatches
+      .sort((a, b) => {
+        const maxBetsA = Math.max(a.team_1_total_bets, a.team_2_total_bets);
+        const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
+        return maxBetsB - maxBetsA; // descending order
+      })
+      .slice(0, 4); // Take only the top 4
+  }, [data?.matches, searchTerm]);
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
@@ -163,10 +206,17 @@ const FeaturedGames = ({
   const renderEmpty = () => (
     <div className="featured-empty-container">
       <h3>
-        No featured matches available
-        {selectedGame ? ` for ${selectedGame}` : ""}.
+        {searchTerm
+          ? `No matches match your search "${searchTerm}"`
+          : selectedGame
+          ? `No featured matches available for ${selectedGame}`
+          : "No featured matches available at this time."}
       </h3>
-      <p>Check back later for upcoming matches.</p>
+      <p>
+        {searchTerm
+          ? "Try a different search term or remove some filters"
+          : "Check back later for upcoming matches."}
+      </p>
     </div>
   );
 
@@ -174,9 +224,10 @@ const FeaturedGames = ({
     <section className="featured-games-section">
       <div className="section-header">
         <h1>Featured Games</h1>
-        {data?.matches?.length > 0 && (
+        {filteredAndSortedMatches?.length > 0 && (
           <div className="match-count">
-            {data.matches.length} match{data.matches.length !== 1 ? "es" : ""}
+            {filteredAndSortedMatches.length} match
+            {filteredAndSortedMatches.length !== 1 ? "es" : ""}
           </div>
         )}
       </div>
@@ -185,11 +236,11 @@ const FeaturedGames = ({
         renderSkeleton()
       ) : isError ? (
         renderError()
-      ) : data?.matches?.length === 0 ? (
+      ) : filteredAndSortedMatches?.length === 0 ? (
         renderEmpty()
       ) : (
         <div className="featured-grid-container">
-          {data.matches.map((match, index) => (
+          {filteredAndSortedMatches.map((match, index) => (
             <GameCard
               key={match.id || index}
               className="featured-card featured-card-3-col"

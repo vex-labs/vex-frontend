@@ -41,22 +41,35 @@ export const GlobalProvider = ({ children }) => {
       { name: "USDC", address: "usdc.betvex.testnet" },
       { name: "VEX", address: "token.betvex.testnet" },
     ],
-    [],
+    []
   );
 
   const toggleRefreshBalances = () => {
     setRefreshBalances((prev) => !prev);
   };
 
+  const MyNearWalletAddress = useMemo(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(
+        localStorage.getItem("near_app_wallet_auth_key") || "{}"
+      ).accountId;
+    }
+  }, []);
+
+  const MeteorWalletAddress = useMemo(() => {
+    if (typeof window !== "undefined") {
+      return JSON.parse(
+        localStorage.getItem("near_app_meteor_wallet_auth_key") || "{}"
+      ).accountId;
+    }
+  }, []);
+
   const isVexLogin =
     typeof window !== "undefined" &&
     localStorage.getItem("isVexLogin") === "true";
   const accountId = isVexLogin
     ? typeof window !== "undefined" && localStorage.getItem("vexAccountId")
-    : (typeof window !== "undefined" &&
-        JSON.parse(localStorage.getItem("near_app_wallet_auth_key") || "{}")
-          .accountId) ||
-      null;
+    : MyNearWalletAddress || MeteorWalletAddress || null;
 
   useEffect(() => {
     if (accountId) {
@@ -80,7 +93,7 @@ export const GlobalProvider = ({ children }) => {
             const balance = JSON.parse(Buffer.from(result.result).toString());
             const decimals = token.name === "USDC" ? 6 : 18;
             const formattedBalance = (balance / Math.pow(10, decimals)).toFixed(
-              2,
+              2
             );
             balances[token.name] = formattedBalance;
             console.log(`Balance for ${token.name}: ${formattedBalance}`);
