@@ -1040,6 +1040,10 @@ input:checked + .slider:before {
   @media (max-width: 768px) {
     margin-top: 0;
   }
+
+  &:has(.app-sidebar.collapsed) {
+    margin-left: 50px;
+  }
 }
 
 .earn-page-content {
