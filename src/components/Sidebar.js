@@ -10,6 +10,8 @@ import {
   ChevronUp,
   ExternalLink,
   Users,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { games } from "@/data/games";
 import { socials } from "@/data/socials";
@@ -27,6 +29,7 @@ import { socials } from "@/data/socials";
 const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isGamesExpanded, setIsGamesExpanded] = useState(true);
+  const [hideGames, setHideGames] = useState(true);
   const [isSocialsExpanded, setIsSocialsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
 
@@ -117,6 +120,8 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
     </div>
   );
 
+  const gamesToShow = hideGames ? games.slice(0, 5) : games;
+
   return (
     <aside className={`app-sidebar ${isCollapsed ? "collapsed" : ""}`}>
       {/* Collapse Toggle Button */}
@@ -164,7 +169,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
               !isGamesExpanded ? "hidden" : ""
             }`}
           >
-            {games.map((game) => (
+            {gamesToShow.map((game) => (
               <li
                 key={game.name}
                 className={`nav-item ${
@@ -203,6 +208,26 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
             ))}
           </ul>
         )}
+        <button
+          className="show-more-games nav-link"
+          onClick={() => setHideGames(!hideGames)}
+        >
+          {hideGames ? (
+            isCollapsed ? (
+              <ArrowDown />
+            ) : (
+              <>
+                <span>Show More Games</span> <ArrowDown size="16px" />
+              </>
+            )
+          ) : isCollapsed ? (
+            <ArrowUp />
+          ) : (
+            <>
+              <span>Show Less Games</span> <ArrowUp size="16px" />
+            </>
+          )}
+        </button>
       </div>
 
       {/* Social Links Section */}
