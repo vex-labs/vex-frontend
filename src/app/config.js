@@ -13,7 +13,7 @@ const contractPerNetwork = {
 export const NetworkId = "testnet";
 
 // The contract address for the guestbook on the specified network
-export const GuestbookNearContract = contractPerNetwork[NetworkId];
+export const VexContract = contractPerNetwork[NetworkId];
 
 export const UsdcTokenContract = "usdc.betvex.testnet";
 export const VexTokenContract = "token.betvex.testnet";

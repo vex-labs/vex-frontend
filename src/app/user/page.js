@@ -5,7 +5,7 @@ import "./user.css";
 import { handleTransaction } from "@/utils/accountHandler";
 import Sidebar2 from "@/components/Sidebar2";
 import { useNear } from "@/app/context/NearContext";
-import { NearRpcUrl, GuestbookNearContract } from "../config";
+import { NearRpcUrl, VexContract } from "../config";
 import UserBets from "@/components/Userbets";
 
 const UserPage = () => {
@@ -39,7 +39,7 @@ const UserPage = () => {
   useEffect(() => {
     const fetchUserBets = async () => {
       try {
-        const contractId = GuestbookNearContract;
+        const contractId = VexContract;
         const args = {
           bettor: accountId,
           from_index: null,
@@ -54,7 +54,7 @@ const UserPage = () => {
           finality: "final",
         });
         const decodedResult = JSON.parse(
-          Buffer.from(userBets.result).toString(),
+          Buffer.from(userBets.result).toString()
         );
         const userBetsWithState = decodedResult.map(([betId, bet]) => {
           const matchState = matchStates[bet.match_id]?.match_state || null; // Add match state if available
@@ -83,13 +83,13 @@ const UserPage = () => {
         const provider = new providers.JsonRpcProvider(NearRpcUrl);
         const matches = await provider.query({
           request_type: "call_function",
-          account_id: GuestbookNearContract,
+          account_id: VexContract,
           method_name: "get_matches",
           args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
           finality: "final",
         });
         const decodedResult = JSON.parse(
-          Buffer.from(matches.result).toString(),
+          Buffer.from(matches.result).toString()
         );
 
         const states = {};
@@ -124,7 +124,7 @@ const UserPage = () => {
 
     const decimals = withdrawToken === "token.betvex.testnet" ? 18 : 6;
     const formattedAmount = BigInt(
-      parseFloat(withdrawAmount) * Math.pow(10, decimals),
+      parseFloat(withdrawAmount) * Math.pow(10, decimals)
     ).toString();
     const gas = "100000000000000"; // 100 TGas
     const deposit = "1"; // 1 yoctoNEAR
@@ -137,7 +137,7 @@ const UserPage = () => {
         gas,
         deposit,
         null,
-        password,
+        password
       );
       console.log("Withdrawal successful:", result);
       alert("Withdrawal Successful!");

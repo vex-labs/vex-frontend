@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { providers } from "near-api-js";
 import { handleTransaction } from "@/utils/accountHandler";
 import { useGlobalContext } from "@/app/context/GlobalContext";
-import { NearRpcUrl, GuestbookNearContract } from "@/app/config";
+import { NearRpcUrl, VexContract } from "@/app/config";
 import {
   ArrowDownUp,
   Loader2,
@@ -44,7 +44,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   const [actionSuccess, setActionSuccess] = useState(false);
 
   const tokenContractId = "token.betvex.testnet";
-  const stakingContractId = GuestbookNearContract;
+  const stakingContractId = VexContract;
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
@@ -117,7 +117,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       // Call the view function `get_usdc_staking_rewards` on the contract
       const result = await provider.query({
         request_type: "call_function",
-        account_id: GuestbookNearContract,
+        account_id: VexContract,
         method_name: "get_usdc_staking_rewards",
         args_base64: "", // No arguments are required
         finality: "final",
@@ -408,7 +408,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
     setIsDistributingRewards(true);
     setMessage({ text: "Distributing rewards...", type: "info" });
 
-    const contractId = GuestbookNearContract;
+    const contractId = VexContract;
     const gas = "300000000000000"; // 300 TGas
 
     try {

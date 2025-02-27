@@ -32,6 +32,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [hideGames, setHideGames] = useState(true);
   const [isSocialsExpanded, setIsSocialsExpanded] = useState(false);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [hideCollapseButton, setHideCollapseButton] = useState(false);
 
   const pathname = usePathname();
 
@@ -39,6 +40,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024 && !isCollapsed) {
+        setHideCollapseButton(true);
         setIsCollapsed(true);
       }
     };
@@ -127,6 +129,9 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       {/* Collapse Toggle Button */}
       <button
         className="app-sidebar-toggle"
+        style={{
+          display: hideCollapseButton ? "none" : "",
+        }}
         onClick={() => setIsCollapsed(!isCollapsed)}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
@@ -211,6 +216,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
         <button
           className="show-more-games nav-link"
           onClick={() => setHideGames(!hideGames)}
+          style={{ display: !isGamesExpanded ? "none" : "" }}
         >
           {hideGames ? (
             isCollapsed ? (

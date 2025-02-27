@@ -25,6 +25,7 @@ const Sidebar2 = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isSocialsExpanded, setIsSocialsExpanded] = useState(true);
   const [hoveredItem, setHoveredItem] = useState(null);
+  const [hideCollapseButton, setHideCollapseButton] = useState(false);
 
   const pathname = usePathname();
 
@@ -32,6 +33,7 @@ const Sidebar2 = () => {
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024 && !isCollapsed) {
+        setHideCollapseButton(true);
         setIsCollapsed(true);
       }
     };
@@ -110,6 +112,9 @@ const Sidebar2 = () => {
       <button
         className="app-sidebar-toggle"
         onClick={toggleSidebar}
+        style={{
+          display: hideCollapseButton ? "none" : "",
+        }}
         aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
       >
         {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}

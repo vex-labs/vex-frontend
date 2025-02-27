@@ -97,6 +97,10 @@ input::placeholder {
   display: flex;
   gap: 5px;
   margin-left: 20px;
+
+  @media (max-width: 1030px) {
+    display: none;
+  }
 }
 .nav-link {
   position: relative;
