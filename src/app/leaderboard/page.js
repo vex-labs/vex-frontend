@@ -10,6 +10,10 @@ import { gql, request } from "graphql-request";
 const LeaderboardPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortConfig, setSortConfig] = useState({
+    key: "total_winnings",
+    direction: "desc",
+  });
   const itemsPerPage = 10;
 
   const url = QueryURL;
@@ -45,6 +49,24 @@ const LeaderboardPage = () => {
     }).format(amount / 1000000); // Assuming amount is in millions (like USDC)
   };
 
+  // Handle sorting
+  const requestSort = (key) => {
+    let direction = "desc";
+
+    if (sortConfig.key === key && sortConfig.direction === "desc") {
+      direction = "asc";
+    }
+
+    setSortConfig({ key, direction });
+    setCurrentPage(1); // Reset to first page on sort change
+  };
+
+  // Add sort indicators to table headers
+  const getSortIndicator = (key) => {
+    if (sortConfig.key !== key) return null;
+    return sortConfig.direction === "asc" ? " ▲" : " ▼";
+  };
+
   const usersWithRanks =
     data?.users.map((user, index) => ({
       ...user,
@@ -56,11 +78,25 @@ const LeaderboardPage = () => {
     user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Sort users based on current sort configuration
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    if (sortConfig.key === "total_winnings") {
+      return sortConfig.direction === "asc"
+        ? parseFloat(a.total_winnings) - parseFloat(b.total_winnings)
+        : parseFloat(b.total_winnings) - parseFloat(a.total_winnings);
+    } else if (sortConfig.key === "number_of_wins") {
+      return sortConfig.direction === "asc"
+        ? a.number_of_wins - b.number_of_wins
+        : b.number_of_wins - a.number_of_wins;
+    }
+    return 0;
+  });
+
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const currentUsers = sortedUsers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
 
   // Handle page change
   const handlePageChange = (pageNumber) => {
@@ -199,33 +235,55 @@ const LeaderboardPage = () => {
                   <tr>
                     <th>Rank</th>
                     <th>Username</th>
-                    <th>Total Winnings</th>
-                    <th>Wins</th>
+                    <th
+                      onClick={() => requestSort("total_winnings")}
+                      className="sortable-header"
+                    >
+                      Total Winnings
+                      {getSortIndicator("total_winnings")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("number_of_wins")}
+                      className="sortable-header"
+                    >
+                      Wins
+                      {getSortIndicator("number_of_wins")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {currentUsers.length > 0 ? (
-                    currentUsers.map((user) => {
+                    currentUsers.map((user, index) => {
+                      // Display rank based on current sorting and pagination
+                      const displayRank =
+                        sortConfig.key === "total_winnings" &&
+                        sortConfig.direction === "desc"
+                          ? user.originalRank
+                          : indexOfFirstItem + index + 1;
+
                       return (
                         <tr
                           key={user.id}
-                          className={`rank-${
-                            user.originalRank
-                          } ${getTrophyColor(user.originalRank)}`}
+                          className={
+                            sortConfig.key === "total_winnings" &&
+                            sortConfig.direction === "desc"
+                              ? `rank-${user.originalRank}`
+                              : ""
+                          }
                         >
                           <td className="rank-cell">
-                            {user.originalRank <= 3 ? (
+                            {sortConfig.key === "total_winnings" &&
+                            sortConfig.direction === "desc" &&
+                            displayRank <= 3 ? (
                               <div
                                 className={`trophy ${getTrophyColor(
-                                  user.originalRank
+                                  displayRank
                                 )}`}
                               >
-                                {user.originalRank}
+                                {displayRank}
                               </div>
                             ) : (
-                              <div className="normal-cell">
-                                {user.originalRank}
-                              </div>
+                              <div className="trophy normal">{displayRank}</div>
                             )}
                           </td>
                           <td className="username-cell">{user.id}</td>
@@ -254,8 +312,8 @@ const LeaderboardPage = () => {
             <div className="leaderboard-footer">
               <p>
                 Showing {indexOfFirstItem + 1}-
-                {Math.min(indexOfLastItem, filteredUsers.length)} of{" "}
-                {filteredUsers.length} players
+                {Math.min(indexOfLastItem, sortedUsers.length)} of{" "}
+                {sortedUsers.length} players
               </p>
             </div>
           </>
