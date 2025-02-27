@@ -109,7 +109,7 @@ const MobileMenuDropdown = ({ isLoggedIn, onLogout }) => {
               className="DropdownMenuItem"
               onClick={() => setGiftModalOpen(true)}
             >
-              <button>Gift USDC/VEX</button>
+              <button>Gift USD/VEX</button>
             </DropdownMenu.Item>
             <DropdownMenu.Separator className="DropdownMenuSeparator" />
             <DropdownMenu.Item className="DropdownMenuItem">

@@ -152,7 +152,7 @@ const LeaderboardPage = () => {
         </div>
 
         <div className="leaderboard-controls">
-          <div className="search-container">
+          <div className="leaderboard-search-container">
             <input
               type="text"
               placeholder="Search by username..."
@@ -161,7 +161,7 @@ const LeaderboardPage = () => {
                 setSearchTerm(e.target.value);
                 setCurrentPage(1); // Reset to first page on search
               }}
-              className="search-input"
+              className="leaderboard-search-input"
             />
             {searchTerm && (
               <button

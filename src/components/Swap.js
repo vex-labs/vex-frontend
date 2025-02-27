@@ -13,12 +13,14 @@ import {
 } from "lucide-react";
 import { createPortal } from "react-dom";
 
+// Minimum storage deposit required for token registration
+const STORAGE_DEPOSIT_AMOUNT = "1250000000000000000000";
+
 /**
- * Enhanced Swap component
+ * Enhanced Swap component with token registration support
  *
  * This component allows users to swap between VEX and USDC tokens using refswap.
- * It displays input fields for the amounts to be swapped and handles the swap transactions.
- * Users can select the swap direction and enter the amount to be swapped.
+ * It automatically checks and handles token registration for both sender and receiver.
  *
  * @param {Object} props - The component props
  * @param {string} props.signedAccountId - The signed-in user's account ID
@@ -39,6 +41,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapSuccess, setSwapSuccess] = useState(false);
+  const [isCheckingRegistration, setIsCheckingRegistration] = useState(false);
 
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
@@ -128,6 +131,83 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
   };
 
+  /**
+   * Checks if an account is registered with a token contract
+   *
+   * @param {string} tokenContractId - The token contract ID
+   * @param {string} accountId - The account to check
+   * @returns {Promise<boolean>} True if registered, false otherwise
+   */
+  const isAccountRegistered = async (tokenContractId, accountId) => {
+    try {
+      const provider = new providers.JsonRpcProvider(NearRpcUrl);
+      const args = { account_id: accountId };
+
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: tokenContractId,
+        method_name: "storage_balance_of",
+        args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
+        finality: "final",
+      });
+
+      const balance = JSON.parse(Buffer.from(result.result).toString());
+
+      // Account is registered if they have a storage balance
+      return (
+        balance !== null &&
+        BigInt(balance.total) >= BigInt(STORAGE_DEPOSIT_AMOUNT)
+      );
+    } catch (error) {
+      console.error(`Error checking registration for ${accountId}:`, error);
+      return false;
+    }
+  };
+
+  /**
+   * Registers an account with a token contract
+   *
+   * @param {string} tokenContractId - The token contract ID
+   * @param {string} accountId - The account to register
+   * @param {Object} walletObj - The wallet object for NEAR wallet
+   * @param {string} walletPassword - The password for VEX wallet
+   * @returns {Promise<boolean>} True if registration was successful
+   */
+  const registerAccount = async (
+    tokenContractId,
+    accountId,
+    walletObj,
+    walletPassword
+  ) => {
+    try {
+      if (isVexLogin) {
+        // VEX wallet registration
+        await handleTransaction(
+          tokenContractId,
+          "storage_deposit",
+          { account_id: accountId },
+          "30000000000000", // 30 TGas
+          STORAGE_DEPOSIT_AMOUNT,
+          walletObj,
+          walletPassword
+        );
+      } else {
+        // NEAR wallet registration
+        await walletObj.callMethod({
+          contractId: tokenContractId,
+          method: "storage_deposit",
+          args: { account_id: accountId },
+          gas: "30000000000000", // 30 TGas
+          deposit: STORAGE_DEPOSIT_AMOUNT,
+        });
+      }
+      return true;
+    } catch (error) {
+      console.error(`Error registering ${accountId}:`, error);
+      return false;
+    }
+  };
+
   const handleVexAmountChange = async (e) => {
     const newAmount = e.target.value;
     if (newAmount === "" || isNaN(newAmount)) {
@@ -156,6 +236,115 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
   };
 
+  /**
+   * Ensures that necessary accounts are registered with token contracts before swap
+   *
+   * @param {string} sourceTokenId - The source token contract ID
+   * @param {string} targetTokenId - The target token contract ID
+   * @returns {Promise<boolean>} True if all necessary registrations are complete
+   */
+  const ensureTokenRegistrations = async (sourceTokenId, targetTokenId) => {
+    setIsCheckingRegistration(true);
+    setMessage({ text: "Checking token registrations...", type: "info" });
+
+    try {
+      const userId = isVexLogin
+        ? localStorage.getItem("vexAccountId")
+        : signedAccountId;
+      const refSwapId = "ref-finance-101.testnet";
+
+      // Check if user is registered with source token
+      const isUserRegisteredWithSource = await isAccountRegistered(
+        sourceTokenId,
+        userId
+      );
+
+      // Check if refswap contract is registered with source token
+      const isRefswapRegisteredWithSource = await isAccountRegistered(
+        sourceTokenId,
+        refSwapId
+      );
+
+      // Check if user is registered with target token
+      const isUserRegisteredWithTarget = await isAccountRegistered(
+        targetTokenId,
+        userId
+      );
+
+      let registrationsNeeded = [];
+
+      if (!isUserRegisteredWithSource) {
+        registrationsNeeded.push({
+          tokenId: sourceTokenId,
+          accountId: userId,
+          description: "Registering your account with source token",
+        });
+      }
+
+      if (!isRefswapRegisteredWithSource) {
+        registrationsNeeded.push({
+          tokenId: sourceTokenId,
+          accountId: refSwapId,
+          description: "Registering swap contract with source token",
+        });
+      }
+
+      if (!isUserRegisteredWithTarget) {
+        registrationsNeeded.push({
+          tokenId: targetTokenId,
+          accountId: userId,
+          description: "Registering your account with target token",
+        });
+      }
+
+      // Perform any needed registrations
+      if (registrationsNeeded.length > 0) {
+        setMessage({
+          text: `${registrationsNeeded.length} registration(s) needed before swap`,
+          type: "info",
+        });
+
+        for (const reg of registrationsNeeded) {
+          setMessage({ text: reg.description, type: "info" });
+
+          const success = await registerAccount(
+            reg.tokenId,
+            reg.accountId,
+            wallet,
+            password
+          );
+
+          if (!success) {
+            setMessage({
+              text: `Failed to register ${reg.accountId} with ${reg.tokenId}`,
+              type: "error",
+            });
+            setIsCheckingRegistration(false);
+            return false;
+          }
+        }
+
+        setMessage({ text: "All registrations completed", type: "success" });
+      } else {
+        setMessage({
+          text: "All accounts are properly registered",
+          type: "info",
+        });
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Registration check failed:", error);
+      setMessage({
+        text: `Registration check failed: ${error.message || "Unknown error"}`,
+        type: "error",
+      });
+      return false;
+    } finally {
+      setIsCheckingRegistration(false);
+    }
+  };
+
   const handleNearSwap = async () => {
     if (!wallet) {
       setMessage({ text: "Wallet is not initialized", type: "error" });
@@ -167,6 +356,22 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     );
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       setMessage({ text: "Invalid swap amount", type: "error" });
+      return;
+    }
+
+    const sourceTokenId = swapDirection
+      ? "token.betvex.testnet"
+      : "usdc.betvex.testnet";
+    const targetTokenId = swapDirection
+      ? "usdc.betvex.testnet"
+      : "token.betvex.testnet";
+
+    // Ensure all necessary token registrations are complete
+    const registrationsComplete = await ensureTokenRegistrations(
+      sourceTokenId,
+      targetTokenId
+    );
+    if (!registrationsComplete) {
       return;
     }
 
@@ -185,8 +390,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         text: "Swap successful! Tokens have been transferred",
         type: "success",
       });
-      toggleRefreshBalances(); // Trigger balance refresh after a successful transaction
-
       // Reset form after successful swap
       setTimeout(() => {
         setVexAmount("");
@@ -202,6 +405,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       });
     } finally {
       setIsSwapping(false);
+      toggleRefreshBalances();
     }
   };
 
@@ -211,9 +415,12 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       return;
     }
 
-    const tokenContractId = swapDirection
+    const sourceTokenId = swapDirection
       ? "token.betvex.testnet"
       : "usdc.betvex.testnet";
+    const targetTokenId = swapDirection
+      ? "usdc.betvex.testnet"
+      : "token.betvex.testnet";
     const receiverId = "ref-finance-101.testnet";
     const poolId = 2197;
 
@@ -224,6 +431,15 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
 
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       setMessage({ text: "Invalid swap amount", type: "error" });
+      return;
+    }
+
+    // Ensure all necessary token registrations are complete
+    const registrationsComplete = await ensureTokenRegistrations(
+      sourceTokenId,
+      targetTokenId
+    );
+    if (!registrationsComplete) {
       return;
     }
 
@@ -262,7 +478,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
 
     try {
       const outcome = await handleTransaction(
-        tokenContractId,
+        sourceTokenId,
         "ft_transfer_call",
         {
           receiver_id: receiverId,
@@ -280,8 +496,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         text: "Swap successful! Tokens have been transferred",
         type: "success",
       });
-      toggleRefreshBalances(); // Trigger balance refresh after successful transaction
-
       // Reset form after successful swap
       setTimeout(() => {
         setVexAmount("");
@@ -297,6 +511,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       });
     } finally {
       setIsSwapping(false);
+      toggleRefreshBalances();
     }
   };
 
@@ -347,6 +562,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
   const isSwapDisabled =
     isSwapping ||
     isCalculating ||
+    isCheckingRegistration ||
     insufficientBalance ||
     (swapDirection ? !Number(vexAmount) : !Number(usdcAmount));
 
@@ -395,7 +611,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
             className="token-logo"
           />
           <div>
-            <p className="token-name">{swapDirection ? "VEX" : "USDC"}</p>
+            <p className="token-name">{swapDirection ? "VEX" : "USD"}</p>
           </div>
         </div>
         <div className="input-wrapper">
@@ -408,7 +624,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
               swapDirection ? handleVexAmountChange : handleUsdcAmountChange
             }
             className="token-input"
-            disabled={isSwapping}
+            disabled={isSwapping || isCheckingRegistration}
           />
         </div>
       </div>
@@ -432,7 +648,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         <button
           className="swap-direction-button"
           onClick={toggleSwapDirection}
-          disabled={isSwapping}
+          disabled={isSwapping || isCheckingRegistration}
         >
           <ArrowDownUp size={20} />
         </button>
@@ -497,16 +713,18 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       )}
 
       <button
-        className={`swap-button ${isSwapping ? "loading" : ""} ${
-          swapSuccess ? "success" : ""
-        }`}
+        className={`swap-button ${
+          isSwapping || isCheckingRegistration ? "loading" : ""
+        } ${swapSuccess ? "success" : ""}`}
         onClick={handleSwap}
         disabled={isSwapDisabled}
       >
-        {isSwapping ? (
+        {isSwapping || isCheckingRegistration ? (
           <span className="button-content">
             <Loader2 size={18} className="loading-icon" />
-            Processing...
+            {isCheckingRegistration
+              ? "Checking registration..."
+              : "Processing..."}
           </span>
         ) : swapSuccess ? (
           <span className="button-content">

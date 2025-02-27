@@ -2,57 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
-import {
-  ArrowLeft,
-  AlertCircle,
-  CheckCircle,
-  DollarSign,
-  X,
-} from "lucide-react";
+import { AlertCircle, CheckCircle, DollarSign, X } from "lucide-react";
 import { createPortal } from "react-dom";
-
-const games = [
-  {
-    name: "counter-strike-2",
-    label: "Counter Strike 2",
-    icon: "/icons/games/csgo.png",
-  },
-  {
-    name: "lol",
-    label: "League of Legends",
-    icon: "/icons/games/lol.png",
-  },
-  {
-    name: "valorant",
-    label: "Valorant",
-    icon: "/icons/games/valorant.png",
-  },
-  {
-    name: "fortnite",
-    label: "Fortnite",
-    icon: "/icons/games/fortnite.png",
-  },
-  {
-    name: "apex",
-    label: "Apex Legends",
-    icon: "/icons/games/apex.png",
-  },
-  {
-    name: "rainbowsix",
-    label: "Rainbow Six Siege",
-    icon: "/icons/games/rainbowsix.png",
-  },
-  {
-    name: "dota2",
-    label: "Dota 2",
-    icon: "/icons/games/dota2.png",
-  },
-  {
-    name: "overwatch-2",
-    label: "Overwatch 2",
-    icon: "/icons/games/overwatch.png",
-  },
-];
+import { toast } from "sonner";
+import { games } from "@/data/games";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 
 /**
  * Enhanced GameCard component with modal betting view
@@ -111,6 +65,8 @@ const GameCard = ({
   const formatTeamName = (name) => {
     return name ? name.replace(/_/g, " ") : "Unknown Team";
   };
+
+  const { toggleRefreshBalances } = useGlobalContext();
 
   // Handle password retrieval on component mount
   useEffect(() => {
@@ -278,7 +234,7 @@ const GameCard = ({
       return;
     }
 
-    if (!password) {
+    if (!password && vexAccountId) {
       setShowPasswordModal(true); // Show modal if password is not set
       return;
     }
@@ -299,6 +255,7 @@ const GameCard = ({
       );
 
       setBetSuccess(true);
+      toggleRefreshBalances();
       setMessage({
         text: "Bet placed successfully! You can view your active bets in your profile",
         type: "success",
@@ -332,11 +289,15 @@ const GameCard = ({
 
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
-    if (!wallet && !vexAccountId) {
+    if (!wallet.selector.isSignedIn() && !vexAccountId) {
       console.log("No wallet or VEX account ID available");
+      toast.error("Please connect your wallet first");
       // If user is not logged in, we could show a login prompt
       return;
     }
+
+    console.log("wallet", wallet.selector.isSignedIn());
+    console.log("vexAccountId", vexAccountId);
 
     setSelectedBet(bet);
     setShowBettingModal(true);
@@ -409,7 +370,15 @@ const GameCard = ({
                 e.target.src = "/icons/teams/default_team.png";
               }}
             />
-            <span className="team-name">{formatTeamName(team1Name)}</span>
+            <div
+              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+              onClick={() => !isLoadingOdds && handleOddsClick(team1Name)}
+            >
+              <span className="odds-team">{formatTeamName(team1Name)} Win</span>
+              <span className="odds-value">
+                {isLoadingOdds ? "..." : updatedOdds1}
+              </span>
+            </div>
           </div>
 
           <div className="vs">
@@ -425,29 +394,15 @@ const GameCard = ({
                 e.target.src = "/icons/teams/default_team.png";
               }}
             />
-            <span className="team-name">{formatTeamName(team2Name)}</span>
-          </div>
-        </div>
-
-        <div className="match-odds">
-          <div
-            className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
-            onClick={() => !isLoadingOdds && handleOddsClick(team1Name)}
-          >
-            <span className="odds-team">{formatTeamName(team1Name)} Win</span>
-            <span className="odds-value">
-              {isLoadingOdds ? "..." : updatedOdds1}
-            </span>
-          </div>
-
-          <div
-            className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
-            onClick={() => !isLoadingOdds && handleOddsClick(team2Name)}
-          >
-            <span className="odds-team">{formatTeamName(team2Name)} Win</span>
-            <span className="odds-value">
-              {isLoadingOdds ? "..." : updatedOdds2}
-            </span>
+            <div
+              className={`odds ${isLoadingOdds ? "odds-loading" : ""}`}
+              onClick={() => !isLoadingOdds && handleOddsClick(team2Name)}
+            >
+              <span className="odds-team">{formatTeamName(team2Name)} Win</span>
+              <span className="odds-value">
+                {isLoadingOdds ? "..." : updatedOdds2}
+              </span>
+            </div>
           </div>
         </div>
       </div>

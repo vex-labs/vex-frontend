@@ -75,6 +75,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   useEffect(() => {
     const accountId = signedAccountId || vexAccountId;
 
+    console.log("fetching staked balance");
     if (accountId) {
       fetchStakedBalance(accountId);
       rewards_ready_to_swap(stakingContractId);
@@ -224,14 +225,6 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
               type: "success",
             });
             setActionSuccess(true);
-            setRefreshBalances((prev) => !prev);
-            toggleRefreshBalances();
-
-            // Reset form after successful transaction
-            setTimeout(() => {
-              setAmount("");
-              setActionSuccess(false);
-            }, 3000);
           } else {
             setMessage({
               text: "Failed to stake. Please try again",
@@ -260,14 +253,6 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         if (stakeResult && !stakeResult.error) {
           setMessage({ text: "Stake successful!", type: "success" });
           setActionSuccess(true);
-          setRefreshBalances((prev) => !prev);
-          toggleRefreshBalances();
-
-          // Reset form after successful transaction
-          setTimeout(() => {
-            setAmount("");
-            setActionSuccess(false);
-          }, 3000);
         } else {
           setMessage({
             text: "Failed to stake. Please try again",
@@ -283,6 +268,14 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       console.error("Error during deposit and stake process:", error);
     } finally {
       setIsProcessing(false);
+
+      // Reset form after successful transaction
+      setTimeout(() => {
+        setAmount("");
+        setActionSuccess(false);
+        setRefreshBalances((prev) => !prev);
+        toggleRefreshBalances();
+      }, 3000);
     }
   };
 
@@ -363,6 +356,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           });
         }
       } else {
+        console.log("unstaking with wallet");
         const unstakeResult = await wallet.callMethod({
           contractId: stakingContractId,
           method: "unstake",
@@ -371,43 +365,26 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           deposit,
         });
 
-        if (unstakeResult && !unstakeResult.error) {
+        if (unstakeResult.error) {
           setMessage({
-            text: "Unstake successful. Proceeding to withdraw...",
-            type: "info",
-          });
-
-          const withdrawResult = await wallet.callMethod({
-            contractId: stakingContractId,
-            method: "withdraw_all",
-            args: {},
-            gas,
-            deposit,
-          });
-
-          if (withdrawResult && !withdrawResult.error) {
-            setMessage({ text: "Withdraw successful!", type: "success" });
-            setActionSuccess(true);
-            setRefreshBalances((prev) => !prev);
-            toggleRefreshBalances();
-
-            // Reset form after successful transaction
-            setTimeout(() => {
-              setAmount("");
-              setActionSuccess(false);
-            }, 3000);
-          } else {
-            setMessage({
-              text: "Withdraw failed. Please try again",
-              type: "error",
-            });
-          }
-        } else {
-          setMessage({
-            text: "Failed to unstake. Please try again",
+            text: "Unstake failed. Please try again",
             type: "error",
           });
+          return;
         }
+
+        setMessage({
+          text: "Unstake successful.",
+          type: "info",
+        });
+        // Reset form after successful unstake
+        setTimeout(() => {
+          setAmount("");
+          setActionSuccess(false);
+          setActionSuccess(true);
+          setRefreshBalances((prev) => !prev);
+          toggleRefreshBalances();
+        }, 3000);
       }
     } catch (error) {
       setMessage({
@@ -516,7 +493,9 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
   return (
     <div className="staking-container">
       <div className="staking-header-row">
-        <h2 className="staking-heading">VEX Staking</h2>
+        <h2 className="staking-heading">
+          {selectedOption === "stake" ? "Activate" : "Deactivate"} VEX Rewards
+        </h2>
 
         <button
           className={`distribute-rewards-button ${
@@ -557,17 +536,17 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-title">Your Staked Balance</div>
+          <div className="stat-title">Your Activated Balance</div>
           <div className="stat-value">
             {stakedBalance} <span className="token-unit">VEX</span>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-title">USDC Rewards Available</div>
+          <div className="stat-title">USD Rewards Available</div>
           <div className="stat-value usdc-value">
             {totalUSDCRewards !== null ? totalUSDCRewards : "0.00"}{" "}
-            <span className="token-unit">USDC</span>
+            <span className="token-unit">USD</span>
           </div>
         </div>
       </div>
@@ -579,7 +558,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           }`}
           onClick={() => setSelectedOption("stake")}
         >
-          Stake
+          Activate
         </button>
         <button
           className={`toggle-button ${
@@ -587,7 +566,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
           }`}
           onClick={() => setSelectedOption("unstake")}
         >
-          Unstake
+          Deactivate
         </button>
       </div>
 
@@ -650,7 +629,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       )}
 
       <button
-        className={`confirm-button ${isProcessing ? "loading" : ""} ${
+        className={`confirm-button last ${isProcessing ? "loading" : ""} ${
           actionSuccess &&
           (selectedOption === "stake" || selectedOption === "unstake")
             ? "success"
@@ -675,7 +654,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         ) : insufficientBalance ? (
           "Insufficient Balance"
         ) : (
-          `Confirm ${selectedOption === "stake" ? "Stake" : "Unstake"}`
+          `${selectedOption === "stake" ? "Activate" : "Deactivate"} VEX`
         )}
       </button>
 

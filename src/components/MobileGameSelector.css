@@ -1,0 +1,162 @@
+/* Mobile Game Selector Styles */
+.mobile-game-main-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+
+  h1 {
+    font-size: 24px;
+  }
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+}
+
+.mobile-game-selector {
+  width: 100%;
+  margin: 0 auto;
+  overflow-x: auto;
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  box-sizing: border-box;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.mobile-game-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-game-selector-container {
+  display: flex;
+  gap: 16px;
+  min-width: min-content;
+}
+
+.mobile-game {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 80px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.mobile-game img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  object-fit: cover;
+  transition: all 0.2s ease;
+}
+
+.mobile-game span {
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.mobile-game:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.mobile-game:hover img {
+  transform: scale(1.1);
+}
+
+.mobile-game.active {
+  background-color: rgba(255, 51, 88, 0.1);
+  color: var(--primary-color, #ff3358);
+  position: relative;
+}
+
+.mobile-game.active::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 2px;
+  background-color: var(--primary-color, #ff3358);
+  border-radius: 2px;
+}
+
+.mobile-game.active img {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(255, 51, 88, 0.3);
+}
+
+/* Media queries for various screen sizes */
+@media (max-width: 480px) {
+  .mobile-game-selector {
+    border-radius: 0;
+    margin: 0 -16px 16px -16px;
+    width: calc(100% + 32px);
+  }
+
+  .mobile-game {
+    min-width: 70px;
+    padding: 8px;
+  }
+
+  .mobile-game img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .mobile-game span {
+    font-size: 11px;
+  }
+}
+
+/* Animation for new games or featured games */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.mobile-game.new::before {
+  content: "NEW";
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: var(--accent-color, #ff5722);
+  color: white;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 2px 4px;
+  border-radius: 4px;
+  z-index: 1;
+  animation: pulse 2s infinite;
+}
+
+/* Dark mode adjustments if needed */
+@media (prefers-color-scheme: dark) {
+  .mobile-game {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .mobile-game.active {
+    background-color: rgba(255, 51, 88, 0.15);
+  }
+}

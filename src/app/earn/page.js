@@ -7,6 +7,8 @@ import { useNear } from "@/app/context/NearContext";
 import { Wallet, Coins, ArrowUpDown } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
+import { providers } from "near-api-js";
+import { GuestbookNearContract, NearRpcUrl } from "@/app/config";
 
 const EarnPage = () => {
   const nearContext = useNear();
@@ -40,7 +42,7 @@ const EarnPage = () => {
     });
 
     // Start observing the sidebar element
-    const sidebar = document.querySelector(".sidebar");
+    const sidebar = document.querySelector(".app-sidebar");
     if (sidebar) {
       observer.observe(sidebar, { attributes: true });
     }
@@ -54,19 +56,61 @@ const EarnPage = () => {
   // Function to check if sidebar is collapsed
   const checkSidebarState = () => {
     if (typeof document !== "undefined") {
-      const sidebarElement = document.querySelector(".sidebar");
+      const sidebarElement = document.querySelector(".app-sidebar");
       if (sidebarElement) {
         setIsSidebarCollapsed(sidebarElement.classList.contains("collapsed"));
       }
     }
   };
 
+  const provider = new providers.JsonRpcProvider(NearRpcUrl);
+
+  const [stakedBalance, setStakedBalance] = useState(0);
+  const [vexAccountId, setVexAccountId] = useState();
+
+  useEffect(() => {
+    if (isVexLogin) {
+      const storedVexAccountId = localStorage.getItem("vexAccountId");
+      if (storedVexAccountId) {
+        setVexAccountId(storedVexAccountId);
+      }
+    }
+  }, [isVexLogin]);
+
+  const fetchStakedBalance = async (accountId) => {
+    try {
+      const args = { account_id: accountId };
+      const encodedArgs = Buffer.from(JSON.stringify(args)).toString("base64");
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: GuestbookNearContract,
+        method_name: "get_user_staked_bal",
+        args_base64: encodedArgs,
+        finality: "final",
+      });
+
+      const resultString = Buffer.from(result.result).toString();
+      // Parse as JSON to access U128 structure
+      const parsedResult = JSON.parse(resultString);
+      const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
+
+      setStakedBalance(isNaN(stakedBalanceRaw) ? 0 : stakedBalanceRaw);
+    } catch (error) {
+      console.error("Error fetching staked balance:", error);
+    }
+  };
+
+  useEffect(() => {
+    const accountId = signedAccountId || vexAccountId;
+
+    if (accountId) {
+      fetchStakedBalance(accountId);
+    }
+  }, [signedAccountId, vexAccountId]);
+
   return (
     <div
       className={`earn-page ${isSidebarCollapsed ? "sidebar-collapsed" : ""}`}
-      style={{
-        marginLeft: isSidebarCollapsed ? "60px" : "230px",
-      }}
     >
       <Sidebar2 />
 
@@ -74,7 +118,8 @@ const EarnPage = () => {
         <div className="earn-page-header">
           <h1 className="earn-page-title">Earn & Manage</h1>
           <p className="earn-page-description">
-            Swap tokens and stake VEX to earn rewards in the BetVEX ecosystem
+            Swap tokens and activate VEX Rewards to earn rewards in the BetVEX
+            ecosystem
           </p>
         </div>
 
@@ -108,8 +153,8 @@ const EarnPage = () => {
               <ArrowUpDown size={20} />
             </div>
             <div className="earn-stat-content">
-              <span className="earn-stat-value">24/7</span>
-              <span className="earn-stat-label">Trading Available</span>
+              <span className="earn-stat-value">{stakedBalance}</span>
+              <span className="earn-stat-label">Activated $VEX Rewards</span>
             </div>
           </div>
         </div>
@@ -142,10 +187,10 @@ const EarnPage = () => {
               <div className="earn-card-header">
                 <h3 className="earn-card-title">
                   <Coins size={18} />
-                  VEX Staking
+                  Activate VEX Rewards
                 </h3>
                 <div className="earn-card-subtitle">
-                  Stake your VEX tokens to earn rewards
+                  Activate your VEX Rewards to earn rewards
                 </div>
               </div>
 
@@ -174,19 +219,19 @@ const EarnPage = () => {
               <h3 className="earn-faq-question">How does staking work?</h3>
               <p className="earn-faq-answer">
                 Staking allows you to lock your VEX tokens in the staking
-                contract to earn USDC rewards. The more VEX you stake and the
-                longer you stake it, the more rewards you can earn.
+                contract to earn USDC rewards. The more VEX you activate and the
+                longer you activate it, the more rewards you can earn.
               </p>
             </div>
 
             <div className="earn-faq-item">
               <h3 className="earn-faq-question">
-                Can I unstake my tokens at any time?
+                Can I deactivate my tokens at any time?
               </h3>
               <p className="earn-faq-answer">
-                Yes, you can unstake your VEX tokens at any time without
-                penalties. Once unstaked, you can withdraw your tokens back to
-                your wallet.
+                Yes, you can deactivate your VEX tokens at any time without
+                penalties. Once deactivated, you can withdraw your tokens back
+                to your wallet.
               </p>
             </div>
 

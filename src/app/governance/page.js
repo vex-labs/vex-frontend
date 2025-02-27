@@ -10,9 +10,9 @@ const GovernancePage = () => {
       <div className="container governance-content">
         <h2
           style={{
-            fontSize: "4rem",
+            fontSize: "2rem",
             fontWeight: "bold",
-            color: "#FF3358", // Or any color you prefer
+            color: "#fff", // Or any color you prefer
             textAlign: "center",
           }}
         >

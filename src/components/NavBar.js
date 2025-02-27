@@ -203,18 +203,17 @@ const NavBar = ({
             <>
               <div className="mobile-balance">
                 {Object.keys(tokenBalances).length > 0 &&
-                  Object.entries(tokenBalances).map(
-                    ([token, balance], index) =>
-                      index === 0 ? (
-                        <div key={token} className="token-item-mobile">
-                          <img
-                            src={`/icons/${token}.svg`}
-                            alt={token}
-                            className="token-icon-mobile"
-                          />
-                          <span>{formatBalance(balance)}</span>
-                        </div>
-                      ) : null,
+                  Object.entries(tokenBalances).map(([token, balance], index) =>
+                    index === 0 ? (
+                      <div key={token} className="token-item-mobile">
+                        <img
+                          src={`/icons/${token}.svg`}
+                          alt={token}
+                          className="token-icon-mobile"
+                        />
+                        <span>{formatBalance(balance)}</span>
+                      </div>
+                    ) : null
                   )}
               </div>
               <DepositModal />
