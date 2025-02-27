@@ -4,7 +4,7 @@ import "./DepositModal.css";
 import { useNear } from "@/app/context/NearContext";
 import { useState, useEffect } from "react";
 
-const DepositModal = () => {
+const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const nearContext = useNear();
   const isVexLogin =
     typeof window !== "undefined" &&
@@ -61,7 +61,7 @@ const DepositModal = () => {
       const contractId = "v2.faucet.nonofficial.testnet";
       // Convert amount to proper format (assuming 6 decimals for USDC)
       const amountInSmallestUnit = Math.round(
-        parseFloat(inputAmount) * 1000000,
+        parseFloat(inputAmount) * 1000000
       ).toString();
 
       const args = {
@@ -92,28 +92,33 @@ const DepositModal = () => {
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Trigger asChild>
-        <button className="nav-link-deposit">
-          <span className="deposit-button-icon">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
-          </span>
-          <span className="deposit-button-text">Deposit</span>
-        </button>
-      </Dialog.Trigger>
+    <Dialog.Root
+      open={modalOnly ? modalOpen : isOpen}
+      onOpenChange={modalOnly ? setModalOpen : setIsOpen}
+    >
+      {!modalOnly && (
+        <Dialog.Trigger asChild>
+          <button className="nav-link-deposit">
+            <span className="deposit-button-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14" />
+                <path d="M12 5v14" />
+              </svg>
+            </span>
+            <span className="deposit-button-text">Deposit</span>
+          </button>
+        </Dialog.Trigger>
+      )}
       <Dialog.Portal>
         <Dialog.Overlay className="DialogOverlay" />
         <Dialog.Content className="DialogContent">

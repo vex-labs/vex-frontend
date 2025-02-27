@@ -14,6 +14,7 @@ import { GlobalProvider } from "./context/GlobalContext";
 import { NearRpcUrl } from "./config";
 import Providers from "./providers";
 import { Toaster } from "sonner";
+import MobileNavbar from "@/components/MobileNavigation";
 
 // Initialize fonts
 const exo = Exo({
@@ -224,12 +225,29 @@ export default function RootLayout({ children }) {
                 onVexLogout={handleVexLogout}
                 isVexLogin={true}
               />
+              <MobileNavbar
+                isLoggedIn={true}
+                walletBalance={tokenBalances}
+                onLogin={handleLogin}
+                onLogout={handleLogout}
+                onVexLogin={() => setShowVexLogin(true)}
+                onVexLogout={handleVexLogout}
+                isVexLogin={true}
+              />
               {children}
             </GlobalProvider>
           ) : (
             <GlobalProvider>
               <NearContext.Provider value={{ wallet, signedAccountId }}>
                 <NavBar
+                  isLoggedIn={!!signedAccountId}
+                  walletBalance={tokenBalances}
+                  onLogin={handleLogin}
+                  onLogout={handleLogout}
+                  onVexLogin={() => setShowVexLogin(true)}
+                  onVexLogout={handleVexLogout}
+                />
+                <MobileNavbar
                   isLoggedIn={!!signedAccountId}
                   walletBalance={tokenBalances}
                   onLogin={handleLogin}

@@ -5,7 +5,6 @@ import { useGlobalContext } from "../app/context/GlobalContext";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
 import { useEffect, useState } from "react";
-import MobileMenuDropdown from "./MobileMenuDropdown";
 import { usePathname } from "next/navigation";
 
 /**
@@ -220,16 +219,6 @@ const NavBar = ({
               <DepositModal />
             </>
           )}
-
-          <MobileMenuDropdown
-            onLogout={onLogout}
-            onLogin={onLogin}
-            isLoggedIn={isLoggedIn}
-            isVexLogin={isVexLogin}
-            onVexLogin={onVexLogin}
-            activeLink={activeLink}
-            setActiveLink={setActiveLink}
-          />
         </div>
       </div>
     </nav>
