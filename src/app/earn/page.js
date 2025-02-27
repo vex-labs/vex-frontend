@@ -106,7 +106,7 @@ const EarnPage = () => {
     if (accountId) {
       fetchStakedBalance(accountId);
     }
-  }, [signedAccountId, vexAccountId]);
+  }, [signedAccountId, vexAccountId, tokenBalances]);
 
   return (
     <div
