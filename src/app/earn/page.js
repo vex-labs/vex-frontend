@@ -8,7 +8,7 @@ import { Wallet, Coins, ArrowUpDown } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
-import { GuestbookNearContract, NearRpcUrl } from "@/app/config";
+import { VexContract, NearRpcUrl } from "@/app/config";
 
 const EarnPage = () => {
   const nearContext = useNear();
@@ -43,7 +43,7 @@ const EarnPage = () => {
       const encodedArgs = Buffer.from(JSON.stringify(args)).toString("base64");
       const result = await provider.query({
         request_type: "call_function",
-        account_id: GuestbookNearContract,
+        account_id: VexContract,
         method_name: "get_user_staked_bal",
         args_base64: encodedArgs,
         finality: "final",

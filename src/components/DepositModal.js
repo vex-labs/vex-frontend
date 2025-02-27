@@ -3,6 +3,7 @@ import { Dialog } from "radix-ui";
 import "./DepositModal.css";
 import { useNear } from "@/app/context/NearContext";
 import { useState, useEffect } from "react";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 
 const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const nearContext = useNear();
@@ -12,7 +13,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const accountId = isVexLogin
     ? localStorage.getItem("vexAccountId")
     : nearContext?.signedAccountId || null;
-  const wallet = isVexLogin ? null : nearContext?.wallet || null;
+  const { toggleRefreshBalances } = useGlobalContext();
 
   const [amount, setAmount] = useState(1.0);
   const [message, setMessage] = useState("");
@@ -54,12 +55,38 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
     }
   };
 
+  const callNearFunction = async (accountId, args) => {
+    setIsLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch("/api/relayer/faucet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId,
+          args,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error calling NEAR function");
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setMessage("Error calling NEAR function");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const depositFunds = async (inputAmount) => {
     try {
       setIsLoading(true);
       setMessage("");
-      const contractId = "v2.faucet.nonofficial.testnet";
-      // Convert amount to proper format (assuming 6 decimals for USDC)
       const amountInSmallestUnit = Math.round(
         parseFloat(inputAmount) * 1000000
       ).toString();
@@ -70,24 +97,18 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
         ft_contract_id: "usdc.betvex.testnet",
       };
 
-      console.log("args:", args);
-      console.log("amountInSmallestUnit:", amountInSmallestUnit);
-      console.log("wallet:", wallet);
+      await callNearFunction(accountId, args);
 
-      const res = await wallet.callMethod({
-        contractId: contractId,
-        method: "ft_request_funds",
-        args: args,
-        gas: "100000000000000",
-      });
-
-      console.log("res:", res);
       setIsSuccess(true);
       setIsLoading(false);
     } catch (error) {
       console.error("Failed to deposit funds:", error);
       setMessage("Transaction failed. Please try again.");
       setIsLoading(false);
+    } finally {
+      await setTimeout(() => {
+        toggleRefreshBalances();
+      }, []);
     }
   };
 

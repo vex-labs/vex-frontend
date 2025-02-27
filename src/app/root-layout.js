@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { NearContext } from "@/app/context/NearContext";
 import { Wallet } from "./wallet/Wallet";
-import { NetworkId, GuestbookNearContract } from "./config";
+import { NetworkId, VexContract } from "./config";
 import NavBar from "@/components/NavBar";
 import "./globals.css";
 import { providers, utils } from "near-api-js";
@@ -58,7 +58,7 @@ export default function RootLayout({ children }) {
 
   const wallet = useMemo(() => {
     return new Wallet({
-      createAccessKeyFor: GuestbookNearContract,
+      createAccessKeyFor: VexContract,
       networkId: NetworkId,
     });
   }, []);

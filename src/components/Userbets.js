@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { handleTransaction } from "@/utils/accountHandler";
-import { GuestbookNearContract, QueryURL } from "@/app/config";
+import { VexContract, QueryURL } from "@/app/config";
 import { DropdownMenu } from "radix-ui";
 import { gql, request } from "graphql-request";
 import {
@@ -122,7 +122,7 @@ const UserBets = ({ userBets, wallet, signedAccountId }) => {
       const isVexLogin =
         typeof window !== "undefined" &&
         localStorage.getItem("isVexLogin") === "true";
-      const contractId = GuestbookNearContract;
+      const contractId = VexContract;
       const gas = "300000000000000";
       const args = { bet_id: betId };
 
