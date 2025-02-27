@@ -38,8 +38,6 @@ const TEAM_ICON_MAP = {
  * @param {boolean} props.isLoading - Global loading state from parent
  * @param {string} props.selectedGame - Currently selected game filter
  * @param {string} props.searchTerm - Search term for filtering matches
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.vexAccountId - User's VEX account ID
  * @param {Function} props.onUpdateAvailableGames - Callback to update available games
  *
  * @returns {JSX.Element} The rendered FeaturedGames component
@@ -48,8 +46,6 @@ const FeaturedGames = ({
   isLoading: parentIsLoading,
   selectedGame,
   searchTerm = "",
-  wallet,
-  vexAccountId,
   onUpdateAvailableGames,
 }) => {
   // Build the GraphQL query with game filter if provided
@@ -258,8 +254,6 @@ const FeaturedGames = ({
               matchId={match.id}
               team2Logo={getTeamLogo(match.team_2)}
               team2Name={match.team_2 || "Team 2"}
-              wallet={wallet}
-              vexAccountId={vexAccountId}
               walletBalance={tokenBalances.USDC}
             />
           ))}

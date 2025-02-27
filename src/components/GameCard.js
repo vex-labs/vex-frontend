@@ -9,6 +9,8 @@ import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { games } from "@/data/games";
 import { useGlobalContext } from "@/app/context/GlobalContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useNear } from "@/app/context/NearContext";
 
 /**
  * Enhanced GameCard component with modal betting view
@@ -27,8 +29,6 @@ import { useGlobalContext } from "@/app/context/GlobalContext";
  * @param {string} props.team2Name - Name of the second team
  * @param {string} props.matchId - ID of the match
  * @param {number} props.walletBalance - User's wallet balance
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.vexAccountId - User's VEX account ID
  *
  * @returns {JSX.Element} The rendered GameCard component
  */
@@ -43,9 +43,15 @@ const GameCard = ({
   team2Name,
   matchId,
   walletBalance = "0",
-  wallet,
-  vexAccountId,
 }) => {
+  // Get authentication contexts
+  const {
+    web3auth,
+    nearConnection,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
+  const { wallet, signedAccountId } = useNear();
+
   // Component state
   const [showBettingModal, setShowBettingModal] = useState(false);
   const [selectedBet, setSelectedBet] = useState(null);
@@ -56,8 +62,6 @@ const GameCard = ({
     text: "Enter stake amount to see potential payout",
     type: "info",
   });
-  const [password, setPassword] = useState("");
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [isLoadingOdds, setIsLoadingOdds] = useState(true);
   const [isCalculatingWinnings, setIsCalculatingWinnings] = useState(false);
   const [isPlacingBet, setIsPlacingBet] = useState(false);
@@ -69,12 +73,6 @@ const GameCard = ({
   };
 
   const { toggleRefreshBalances } = useGlobalContext();
-
-  // Handle password retrieval on component mount
-  useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword") || "";
-    setPassword(savedPassword);
-  }, []);
 
   // Fetch match details and odds from the blockchain
   const fetchMatchDetails = useCallback(async () => {
@@ -203,7 +201,8 @@ const GameCard = ({
       return;
     }
 
-    if (!wallet && !vexAccountId) {
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
       setMessage({
         text: "Wallet not initialized. Please connect your wallet first",
         type: "error",
@@ -236,11 +235,6 @@ const GameCard = ({
       return;
     }
 
-    if (!password && vexAccountId) {
-      setShowPasswordModal(true); // Show modal if password is not set
-      return;
-    }
-
     setIsPlacingBet(true);
     try {
       const betAmount = BigInt(Math.floor(parseFloat(stake) * 1e6)).toString();
@@ -252,8 +246,8 @@ const GameCard = ({
         BetContractId,
         "usdc.betvex.testnet",
         wallet,
-        vexAccountId,
-        password
+        web3authAccountId,
+        nearConnection
       );
 
       setBetSuccess(true);
@@ -262,8 +256,6 @@ const GameCard = ({
         text: "Bet placed successfully! You can view your active bets in your profile",
         type: "success",
       });
-
-      setPassword(null); // Clear password after transaction
     } catch (error) {
       console.error("Failed to place bet:", error);
       setMessage({
@@ -275,15 +267,6 @@ const GameCard = ({
     }
   };
 
-  // Handle password submission
-  const handlePasswordSubmit = () => {
-    if (!password) {
-      return;
-    }
-    setShowPasswordModal(false);
-    handlePlaceBet();
-  };
-
   // Fetch match details on component mount
   useEffect(() => {
     fetchMatchDetails();
@@ -291,15 +274,15 @@ const GameCard = ({
 
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
-    if (!wallet.selector.isSignedIn() && !vexAccountId) {
-      console.log("No wallet or VEX account ID available");
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      console.log("No wallet connected");
       toast.error("Please connect your wallet first");
-      // If user is not logged in, we could show a login prompt
       return;
     }
 
-    console.log("wallet", wallet.selector.isSignedIn());
-    console.log("vexAccountId", vexAccountId);
+    console.log("Web3Auth connected:", web3auth?.connected);
+    console.log("Near wallet connected:", !!signedAccountId);
 
     setSelectedBet(bet);
     setShowBettingModal(true);
@@ -584,42 +567,6 @@ const GameCard = ({
                   </div>
                 </>
               )}
-            </div>
-          </div>,
-          document.body
-        )}
-
-      {/* Password Modal */}
-      {showPasswordModal &&
-        createPortal(
-          <div className="modal">
-            <div className="modal-content">
-              <h3>Enter Password</h3>
-              <p className="modal-description">
-                Please enter your wallet password to place the bet
-              </p>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your wallet password"
-                className="password-input"
-              />
-              <div className="modal-buttons">
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="cancel-modal-button"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handlePasswordSubmit}
-                  className="submit-modal-button"
-                  disabled={!password}
-                >
-                  Submit
-                </button>
-              </div>
             </div>
           </div>,
           document.body

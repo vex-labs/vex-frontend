@@ -3,20 +3,17 @@ import { DropdownMenu } from "radix-ui";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 import GiftModal from "./GiftModal";
 import { LogOut, Gift, Settings, ArrowDown, UserCircle } from "lucide-react";
 
 const UserDropdown = ({ onLogout }) => {
-  const nearContext = useNear();
   const [open, setOpen] = useState(false);
   const [giftModalOpen, setGiftModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
-  const isVexLogin =
-    typeof window !== "undefined" &&
-    localStorage.getItem("isVexLogin") === "true";
-  const accountId = isVexLogin
-    ? localStorage.getItem("vexAccountId")
-    : nearContext?.signedAccountId || null;
+  const { web3auth } = useWeb3Auth();
+  const { accountId } = useGlobalContext();
 
   // Format account ID if too long
   const displayAccountId =
@@ -127,7 +124,7 @@ const UserDropdown = ({ onLogout }) => {
               <div className="user-info">
                 <span className="user-account-id">{displayAccountId}</span>
                 <span className="user-wallet-type">
-                  {isVexLogin ? "VEX Wallet" : "NEAR Wallet"}
+                  {web3auth?.connected ? "Web3Auth" : "NEAR Wallet"}
                 </span>
               </div>
             </div>

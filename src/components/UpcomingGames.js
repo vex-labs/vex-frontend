@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import GameCard from "./GameCard";
 import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { RefreshCw, AlertCircle, Calendar } from "lucide-react";
 import { QueryURL } from "@/app/config";
@@ -50,16 +51,13 @@ const GAME_LABELS = {
  * @param {Object} props - The component props
  * @param {boolean} props.isLoading - Global loading state from parent
  * @param {string} props.selectedGame - Currently selected game filter
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.vexAccountId - User's VEX account ID
+ * @param {string} props.searchTerm - Search term for filtering matches
  *
  * @returns {JSX.Element} The rendered UpcomingGames component
  */
 const UpcomingGames = ({
   isLoading: parentIsLoading,
   selectedGame,
-  wallet,
-  vexAccountId,
   searchTerm,
 }) => {
   // Build the GraphQL query with game filter if provided
@@ -94,8 +92,6 @@ const UpcomingGames = ({
   };
 
   const { tokenBalances } = useGlobalContext();
-  const nearContext = useNear();
-  const connectedWallet = wallet || nearContext?.wallet || null;
 
   // Fetch upcoming games with React Query
   const { data, isLoading, isError, error, refetch } = useQuery({
@@ -253,8 +249,6 @@ const UpcomingGames = ({
               team2Logo={getTeamLogo(match.team_2)}
               team2Name={match.team_2 || "Team 2"}
               matchId={match.id}
-              wallet={connectedWallet}
-              vexAccountId={vexAccountId}
               walletBalance={tokenBalances.USDC}
             />
           ))}

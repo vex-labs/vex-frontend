@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { swapTokens } from "@/utils/swapTokens";
-import { handleTransaction } from "@/utils/accountHandler";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { providers } from "near-api-js";
 import { NearRpcUrl } from "@/app/config";
@@ -11,7 +10,8 @@ import {
   AlertCircle,
   DollarSign,
 } from "lucide-react";
-import { createPortal } from "react-dom";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useNear } from "@/app/context/NearContext";
 
 // Minimum storage deposit required for token registration
 const STORAGE_DEPOSIT_AMOUNT = "1250000000000000000000";
@@ -22,21 +22,22 @@ const STORAGE_DEPOSIT_AMOUNT = "1250000000000000000000";
  * This component allows users to swap between VEX and USDC tokens using refswap.
  * It automatically checks and handles token registration for both sender and receiver.
  *
- * @param {Object} props - The component props
- * @param {string} props.signedAccountId - The signed-in user's account ID
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
- * @param {Object} props.wallet - Wallet object for handling transactions
- *
  * @returns {JSX.Element} The rendered Swap component
  */
 
-const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
+const Swap = () => {
+  // Get authentication contexts
+  const {
+    web3auth,
+    nearConnection,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
+  const { wallet, signedAccountId } = useNear();
+  const { accountId } = useGlobalContext();
   const [vexAmount, setVexAmount] = useState("");
   const [usdcAmount, setUsdcAmount] = useState("");
   const [displayUsdcAmount, setDisplayUsdcAmount] = useState("");
   const [swapDirection, setSwapDirection] = useState(false); // true = VEX → USDC, false = USDC → VEX
-  const [password, setPassword] = useState(null);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "info" });
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
@@ -45,13 +46,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
 
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
-
-  useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) {
-      setPassword(savedPassword);
-    }
-  }, []);
 
   const handlePercentageClick = async (percentage) => {
     const balance = swapDirection ? tokenBalances.VEX : tokenBalances.USDC;
@@ -169,37 +163,32 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
    *
    * @param {string} tokenContractId - The token contract ID
    * @param {string} accountId - The account to register
-   * @param {Object} walletObj - The wallet object for NEAR wallet
-   * @param {string} walletPassword - The password for VEX wallet
    * @returns {Promise<boolean>} True if registration was successful
    */
-  const registerAccount = async (
-    tokenContractId,
-    accountId,
-    walletObj,
-    walletPassword
-  ) => {
+  const registerAccount = async (tokenContractId, accountId) => {
     try {
-      if (isVexLogin) {
-        // VEX wallet registration
-        await handleTransaction(
-          tokenContractId,
-          "storage_deposit",
-          { account_id: accountId },
-          "30000000000000", // 30 TGas
-          STORAGE_DEPOSIT_AMOUNT,
-          walletObj,
-          walletPassword
-        );
-      } else {
-        // NEAR wallet registration
-        await walletObj.callMethod({
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+        await account.functionCall({
+          contractId: tokenContractId,
+          methodName: "storage_deposit",
+          args: { account_id: accountId },
+          gas: "30000000000000", // 30 TGas
+          attachedDeposit: STORAGE_DEPOSIT_AMOUNT,
+        });
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
+        await wallet.callMethod({
           contractId: tokenContractId,
           method: "storage_deposit",
           args: { account_id: accountId },
           gas: "30000000000000", // 30 TGas
           deposit: STORAGE_DEPOSIT_AMOUNT,
         });
+      } else {
+        throw new Error("No wallet connected");
       }
       return true;
     } catch (error) {
@@ -248,9 +237,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     setMessage({ text: "Checking token registrations...", type: "info" });
 
     try {
-      const userId = isVexLogin
-        ? localStorage.getItem("vexAccountId")
-        : signedAccountId;
+      const userId = accountId; // Use the unified accountId from GlobalContext
       const refSwapId = "ref-finance-101.testnet";
 
       // Check if user is registered with source token
@@ -307,12 +294,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         for (const reg of registrationsNeeded) {
           setMessage({ text: reg.description, type: "info" });
 
-          const success = await registerAccount(
-            reg.tokenId,
-            reg.accountId,
-            wallet,
-            password
-          );
+          const success = await registerAccount(reg.tokenId, reg.accountId);
 
           if (!success) {
             setMessage({
@@ -345,9 +327,10 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     }
   };
 
-  const handleNearSwap = async () => {
-    if (!wallet) {
-      setMessage({ text: "Wallet is not initialized", type: "error" });
+  const handleSwap = async () => {
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      setMessage({ text: "Please connect your wallet first", type: "error" });
       return;
     }
 
@@ -375,21 +358,66 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
       return;
     }
 
+    setIsSwapping(true);
+    setMessage({ text: "Processing swap...", type: "info" });
+
     const formattedAmount = BigInt(
       Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
     ).toString();
 
-    setIsSwapping(true);
-    setMessage({ text: "Processing swap...", type: "info" });
-
     try {
-      const outcome = await swapTokens(wallet, swapDirection, formattedAmount);
-      console.log("Swap outcome:", outcome);
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const receiverId = "ref-finance-101.testnet";
+        const poolId = 2197;
+        const minAmountOut = (
+          parseFloat(swapDirection ? usdcAmount : vexAmount) * 0.95
+        ).toFixed(6);
+
+        const msg = JSON.stringify({
+          force: 0,
+          actions: [
+            {
+              pool_id: poolId,
+              token_in: swapDirection
+                ? "token.betvex.testnet"
+                : "usdc.betvex.testnet",
+              token_out: swapDirection
+                ? "usdc.betvex.testnet"
+                : "token.betvex.testnet",
+              amount_in: formattedAmount,
+              amount_out: "0",
+              min_amount_out: BigInt(
+                Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
+              ).toString(),
+            },
+          ],
+        });
+
+        const account = await nearConnection.account(web3authAccountId);
+        await account.functionCall({
+          contractId: sourceTokenId,
+          methodName: "ft_transfer_call",
+          args: {
+            receiver_id: receiverId,
+            amount: formattedAmount,
+            msg: msg,
+          },
+          gas: "100000000000000",
+          attachedDeposit: "1",
+        });
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
+        await swapTokens(wallet, swapDirection, formattedAmount);
+      }
+
       setSwapSuccess(true);
       setMessage({
         text: "Swap successful! Tokens have been transferred",
         type: "success",
       });
+
       // Reset form after successful swap
       setTimeout(() => {
         setVexAmount("");
@@ -406,132 +434,6 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
     } finally {
       setIsSwapping(false);
       toggleRefreshBalances();
-    }
-  };
-
-  const handleVexSwap = async () => {
-    if (!password) {
-      setShowPasswordModal(true);
-      return;
-    }
-
-    const sourceTokenId = swapDirection
-      ? "token.betvex.testnet"
-      : "usdc.betvex.testnet";
-    const targetTokenId = swapDirection
-      ? "usdc.betvex.testnet"
-      : "token.betvex.testnet";
-    const receiverId = "ref-finance-101.testnet";
-    const poolId = 2197;
-
-    const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0"
-    );
-    console.log("Input Amount for Swap:", tokenAmount);
-
-    if (isNaN(tokenAmount) || tokenAmount <= 0) {
-      setMessage({ text: "Invalid swap amount", type: "error" });
-      return;
-    }
-
-    // Ensure all necessary token registrations are complete
-    const registrationsComplete = await ensureTokenRegistrations(
-      sourceTokenId,
-      targetTokenId
-    );
-    if (!registrationsComplete) {
-      return;
-    }
-
-    setIsSwapping(true);
-    setMessage({ text: "Processing swap...", type: "info" });
-
-    const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
-    ).toString();
-    const minAmountOut = (
-      parseFloat(swapDirection ? usdcAmount : vexAmount) * 0.95
-    ).toFixed(6);
-
-    const msg = JSON.stringify({
-      force: 0,
-      actions: [
-        {
-          pool_id: poolId,
-          token_in: swapDirection
-            ? "token.betvex.testnet"
-            : "usdc.betvex.testnet",
-          token_out: swapDirection
-            ? "usdc.betvex.testnet"
-            : "token.betvex.testnet",
-          amount_in: formattedAmount,
-          amount_out: "0",
-          min_amount_out: BigInt(
-            Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
-          ).toString(),
-        },
-      ],
-    });
-
-    const gas = "100000000000000";
-    const deposit = "1";
-
-    try {
-      const outcome = await handleTransaction(
-        sourceTokenId,
-        "ft_transfer_call",
-        {
-          receiver_id: receiverId,
-          amount: formattedAmount,
-          msg: msg,
-        },
-        gas,
-        deposit,
-        wallet,
-        password
-      );
-      console.log("Swap Successful:", outcome);
-      setSwapSuccess(true);
-      setMessage({
-        text: "Swap successful! Tokens have been transferred",
-        type: "success",
-      });
-      // Reset form after successful swap
-      setTimeout(() => {
-        setVexAmount("");
-        setUsdcAmount("");
-        setDisplayUsdcAmount("");
-        setSwapSuccess(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Swap failed:", error);
-      setMessage({
-        text: `Swap failed: ${error.message || "Unknown error"}`,
-        type: "error",
-      });
-    } finally {
-      setIsSwapping(false);
-      toggleRefreshBalances();
-    }
-  };
-
-  const handlePasswordSubmit = () => {
-    if (!password) {
-      return;
-    }
-
-    localStorage.setItem("vexPassword", password);
-    setShowPasswordModal(false);
-    handleVexSwap();
-  };
-
-  const handleSwap = () => {
-    if (signedAccountId) {
-      handleNearSwap();
-    } else if (isVexLogin) {
-      handleVexSwap();
-    } else {
-      setMessage({ text: "Please log in first", type: "warning" });
     }
   };
 
@@ -738,41 +640,7 @@ const Swap = ({ signedAccountId, isVexLogin, wallet }) => {
         )}
       </button>
 
-      {/* Password Modal */}
-      {showPasswordModal &&
-        createPortal(
-          <div className="modal">
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <h3>Enter Password</h3>
-              <p className="modal-description">
-                Please enter your wallet password to complete the swap
-              </p>
-              <input
-                type="password"
-                value={password || ""}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Your wallet password"
-                className="password-input"
-              />
-              <div className="modal-buttons">
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="cancel-modal-button"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handlePasswordSubmit}
-                  className="submit-modal-button"
-                  disabled={!password}
-                >
-                  Submit
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
+      {/* Password Modal removed - we're now using Web3Auth */}
     </div>
   );
 };
