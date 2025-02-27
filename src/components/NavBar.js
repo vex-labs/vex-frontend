@@ -176,10 +176,11 @@ const NavBar = ({
                   />
                   <span>NEAR Wallet</span>
                 </button>
-                <button className="login-button vex-login" onClick={onVexLogin}>
+                {/* TODO: VEX LOGIN */}
+                {/* <button className="login-button vex-login" onClick={onVexLogin}>
                   <img src="/icons/VEX.svg" alt="VEX" className="login-icon" />
                   <span>VEX Wallet</span>
-                </button>
+                </button> */}
               </div>
             )}
           </div>

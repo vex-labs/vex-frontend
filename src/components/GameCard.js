@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 import { providers } from "near-api-js";
 import { placeBet } from "@/utils/placebet";
