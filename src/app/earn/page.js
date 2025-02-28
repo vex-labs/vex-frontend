@@ -34,7 +34,9 @@ const EarnPage = () => {
       const parsedResult = JSON.parse(resultString);
       const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
 
-      setStakedBalance(isNaN(stakedBalanceRaw) ? 0 : stakedBalanceRaw);
+      // Round to 2 decimal places
+      const roundedBalance = isNaN(stakedBalanceRaw) ? 0 : parseFloat(stakedBalanceRaw.toFixed(2));
+      setStakedBalance(roundedBalance);
     } catch (error) {
       console.error("Error fetching staked balance:", error);
     }
@@ -66,7 +68,7 @@ const EarnPage = () => {
             </div>
             <div className="earn-stat-content">
               <span className="earn-stat-value">
-                {tokenBalances?.VEX || "0"}
+                {parseFloat(tokenBalances?.VEX || "0").toFixed(2)}
               </span>
               <span className="earn-stat-label">VEX Balance</span>
             </div>
@@ -78,7 +80,7 @@ const EarnPage = () => {
             </div>
             <div className="earn-stat-content">
               <span className="earn-stat-value">
-                {tokenBalances?.USDC || "0"}
+                {parseFloat(tokenBalances?.USDC || "0").toFixed(2)}
               </span>
               <span className="earn-stat-label">USDC Balance</span>
             </div>
@@ -89,7 +91,7 @@ const EarnPage = () => {
               <ArrowUpDown size={20} />
             </div>
             <div className="earn-stat-content">
-              <span className="earn-stat-value">{stakedBalance}</span>
+              <span className="earn-stat-value">{parseFloat(stakedBalance).toFixed(2)}</span>
               <span className="earn-stat-label">Activated $VEX Rewards</span>
             </div>
           </div>

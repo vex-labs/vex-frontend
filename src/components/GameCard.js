@@ -109,11 +109,21 @@ const GameCard = ({
   }, [matchId]);
 
   // Calculate potential winnings based on stake and odds
-  const fetchPotentialWinnings = async () => {
-    if (!selectedBet || !stake) return;
+  const fetchPotentialWinnings = async (stakeAmount) => {
+    if (!selectedBet || !stakeAmount) return;
 
-    // Convert stake to a number first to avoid invalid inputs
-    const stakeAmount = parseFloat(stake);
+    // Get the current values directly to avoid stale state issues
+    const currentBalance = parseFloat(walletBalance || "0");
+
+    // Handle single digit inputs explicitly
+    console.log(
+      "Calculating winnings for stake:",
+      stake,
+      "amount:",
+      stakeAmount,
+      "balance:",
+      currentBalance
+    );
 
     if (isNaN(stakeAmount) || stakeAmount <= 0) {
       setMessage({
@@ -123,7 +133,8 @@ const GameCard = ({
       return;
     }
 
-    if (stakeAmount > parseFloat(walletBalance || "0")) {
+    // Double-check balance to prevent showing winnings when insufficient funds
+    if (stakeAmount > currentBalance) {
       setMessage({
         text: "Insufficient funds in your wallet",
         type: "error",
@@ -157,13 +168,15 @@ const GameCard = ({
       const winningsRaw = BigInt(
         JSON.parse(Buffer.from(potentialWinnings.result).toString())
       );
-      const winningsUSDC = Number(winningsRaw) / 1e5;
+      console.log(winningsRaw);
+      const winningsUSDC = Number(winningsRaw) / 1e6;
 
       // Round to 2 decimal places for display in USDC
       const roundedWinnings = winningsUSDC.toFixed(2);
 
+      const trueOdds = (roundedWinnings / stakeAmount).toFixed(2);
       setMessage({
-        text: `Potential payout: $${roundedWinnings} USDC`,
+        text: `Potential payout: $${roundedWinnings} as ${trueOdds} odds.`,
         type: "success",
       });
     } catch (error) {
@@ -177,22 +190,62 @@ const GameCard = ({
     }
   };
 
+  // Track typing with a timeout
+  const [typingTimeout, setTypingTimeout] = useState(null);
+
+  useEffect(() => {
+    fetchPotentialWinnings(stake);
+  }, [selectedBet]);
+
   // Handle stake amount changes
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
-    setStake(newStake);
-  };
 
-  useEffect(() => {
-    if (selectedBet) {
-      fetchPotentialWinnings();
-    } else {
-      setMessage({
-        text: "Enter stake amount to see potential payout",
-        type: "info",
-      });
+    // Only allow numeric input with up to 2 decimal places
+    if (newStake === "" || /^\d*\.?\d{0,2}$/.test(newStake)) {
+      // Update state immediately
+      setStake(newStake);
+
+      // Clear any existing timeout
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+      const timeoutDelay = 10; // Use short delay for all inputs
+      const newTimeout = setTimeout(() => {
+        if (newStake && selectedBet) {
+          const stakeAmount = parseFloat(newStake);
+          const currentBalance = parseFloat(walletBalance || "0");
+          if (!isNaN(stakeAmount)) {
+            if (stakeAmount <= 0) {
+              setMessage({
+                text: "Enter stake amount to see potential payout",
+                type: "info",
+              });
+            } else if (stakeAmount > currentBalance) {
+              setMessage({
+                text: "Insufficient funds in your wallet",
+                type: "error",
+              });
+            } else {
+              fetchPotentialWinnings(stakeAmount);
+            }
+          } else {
+            setMessage({
+              text: "Enter stake amount to see potential payout",
+              type: "info",
+            });
+          }
+        } else {
+          setMessage({
+            text: "Enter stake amount to see potential payout",
+            type: "info",
+          });
+        }
+      }, timeoutDelay);
+
+      setTypingTimeout(newTimeout);
     }
-  }, [selectedBet, stake]);
+  };
 
   // Handle placing a bet
   const handlePlaceBet = async () => {
@@ -464,7 +517,30 @@ const GameCard = ({
                     name="bet"
                     value={team1Name}
                     checked={selectedBet === team1Name}
-                    onChange={() => setSelectedBet(team1Name)}
+                    onChange={() => {
+                      setSelectedBet(team1Name);
+                      // Clear any existing timeout
+                      if (typingTimeout) {
+                        clearTimeout(typingTimeout);
+                      }
+                      // Only calculate if stake is valid and not exceeding balance
+                      if (stake) {
+                        const stakeAmount = parseFloat(stake);
+                        const currentBalance = parseFloat(walletBalance || "0");
+                        if (
+                          !isNaN(stakeAmount) &&
+                          stakeAmount > 0 &&
+                          stakeAmount <= currentBalance
+                        ) {
+                          setTimeout(fetchPotentialWinnings, 0);
+                        } else if (stakeAmount > currentBalance) {
+                          setMessage({
+                            text: "Insufficient funds in your wallet",
+                            type: "error",
+                          });
+                        }
+                      }
+                    }}
                   />
                   <div className="odds-content">
                     <span className="odds-team">
@@ -486,7 +562,30 @@ const GameCard = ({
                     name="bet"
                     value={team2Name}
                     checked={selectedBet === team2Name}
-                    onChange={() => setSelectedBet(team2Name)}
+                    onChange={() => {
+                      setSelectedBet(team2Name);
+                      // Clear any existing timeout
+                      if (typingTimeout) {
+                        clearTimeout(typingTimeout);
+                      }
+                      // Only calculate if stake is valid and not exceeding balance
+                      if (stake) {
+                        const stakeAmount = parseFloat(stake);
+                        const currentBalance = parseFloat(walletBalance || "0");
+                        if (
+                          !isNaN(stakeAmount) &&
+                          stakeAmount > 0 &&
+                          stakeAmount <= currentBalance
+                        ) {
+                          setTimeout(fetchPotentialWinnings, 0);
+                        } else if (stakeAmount > currentBalance) {
+                          setMessage({
+                            text: "Insufficient funds in your wallet",
+                            type: "error",
+                          });
+                        }
+                      }
+                    }}
                   />
                   <div className="odds-content">
                     <span className="odds-team">
@@ -525,7 +624,7 @@ const GameCard = ({
                           disabled={isPlacingBet}
                           className="stake-input"
                         />
-                        <span className="currency-label">USDC</span>
+                        <span className="currency-label">USD</span>
                       </div>
                     </div>
 

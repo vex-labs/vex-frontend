@@ -192,9 +192,11 @@ const NavBar = () => {
             </div>
 
             <div className="nav-buttons">
-              <button className="nav-link-learn">
+              {/* TODO: LEARN */}
+
+              {/* <button className="nav-link-learn">
                 <span>Learn</span>
-              </button>
+              </button> */}
 
               {isLoggedIn && <DepositModal />}
 

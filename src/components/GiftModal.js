@@ -12,6 +12,10 @@ import {
 } from "lucide-react";
 import { NearRpcUrl, QueryURL } from "@/app/config";
 import { gql, request } from "graphql-request";
+import { providers } from "near-api-js";
+import { useNear } from "@/app/context/NearContext";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useGlobalContext } from "@/app/context/GlobalContext";
 
 const GiftModal = ({ open, setIsOpen }) => {
   const [amount, setAmount] = React.useState(1.0);
@@ -22,6 +26,25 @@ const GiftModal = ({ open, setIsOpen }) => {
   const [isCheckingAccount, setIsCheckingAccount] = React.useState(false);
   const [accountStatus, setAccountStatus] = React.useState(null);
   const [accountType, setAccountType] = React.useState(null);
+  const [isCheckingRegistration, setIsCheckingRegistration] =
+    React.useState(false);
+
+  // Get access to wallet and context
+  const { wallet } = useNear();
+  const {
+    nearConnection,
+    web3auth,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
+  const { accountId, toggleRefreshBalances } = useGlobalContext();
+
+  // Constants
+  const STORAGE_DEPOSIT_AMOUNT = "1250000000000000000000"; // 0.00125 NEAR in yoctoNEAR
+  const TOKEN_CONTRACTS = {
+    usdc: "usdc.betvex.testnet",
+    vex: "token.betvex.testnet",
+  };
+
   const quickAmounts = [5, 10, 25, 50, 100];
 
   const debouncedUsername = useDebounce(username, 500);
@@ -32,9 +55,7 @@ const GiftModal = ({ open, setIsOpen }) => {
     setAmount(value);
 
     // Validate amount
-    if (parseFloat(value) > 100) {
-      setMessage("Maximum gift amount is 100");
-    } else if (parseFloat(value) < 1) {
+    if (parseFloat(value) < 1) {
       setMessage("Minimum gift amount is 1");
     } else {
       setMessage("");
@@ -207,15 +228,134 @@ const GiftModal = ({ open, setIsOpen }) => {
     }
   };
 
+  /**
+   * Checks if an account is registered with a token contract
+   */
+  const isAccountRegistered = async (accountToCheck, tokenContractId) => {
+    try {
+      setIsCheckingRegistration(true);
+      const provider = new providers.JsonRpcProvider(NearRpcUrl);
+      const args = { account_id: accountToCheck };
+
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: tokenContractId,
+        method_name: "storage_balance_of",
+        args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
+        finality: "final",
+      });
+
+      const balance = JSON.parse(Buffer.from(result.result).toString());
+
+      // Account is registered if they have a storage balance >= minimum required
+      return (
+        balance !== null &&
+        BigInt(balance.total) >= BigInt(STORAGE_DEPOSIT_AMOUNT)
+      );
+    } catch (error) {
+      console.error(
+        `Error checking registration for ${accountToCheck}:`,
+        error
+      );
+      return false;
+    } finally {
+      setIsCheckingRegistration(false);
+    }
+  };
+
+  /**
+   * Calls the storage_deposit method on the token contract
+   */
+  const registerAccount = async (targetAccountId, tokenContractId) => {
+    try {
+      if (web3auth?.connected) {
+        // For social login, use near connection to call storage_deposit
+        const account = await nearConnection.account(web3authAccountId);
+        await account.functionCall({
+          contractId: tokenContractId,
+          methodName: "storage_deposit",
+          args: { account_id: targetAccountId },
+          gas: "30000000000000", // 30 TGas
+          attachedDeposit: STORAGE_DEPOSIT_AMOUNT,
+        });
+      } else if (wallet) {
+        // For NEAR wallet login
+        await wallet.callMethod({
+          contractId: tokenContractId,
+          method: "storage_deposit",
+          args: { account_id: targetAccountId },
+          gas: "30000000000000", // 30 TGas
+          deposit: STORAGE_DEPOSIT_AMOUNT,
+        });
+      } else {
+        throw new Error("No wallet connected");
+      }
+      return true;
+    } catch (error) {
+      console.error(`Error registering ${targetAccountId}:`, error);
+      setMessage(`Failed to register ${targetAccountId}. ${error.message}`);
+      return false;
+    }
+  };
+
+  /**
+   * Transfers tokens to the specified account
+   */
+  const transferTokens = async (
+    targetAccountId,
+    tokenAmount,
+    tokenContractId
+  ) => {
+    try {
+      const decimals = giftType === "usdc" ? 6 : 18;
+      const amountInSmallestUnit = BigInt(
+        Math.floor(parseFloat(tokenAmount) * Math.pow(10, decimals))
+      ).toString();
+
+      if (web3auth?.connected) {
+        // For social login
+        const account = await nearConnection.account(web3authAccountId);
+        await account.functionCall({
+          contractId: tokenContractId,
+          methodName: "ft_transfer",
+          args: {
+            receiver_id: targetAccountId,
+            amount: amountInSmallestUnit,
+          },
+          gas: "30000000000000", // 30 TGas
+          attachedDeposit: "1",
+        });
+      } else if (wallet) {
+        // For NEAR wallet login
+        await wallet.callMethod({
+          method: "ft_transfer",
+          args: {
+            receiver_id: targetAccountId,
+            amount: amountInSmallestUnit,
+          },
+          contractId: tokenContractId,
+          deposit: 1,
+        });
+      } else {
+        throw new Error("No wallet connected");
+      }
+      return true;
+    } catch (error) {
+      console.error(`Error transferring tokens to ${targetAccountId}:`, error);
+      setMessage(`Failed to transfer tokens. ${error.message}`);
+      return false;
+    }
+  };
+
   // Handle gift submission
-  const handleGift = () => {
+  const handleGift = async () => {
     if (!username) {
       setMessage("Please enter a username");
       return;
     }
 
-    if (parseFloat(amount) < 1 || parseFloat(amount) > 100) {
-      setMessage("Amount must be between 1 and 100");
+    if (parseFloat(amount) < 1) {
+      setMessage("Amount must be greater than 1");
       return;
     }
 
@@ -224,26 +364,144 @@ const GiftModal = ({ open, setIsOpen }) => {
       return;
     }
 
-    setIsSubmitting(true);
-    const formattedRecipient = getFormattedRecipientId();
+    if (!wallet && !web3auth?.connected) {
+      setMessage("Please connect your wallet first");
+      return;
+    }
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setMessage(
-        `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`,
+    try {
+      setIsSubmitting(true);
+      setMessage("");
+
+      const formattedRecipient = getFormattedRecipientId();
+      const selectedTokenContract = TOKEN_CONTRACTS[giftType];
+
+      // Check if the account is registered with the token contract
+      setMessage("Checking if account is registered...");
+      const isRegistered = await isAccountRegistered(
+        formattedRecipient,
+        selectedTokenContract
       );
 
-      // Reset form after successful submission
-      setTimeout(() => {
-        setAmount(1.0);
-        setUsername("");
-        setMessage("");
-        setAccountStatus(null);
-        setAccountType(null);
-        setIsOpen(false);
-      }, 2000);
-    }, 1500);
+      if (isRegistered) {
+        // Account is already registered, just transfer tokens
+        setMessage("Account is registered. Transferring tokens...");
+        const success = await transferTokens(
+          formattedRecipient,
+          amount,
+          selectedTokenContract
+        );
+        if (success) {
+          setMessage(
+            `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
+          );
+
+          // Reset form after successful submission
+          setTimeout(() => {
+            setAmount(1.0);
+            setUsername("");
+            setMessage("");
+            setAccountStatus(null);
+            setAccountType(null);
+            setIsOpen(false);
+            toggleRefreshBalances();
+          }, 2000);
+        }
+      } else {
+        // Account needs to be registered first
+        setMessage("Account needs to be registered. Registering...");
+
+        if (web3auth?.connected) {
+          // For social login, do sequential calls
+          const registrationSuccess = await registerAccount(
+            formattedRecipient,
+            selectedTokenContract
+          );
+          if (!registrationSuccess) {
+            throw new Error("Registration failed");
+          }
+
+          setMessage("Account registered. Transferring tokens...");
+          const transferSuccess = await transferTokens(
+            formattedRecipient,
+            amount,
+            selectedTokenContract
+          );
+          if (transferSuccess) {
+            setMessage(
+              `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
+            );
+
+            // Reset form after successful submission
+            setTimeout(() => {
+              setAmount(1.0);
+              setUsername("");
+              setMessage("");
+              setAccountStatus(null);
+              setAccountType(null);
+              setIsOpen(false);
+              toggleRefreshBalances();
+            }, 2000);
+          }
+        } else if (wallet) {
+          // For NEAR wallet, use batch actions
+          setMessage("Preparing batch transaction...");
+
+          try {
+            // Create batch transactions for registration and transfer
+            await wallet
+              .callMethod({
+                contractId: selectedTokenContract,
+                method: "storage_deposit",
+                args: { account_id: formattedRecipient },
+                gas: "30000000000000",
+                deposit: STORAGE_DEPOSIT_AMOUNT,
+              })
+              .then(() => {
+                const decimals = giftType === "usdc" ? 6 : 18;
+                const amountInSmallestUnit = BigInt(
+                  Math.floor(parseFloat(amount) * Math.pow(10, decimals))
+                ).toString();
+
+                return wallet.callMethod({
+                  method: "ft_transfer",
+                  args: {
+                    receiver_id: formattedRecipient,
+                    amount: amountInSmallestUnit,
+                  },
+                  contractId: selectedTokenContract,
+                  deposit: 1,
+                });
+              });
+
+            setMessage(
+              `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
+            );
+
+            // Reset form after successful submission
+            setTimeout(() => {
+              setAmount(1.0);
+              setUsername("");
+              setMessage("");
+              setAccountStatus(null);
+              setAccountType(null);
+              setIsOpen(false);
+              toggleRefreshBalances();
+            }, 2000);
+          } catch (error) {
+            console.error("Batch transaction failed:", error);
+            throw new Error(`Batch transaction failed: ${error.message}`);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Failed to send gift:", error);
+      const errorMessage =
+        error.message || "Transaction failed. Please try again.";
+      setMessage(errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle modal content click to prevent close on content click
@@ -347,8 +605,12 @@ const GiftModal = ({ open, setIsOpen }) => {
                   }`}
                   onClick={() => setGiftType("usdc")}
                 >
-                  <DollarSign size={16} />
-                  <span>USDC</span>
+                  <img
+                    src={"/icons/USDC.svg"}
+                    alt="USDC"
+                    className="gift-type-option__icon"
+                  />
+                  <span>USD</span>
                 </button>
                 <button
                   className={`gift-type-option ${
@@ -398,12 +660,11 @@ const GiftModal = ({ open, setIsOpen }) => {
                   step="0.1"
                   placeholder="1.00"
                   min="1.00"
-                  max="100"
                   onChange={handleAmountChange}
                   value={amount}
                 />
                 <span className="amount-currency">
-                  {giftType.toUpperCase()}
+                  {giftType.toUpperCase() === "USDC" ? "USD" : "VEX"}
                 </span>
               </div>
               <div className="quick-amounts">
@@ -421,7 +682,6 @@ const GiftModal = ({ open, setIsOpen }) => {
               </div>
               <div className="amount-helpers">
                 <span>Min: 1.00</span>
-                <span>Max: 100.00</span>
               </div>
             </div>
 
@@ -455,7 +715,7 @@ const GiftModal = ({ open, setIsOpen }) => {
                 }
               >
                 {isSubmitting ? (
-                  <span className="loading-spinner"></span>
+                  <span className="gift-loading-spinner"></span>
                 ) : (
                   <>
                     <span>Send Gift</span>

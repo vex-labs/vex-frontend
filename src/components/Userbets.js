@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { handleTransaction } from "@/utils/accountHandler";
 import { VexContract, QueryURL } from "@/app/config";
 import { DropdownMenu } from "radix-ui";
 import { gql, request } from "graphql-request";
@@ -38,9 +37,6 @@ const UserBets = ({ userBets }) => {
     accountId: web3authAccountId,
   } = useWeb3Auth();
   const { wallet, signedAccountId } = useNear();
-  const { accountId } = useGlobalContext();
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [password, setPassword] = useState(null);
   const [betToClaim, setBetToClaim] = useState(null);
   const [claimedBets, setClaimedBets] = useState({}); // Track successfully claimed bets
   const [activeCategory, setActiveCategory] = useState("claimable");
@@ -49,13 +45,6 @@ const UserBets = ({ userBets }) => {
   const [isClaiming, setIsClaiming] = useState(false);
   const [currentClaimingBet, setCurrentClaimingBet] = useState(null);
   const { toggleRefreshBalances } = useGlobalContext();
-
-  useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) {
-      setPassword(savedPassword);
-    }
-  }, []);
 
   // Build the GraphQL query to fetch match results
   const buildMatchResultsQuery = (matchIds) => {
@@ -80,7 +69,7 @@ const UserBets = ({ userBets }) => {
   // Fetch match results for all finished matches
   const fetchMatchResults = useCallback(async () => {
     const finishedBets = userBets.filter(
-      (bet) => bet.match_state === "Finished" && !bet.pay_state,
+      (bet) => bet.match_state === "Finished" && !bet.pay_state
     );
 
     if (finishedBets.length === 0) return;
@@ -112,15 +101,7 @@ const UserBets = ({ userBets }) => {
     fetchMatchResults();
   }, [fetchMatchResults, userBets]);
 
-  const handlePasswordSubmit = () => {
-    if (!password) return;
-
-    localStorage.setItem("vexPassword", password);
-    setShowPasswordModal(false);
-    handleClaim(betToClaim, password);
-  };
-
-  const handleClaim = async (betId, enteredPassword = null) => {
+  const handleClaim = async (betId) => {
     setIsClaiming(true);
     setCurrentClaimingBet(betId);
 
@@ -131,14 +112,6 @@ const UserBets = ({ userBets }) => {
 
       // If using Web3Auth
       if (web3auth?.connected) {
-        const passwordToUse = enteredPassword || password;
-        if (!passwordToUse) {
-          setBetToClaim(betId);
-          setShowPasswordModal(true);
-          setIsClaiming(false);
-          return;
-        }
-
         const account = await nearConnection.account(web3authAccountId);
         await account.functionCall({
           contractId: contractId,
@@ -185,7 +158,6 @@ const UserBets = ({ userBets }) => {
     } finally {
       setIsClaiming(false);
       setCurrentClaimingBet(null);
-      setPassword(null);
       setTimeout(() => {
         toggleRefreshBalances();
       }, 3000);
@@ -212,20 +184,18 @@ const UserBets = ({ userBets }) => {
         bet.match_state === "Finished" &&
         !bet.pay_state &&
         !claimedBets[bet.betId] &&
-        didBetWin(bet),
+        didBetWin(bet)
     );
 
     // Pending bets are matches that haven't finished yet
     const pendingBets = userBets.filter(
-      (bet) => bet.match_state === "Future" || bet.match_state === "Current",
+      (bet) => bet.match_state === "Future" || bet.match_state === "Current"
     );
 
     // Error bets are eligible for refunds
     const errorBets = userBets.filter(
       (bet) =>
-        bet.match_state === "Error" &&
-        !bet.pay_state &&
-        !claimedBets[bet.betId],
+        bet.match_state === "Error" && !bet.pay_state && !claimedBets[bet.betId]
     );
 
     // History includes:
@@ -242,7 +212,7 @@ const UserBets = ({ userBets }) => {
         // Lost bets (finished, has results, but user didn't win)
         (bet.match_state === "Finished" &&
           matchResults[bet.match_id] &&
-          !didBetWin(bet)),
+          !didBetWin(bet))
     );
 
     return {
@@ -307,6 +277,8 @@ const UserBets = ({ userBets }) => {
     return "status-pending";
   };
 
+  console.log(userBets);
+
   // Create tab navigation with counts
   const renderTabs = () => {
     return (
@@ -360,15 +332,14 @@ const UserBets = ({ userBets }) => {
     <section className="active-bets">
       <h2>My Bets</h2>
 
-      {isLoadingResults && (
-        <div className="loading-message">
-          <Loader2 className="loader-icon" size={18} /> Loading bet results...
-        </div>
-      )}
-
       {renderTabs()}
 
       <div className="bet-container">
+        {isLoadingResults && (
+          <div className="loading-message">
+            <Loader2 className="loader-icon" size={18} /> Loading bet results...
+          </div>
+        )}
         {getActiveBets().length > 0 ? (
           getActiveBets().map((bet, index) => {
             const {
@@ -382,8 +353,10 @@ const UserBets = ({ userBets }) => {
             const matchParts = match_id.split("-");
             const formattedMatchId = `${matchParts[0].replace(
               "_",
-              " ",
+              " "
             )} vs ${matchParts[1].replace("_", " ")}`;
+
+            console.log(bet);
 
             // Determine if bet is claimable (only in claimable tab)
             const isClaimable =
@@ -418,19 +391,19 @@ const UserBets = ({ userBets }) => {
                         activeCategory === "claimable"
                           ? "status-won"
                           : activeCategory === "pending"
-                            ? "status-pending"
-                            : activeCategory === "error"
-                              ? "status-error"
-                              : outcomeClass
+                          ? "status-pending"
+                          : activeCategory === "error"
+                          ? "status-error"
+                          : outcomeClass
                       }`}
                     >
                       {activeCategory === "claimable"
                         ? "Ready to Claim"
                         : activeCategory === "pending"
-                          ? match_state
-                          : activeCategory === "error"
-                            ? "Refund Available"
-                            : outcomeText}
+                        ? match_state
+                        : activeCategory === "error"
+                        ? "Refund Available"
+                        : outcomeText}
                     </p>
                   </div>
                   <div>
@@ -486,8 +459,8 @@ const UserBets = ({ userBets }) => {
                       {activeCategory === "claimable"
                         ? "Winnings"
                         : activeCategory === "history" && didBetWin(bet)
-                          ? "Winnings"
-                          : "Potential Winnings"}
+                        ? "Winnings"
+                        : "Potential Winnings"}
                     </p>
                     <p
                       className={`amount-value ${
@@ -514,40 +487,6 @@ const UserBets = ({ userBets }) => {
           </div>
         )}
       </div>
-
-      {/* Password Modal */}
-      {showPasswordModal && (
-        <div className="modal">
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Enter Password</h3>
-            <p className="modal-description">
-              Please enter your wallet password to claim your winnings
-            </p>
-            <input
-              type="password"
-              value={password || ""}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Your wallet password"
-              className="password-input"
-            />
-            <div className="modal-buttons">
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="cancel-modal-button"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handlePasswordSubmit}
-                className="submit-modal-button"
-                disabled={!password}
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

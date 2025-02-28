@@ -93,6 +93,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   font-size: 14px;
+  margin-bottom: 12px;
   transition: all 0.2s ease;
 }
 
@@ -257,4 +258,10 @@
     width: 18px;
     height: 18px;
   }
+}
+
+.vex-btn-secondary {
+  background-color: rgba(255, 255, 255, 0.05);
+  margin-bottom: 0;
+  margin-top: 24px;
 }

@@ -21,9 +21,9 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
 
   useEffect(() => {
     if (amount > 100) {
-      setMessage("Maximum deposit amount is 100 USDC.");
+      setMessage("Maximum deposit amount is 100 USD.");
     } else if (amount < 1) {
-      setMessage("Minimum deposit amount is 1 USDC.");
+      setMessage("Minimum deposit amount is 1 USD.");
     } else {
       setMessage("");
     }
@@ -98,7 +98,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       }
 
       const amountInSmallestUnit = Math.round(
-        parseFloat(inputAmount) * 1000000,
+        parseFloat(inputAmount) * 1000000
       ).toString();
 
       const args = {
@@ -156,14 +156,14 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
         <Dialog.Content className="DialogContent">
           {!isSuccess ? (
             <>
-              <Dialog.Title className="DialogTitle">Deposit USDC</Dialog.Title>
+              <Dialog.Title className="DialogTitle">Deposit USD</Dialog.Title>
               <Dialog.Description className="DialogDescription">
                 Add funds to your account to start betting.
               </Dialog.Description>
 
               <div className="amount-input-container">
                 <div className="amount-input-wrapper">
-                  <div className="currency-indicator">USDC</div>
+                  <div className="currency-indicator">USD</div>
                   <input
                     className="Input amount-input"
                     id="amount"
@@ -203,7 +203,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
               <div className="deposit-info">
                 <div className="info-item">
                   <span className="info-label">Amount to deposit:</span>
-                  <span className="info-value">{amount || 0} USDC</span>
+                  <span className="info-value">{amount || 0} USD</span>
                 </div>
                 <div className="info-item">
                   <span className="info-label">Destination account:</span>
@@ -267,7 +267,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
               </div>
               <h3 className="success-title">Deposit Successful!</h3>
               <p className="success-message">
-                {amount} USDC has been added to your account.
+                {amount} USD has been added to your account.
               </p>
               <Dialog.Close asChild>
                 <button className="Button success-close-button">Close</button>
