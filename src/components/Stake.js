@@ -87,7 +87,9 @@ const Staking = () => {
       const parsedResult = JSON.parse(resultString);
       const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
 
-      setStakedBalance(isNaN(stakedBalanceRaw) ? 0 : stakedBalanceRaw);
+      // Round to 2 decimal places
+      const roundedBalance = isNaN(stakedBalanceRaw) ? 0 : parseFloat(stakedBalanceRaw.toFixed(2));
+      setStakedBalance(roundedBalance);
     } catch (error) {
       console.error("Error fetching staked balance:", error);
     }
@@ -109,8 +111,9 @@ const Staking = () => {
       const parsedResult = JSON.parse(Buffer.from(result.result).toString());
       const totalUSDCRewardsToSwap = parseFloat(parsedResult) / 1e6;
 
+      // Round to 2 decimal places
       if (totalUSDCRewardsToSwap > 0) {
-        setTotalUSDCRewards(totalUSDCRewardsToSwap);
+        setTotalUSDCRewards(parseFloat(totalUSDCRewardsToSwap.toFixed(2)));
       } else {
         setTotalUSDCRewards(0);
       }
@@ -124,8 +127,6 @@ const Staking = () => {
   useEffect(() => {
     rewards_ready_to_swap();
   }, []);
-
-  // Password handling removed as it's no longer needed with Web3Auth
 
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
@@ -174,20 +175,6 @@ const Staking = () => {
           },
           gas,
           attachedDeposit: deposit1,
-        });
-
-        setMessage({
-          text: "Deposit successful. Proceeding to stake...",
-          type: "info",
-        });
-
-        // Then stake the tokens
-        await account.functionCall({
-          contractId: stakingContractId,
-          methodName: "stake",
-          args: { amount: formattedAmount },
-          gas,
-          attachedDeposit: deposit,
         });
 
         setMessage({
@@ -272,20 +259,6 @@ const Staking = () => {
           contractId: stakingContractId,
           methodName: "unstake",
           args: { amount: formattedAmount },
-          gas,
-          attachedDeposit: deposit,
-        });
-
-        setMessage({
-          text: "Unstake successful. Proceeding to withdraw...",
-          type: "info",
-        });
-
-        // Then withdraw tokens
-        await account.functionCall({
-          contractId: stakingContractId,
-          methodName: "withdraw_all",
-          args: {},
           gas,
           attachedDeposit: deposit,
         });
@@ -472,21 +445,21 @@ const Staking = () => {
         <div className="stat-card">
           <div className="stat-title">Your Balance</div>
           <div className="stat-value">
-            {balance} <span className="token-unit">VEX</span>
+            {parseFloat(balance).toFixed(2)} <span className="token-unit">VEX</span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-title">Your Activated Balance</div>
           <div className="stat-value">
-            {stakedBalance} <span className="token-unit">VEX</span>
+            {parseFloat(stakedBalance).toFixed(2)} <span className="token-unit">VEX</span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-title">USD Rewards Available</div>
           <div className="stat-value usdc-value">
-            {totalUSDCRewards !== null ? totalUSDCRewards : "0.00"}{" "}
+            {totalUSDCRewards !== null ? parseFloat(totalUSDCRewards).toFixed(2) : "0.00"}{" "}
             <span className="token-unit">USD</span>
           </div>
         </div>
@@ -538,7 +511,7 @@ const Staking = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {selectedOption === "stake" ? balance : stakedBalance} VEX
+            {parseFloat(selectedOption === "stake" ? balance : stakedBalance).toFixed(2)} VEX
           </span>
         </span>
         <div className="percentage-options">
@@ -598,8 +571,6 @@ const Staking = () => {
           `${selectedOption === "stake" ? "Activate" : "Deactivate"} VEX`
         )}
       </button>
-
-      {/* Password Modal removed */}
     </div>
   );
 };

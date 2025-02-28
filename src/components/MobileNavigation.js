@@ -111,13 +111,14 @@ const MobileNavbar = ({ isLoggedIn, onLogin, onLogout }) => {
 
             {/* Action Buttons */}
             <div className="mob-navbar__actions-group">
-              <button
+              {/* TODO: LEARN */}
+              {/* <button
                 className="mob-navbar__action-button mob-navbar__learn-button"
                 onClick={() => window.open("https://docs.betvex.io", "_blank")}
               >
                 <Book size={18} />
                 <span>Learn</span>
-              </button>
+              </button> */}
 
               {isLoggedIn && (
                 <button

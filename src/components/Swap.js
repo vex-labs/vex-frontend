@@ -81,8 +81,8 @@ const Swap = () => {
 
       const amountInYocto = BigInt(
         Math.floor(
-          parseFloat(inputAmount) * Math.pow(10, swapDirection ? 18 : 6),
-        ),
+          parseFloat(inputAmount) * Math.pow(10, swapDirection ? 18 : 6)
+        )
       ).toString();
 
       const args = {
@@ -243,19 +243,19 @@ const Swap = () => {
       // Check if user is registered with source token
       const isUserRegisteredWithSource = await isAccountRegistered(
         sourceTokenId,
-        userId,
+        userId
       );
 
       // Check if refswap contract is registered with source token
       const isRefswapRegisteredWithSource = await isAccountRegistered(
         sourceTokenId,
-        refSwapId,
+        refSwapId
       );
 
       // Check if user is registered with target token
       const isUserRegisteredWithTarget = await isAccountRegistered(
         targetTokenId,
-        userId,
+        userId
       );
 
       let registrationsNeeded = [];
@@ -335,7 +335,7 @@ const Swap = () => {
     }
 
     const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0",
+      swapDirection ? vexAmount : usdcAmount || "0"
     );
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       setMessage({ text: "Invalid swap amount", type: "error" });
@@ -352,7 +352,7 @@ const Swap = () => {
     // Ensure all necessary token registrations are complete
     const registrationsComplete = await ensureTokenRegistrations(
       sourceTokenId,
-      targetTokenId,
+      targetTokenId
     );
     if (!registrationsComplete) {
       return;
@@ -362,7 +362,7 @@ const Swap = () => {
     setMessage({ text: "Processing swap...", type: "info" });
 
     const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6)),
+      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
     ).toString();
 
     try {
@@ -388,7 +388,7 @@ const Swap = () => {
               amount_in: formattedAmount,
               amount_out: "0",
               min_amount_out: BigInt(
-                Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18)),
+                Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
               ).toString(),
             },
           ],
@@ -535,7 +535,7 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {swapDirection ? tokenBalances.VEX : tokenBalances.USDC}
+            {parseFloat(swapDirection ? tokenBalances.VEX : tokenBalances.USDC).toFixed(2)}
           </span>
         </span>
         <div className="percentage-options">
@@ -589,7 +589,7 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {swapDirection ? tokenBalances.USDC : tokenBalances.VEX}
+            {parseFloat(swapDirection ? tokenBalances.USDC : tokenBalances.VEX).toFixed(2)}
           </span>
         </span>
       </div>
@@ -639,8 +639,6 @@ const Swap = () => {
           "Swap Tokens"
         )}
       </button>
-
-      {/* Password Modal removed - we're now using Web3Auth */}
     </div>
   );
 };

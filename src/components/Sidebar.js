@@ -308,7 +308,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
               </span>
               {(!isCollapsed || hoveredItem === "user") && (
                 <span className={`nav-label ${isCollapsed ? "tooltip" : ""}`}>
-                  User Profile
+                  View Bets
                 </span>
               )}
               {pathname === "/user" && <span className="active-indicator" />}

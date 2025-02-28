@@ -10,6 +10,7 @@ import {
   ChevronUp,
   ExternalLink,
   Users,
+  Coins,
 } from "lucide-react";
 import { socials } from "@/data/socials";
 
@@ -81,6 +82,12 @@ const Sidebar2 = () => {
       path: "/leaderboard",
       icon: <BarChart3 size={20} strokeWidth={1.5} />,
     },
+    {
+      name: "bets",
+      label: "User Bets",
+      path: "/user",
+      icon: <Coins size={20} strokeWidth={1.5} />,
+    },
   ];
 
   // Toggle sidebar expansion
@@ -151,7 +158,7 @@ const Sidebar2 = () => {
       {/* Social Links Section */}
       <div className="app-sidebar-section">
         {renderSectionHeader("Socials", "socials", isSocialsExpanded, () =>
-          setIsSocialsExpanded(!isSocialsExpanded),
+          setIsSocialsExpanded(!isSocialsExpanded)
         )}
 
         {(isSocialsExpanded || isCollapsed) && (
@@ -194,39 +201,6 @@ const Sidebar2 = () => {
             ))}
           </ul>
         )}
-      </div>
-
-      {/* User Section */}
-      <div className="app-sidebar-section user-section">
-        {isCollapsed ? (
-          <div className="app-sidebar-section-header collapsed">
-            <span className="section-title">User</span>
-          </div>
-        ) : (
-          <div className="app-sidebar-section-header">
-            <span className="section-title">User Area</span>
-          </div>
-        )}
-
-        <ul className="nav-list">
-          <li
-            className={`nav-item ${pathname === "/user" ? "active" : ""}`}
-            onMouseEnter={() => setHoveredItem("user")}
-            onMouseLeave={() => setHoveredItem(null)}
-          >
-            <Link href="/user" className="nav-link">
-              <span className="nav-icon">
-                <Users size={20} strokeWidth={1.5} />
-              </span>
-              {(!isCollapsed || hoveredItem === "user") && (
-                <span className={`nav-label ${isCollapsed ? "tooltip" : ""}`}>
-                  User Profile
-                </span>
-              )}
-              {pathname === "/user" && <span className="active-indicator" />}
-            </Link>
-          </li>
-        </ul>
       </div>
     </aside>
   );

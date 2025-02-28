@@ -191,7 +191,7 @@
   background-color: var(--primary-color);
   opacity: 0.8;
 }
-.loading-spinner {
+.gift-loading-spinner {
   width: 16px;
   height: 16px;
   border: 2px solid rgba(255, 255, 255, 0.3);
@@ -326,4 +326,10 @@
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
+}
+
+.gift-type-option__icon {
+  width: 16px;
+  height: 16px;
+  object-fit: cover;
 }
