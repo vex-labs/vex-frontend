@@ -15,6 +15,13 @@
   font-family: Arial, sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  height: 460px; /* Fixed height for alignment with staking container */
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    height: auto;
+  }
 }
 
 /* New swap header */
@@ -30,6 +37,7 @@
   margin: 0;
   font-weight: 600;
   color: white;
+  height: 30px; /* Fixed height for alignment with staking heading */
 }
 
 /* New toggle buttons */
@@ -112,6 +120,44 @@
   opacity: 0.8;
 }
 
+/* Input number spinner styles */
+.amount-stepper {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5px;
+  height: 100%;
+}
+
+.stepper-btn {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 18px;
+  padding: 0;
+}
+
+.stepper-btn:first-child {
+  margin-bottom: 2px;
+}
+
+.stepper-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .currency-symbol {
   position: absolute;
   left: 12px;
@@ -122,7 +168,7 @@
 
 /* Updated token input */
 .token-input {
-  width: 130px;
+  width: 110px; /* Reduced from 130px to make room for stepper */
   padding: 12px;
   padding-left: 24px;
   background-color: rgba(0, 0, 0, 0.2);
@@ -134,6 +180,15 @@
   font-weight: 500;
   transition: all 0.2s ease;
   height: auto;
+  /* Hide default number input spinners */
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* Hide default spinners in WebKit/Blink browsers */
+.token-input::-webkit-outer-spin-button,
+.token-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .token-input:focus {
@@ -822,6 +877,13 @@ input:checked + .slider:before {
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease;
+  height: 460px; /* Matches swap container height for alignment */
+  display: flex;
+  flex-direction: column;
+
+  @media (max-width: 768px) {
+    height: auto;
+  }
 }
 
 .staking-header-row {
@@ -836,6 +898,7 @@ input:checked + .slider:before {
   margin: 0;
   font-weight: 600;
   color: white;
+  height: 30px; /* Match the height of swap-heading for alignment */
 }
 
 .distribute-rewards-button {
@@ -1031,9 +1094,9 @@ input:checked + .slider:before {
 /* Enhanced Earn Page Styles */
 .earn-page {
   background-color: var(--secondary-color);
-  margin-top: 65px;
+  margin-top: 100px; /* Increased from 65px to push content down */
   margin-left: 230px;
-  min-height: calc(100vh - 65px);
+  min-height: calc(100vh - 100px); /* Updated to match new top margin */
   position: relative;
   transition: margin-left 300ms ease-in-out;
 
@@ -1150,6 +1213,7 @@ input:checked + .slider:before {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 32px;
+  align-items: flex-start; /* Ensure cards align at the top */
 }
 
 .earn-card {
@@ -1157,6 +1221,9 @@ input:checked + .slider:before {
   border-radius: 16px;
   padding: 24px;
   border: 1px solid rgba(255, 255, 255, 0.05);
+  height: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .earn-card-header {
