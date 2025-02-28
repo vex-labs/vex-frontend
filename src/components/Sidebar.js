@@ -70,9 +70,9 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       ),
     },
     {
-      name: "governance",
-      label: "Governance Community",
-      path: "/governance",
+      name: "community",
+      label: "Community",
+      path: "/community",
       icon: (
         <img
           src="/icons/governance.png"

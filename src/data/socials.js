@@ -20,8 +20,8 @@ export const socials = [
     link: "https://www.instagram.com/getvexy",
   },
   {
-    name: "Mail",
+    name: "Email Sign Up",
     icon: "/icons/socials/mail.png",
-    link: "mailto:support@betvex.io",
+    link: "https://betvex.xyz",
   },
 ];
