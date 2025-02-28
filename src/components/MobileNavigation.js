@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, FileUp, LogIn, DollarSign, Coins } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
+import { socials } from "@/data/socials";
 import "./MobileNavigation.css";
 
 /**
@@ -191,6 +192,26 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
                 </button>
               </div>
             )}
+
+            {/* Social Links Section */}
+            <div className="mob-navbar__socials">
+              <div className="mob-navbar__socials-title">Follow Us</div>
+              <div className="mob-navbar__socials-grid">
+                {socials.map((social) => (
+                  <a
+                    key={social.name}
+                    href={social.link}
+                    className="mob-navbar__social-item"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.name}
+                  >
+                    <img src={social.icon} alt={social.name} className="mob-navbar__social-icon" />
+                    <span className="mob-navbar__social-name">{social.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
