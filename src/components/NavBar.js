@@ -140,7 +140,7 @@ const NavBar = () => {
         onLogout={handleLogout}
         onLogin={() => setIsLoginModalOpen(true)}
       />
-      <nav className={`nav ${isScrolled ? "nav-scrolled" : ""}`}>
+      <nav className={`nav ${isScrolled ? "nav-scrolled" : ""}`} style={{ marginTop: "35px" }}>
         <div className="desktop-nav">
           <div className="desktop-nav-content">
             <div className="left-container">
