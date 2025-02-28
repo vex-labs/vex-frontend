@@ -90,7 +90,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
     },
     {
       name: "bets",
-      label: "User Bets",
+      label: "View Bets",
       path: "/user",
       icon: <Coins size={20} strokeWidth={1.5} />,
     },
