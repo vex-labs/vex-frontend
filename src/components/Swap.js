@@ -241,9 +241,18 @@ const Swap = () => {
       const refSwapId = "ref-finance-101.testnet";
 
       // Check all registrations
-      const isUserRegisteredWithSource = await isAccountRegistered(sourceTokenId, userId);
-      const isRefswapRegisteredWithSource = await isAccountRegistered(sourceTokenId, refSwapId);
-      const isUserRegisteredWithTarget = await isAccountRegistered(targetTokenId, userId);
+      const isUserRegisteredWithSource = await isAccountRegistered(
+        sourceTokenId,
+        userId
+      );
+      const isRefswapRegisteredWithSource = await isAccountRegistered(
+        sourceTokenId,
+        refSwapId
+      );
+      const isUserRegisteredWithTarget = await isAccountRegistered(
+        targetTokenId,
+        userId
+      );
 
       // Collect registrations needed
       let registrationsNeeded = [];
@@ -271,28 +280,28 @@ const Swap = () => {
         // If using Web3Auth
         if (web3auth?.connected) {
           const account = await nearConnection.account(web3authAccountId);
-          
+
           // Create a batch of transactions
-          const actions = registrationsNeeded.map(reg => ({
+          const actions = registrationsNeeded.map((reg) => ({
             receiverId: reg.tokenId,
             actions: [
               {
-                type: 'FunctionCall',
+                type: "FunctionCall",
                 params: {
                   methodName: "storage_deposit",
                   args: { account_id: reg.accountId },
                   gas: "30000000000000", // 30 TGas
                   deposit: STORAGE_DEPOSIT_AMOUNT,
-                }
-              }
-            ]
+                },
+              },
+            ],
           }));
-          
+
           await account.signAndSendTransaction({
             receiverId: registrationsNeeded[0].tokenId,
-            actions: actions
+            actions: actions,
           });
-        } 
+        }
         // If using NEAR Wallet
         else if (signedAccountId && wallet) {
           // Can't batch with wallet selector, do sequentially
@@ -481,9 +490,12 @@ const Swap = () => {
   return (
     <div className="swap-container">
       <div className="swap-header">
-        <h2 className="swap-heading">
-          {swapDirection ? "Sell" : "Buy"} VEX Rewards
-        </h2>
+        <div className="earn-card-header">
+          <h2 className="swap-heading">
+            {swapDirection ? "Sell" : "Buy"} VEX Rewards
+          </h2>
+          <div className="earn-card-subtitle">Buy and sell VEX Rewards</div>
+        </div>
 
         <div className="swap-toggle">
           <button
@@ -531,7 +543,9 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(swapDirection ? tokenBalances.VEX : tokenBalances.USDC).toFixed(2)}
+            {parseFloat(
+              swapDirection ? tokenBalances.VEX : tokenBalances.USDC
+            ).toFixed(2)}
           </span>
         </span>
         <div className="percentage-options">
@@ -585,7 +599,9 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(swapDirection ? tokenBalances.USDC : tokenBalances.VEX).toFixed(2)}
+            {parseFloat(
+              swapDirection ? tokenBalances.USDC : tokenBalances.VEX
+            ).toFixed(2)}
           </span>
         </span>
       </div>

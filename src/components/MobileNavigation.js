@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Book, FileUp, LogIn } from "lucide-react";
+import { Menu, X, Book, FileUp, LogIn, Wallet } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
 import { useNear } from "@/app/context/NearContext";
@@ -21,7 +21,7 @@ import "./MobileNavigation.css";
  *
  * @returns {JSX.Element} The MobileNavbar component
  */
-const MobileNavbar = ({ isLoggedIn, onLogin, onLogout }) => {
+const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
   const pathname = usePathname();
@@ -68,9 +68,21 @@ const MobileNavbar = ({ isLoggedIn, onLogin, onLogout }) => {
 
           <div className="mob-navbar__actions">
             {isLoggedIn && (
-              <div className="mob-navbar__user">
-                <UserDropdown onLogout={onLogout} />
-              </div>
+              <>
+                <div className="mob-navbar__balance">
+                  {walletBalance && walletBalance.USDC && (
+                    <div className="token-item">
+                      <Wallet size={16} className="token-icon" />
+                      <span className="token-balance">
+                        {parseFloat(walletBalance.USDC).toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="mob-navbar__user">
+                  <UserDropdown onLogout={onLogout} />
+                </div>
+              </>
             )}
 
             <button

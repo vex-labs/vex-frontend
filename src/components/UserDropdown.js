@@ -31,25 +31,22 @@ const UserDropdown = ({ onLogout }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Create refs for dropdown button and content
-      const dropdownButton = document.querySelector(".IconButton");
-      const dropdownContent = document.querySelector(".DropdownMenuContent");
-
-      // Check if click is outside both the button and dropdown content
-      if (
-        open &&
-        dropdownButton &&
-        dropdownContent &&
-        !dropdownButton.contains(event.target) &&
-        !dropdownContent.contains(event.target)
-      ) {
+      // Close if dropdown is open and click is outside dropdown
+      if (open) {
         setOpen(false);
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    // Add listener to document
+    if (open) {
+      // Use setTimeout to avoid immediately closing when clicking the trigger button
+      setTimeout(() => {
+        document.addEventListener("click", handleClickOutside);
+      }, 0);
+    }
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [open]);
 
@@ -102,6 +99,8 @@ const UserDropdown = ({ onLogout }) => {
               e.stopPropagation();
               // Toggle dropdown
               setOpen((prev) => !prev);
+              // Prevent this click from being handled by the document event listener
+              e.nativeEvent.stopImmediatePropagation();
             }}
           >
             <div className="user-avatar">

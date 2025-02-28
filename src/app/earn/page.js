@@ -3,14 +3,11 @@ import "./earn.css";
 import Staking from "@/components/Stake";
 import Swap from "@/components/Swap";
 import Sidebar2 from "@/components/Sidebar2";
-import { useNear } from "@/app/context/NearContext";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { Wallet, Coins, ArrowUpDown } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import { VexContract, NearRpcUrl } from "@/app/config";
-import { ChevronDown } from "lucide-react";
 
 const EarnPage = () => {
   const { accountId } = useGlobalContext();
@@ -37,7 +34,9 @@ const EarnPage = () => {
       const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
 
       // Round to 2 decimal places
-      const roundedBalance = isNaN(stakedBalanceRaw) ? 0 : parseFloat(stakedBalanceRaw.toFixed(2));
+      const roundedBalance = isNaN(stakedBalanceRaw)
+        ? 0
+        : parseFloat(stakedBalanceRaw.toFixed(2));
       setStakedBalance(roundedBalance);
     } catch (error) {
       console.error("Error fetching staked balance:", error);
@@ -84,7 +83,7 @@ const EarnPage = () => {
               <span className="earn-stat-value">
                 {parseFloat(tokenBalances?.USDC || "0").toFixed(2)}
               </span>
-              <span className="earn-stat-label">USDC Balance</span>
+              <span className="earn-stat-label">USD Balance</span>
             </div>
           </div>
 
@@ -93,8 +92,10 @@ const EarnPage = () => {
               <ArrowUpDown size={20} />
             </div>
             <div className="earn-stat-content">
-              <span className="earn-stat-value">{parseFloat(stakedBalance).toFixed(2)}</span>
-              <span className="earn-stat-label">Activated $VEX Rewards</span>
+              <span className="earn-stat-value">
+                {parseFloat(stakedBalance).toFixed(2)}
+              </span>
+              <span className="earn-stat-label">Activated VEX Rewards</span>
             </div>
           </div>
         </div>
@@ -106,30 +107,10 @@ const EarnPage = () => {
 
           <div className="earn-container">
             <div className="earn-card swap-section">
-              <div className="earn-card-header">
-                <h3 className="earn-card-title">
-                  <ArrowUpDown size={18} />
-                  Token Swap
-                </h3>
-                <div className="earn-card-subtitle">
-                  Exchange VEX and USDC tokens instantly
-                </div>
-              </div>
-
               <Swap />
             </div>
 
             <div className="earn-card stake-section">
-              <div className="earn-card-header">
-                <h3 className="earn-card-title">
-                  <Coins size={18} />
-                  Activate VEX Rewards
-                </h3>
-                <div className="earn-card-subtitle">
-                  Activate your VEX Rewards to earn rewards
-                </div>
-              </div>
-
               <Staking />
             </div>
           </div>
@@ -139,8 +120,8 @@ const EarnPage = () => {
           <h2 className="earn-section-title">Frequently Asked Questions</h2>
 
           <div className="earn-faq-container">
-            <div 
-              className={`earn-faq-item ${activeFaq === 0 ? 'active' : ''}`}
+            <div
+              className={`earn-faq-item ${activeFaq === 0 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)}
             >
               <h3 className="earn-faq-question">What is VEX token?</h3>
@@ -150,20 +131,20 @@ const EarnPage = () => {
               </p>
             </div>
 
-            <div 
-              className={`earn-faq-item ${activeFaq === 1 ? 'active' : ''}`}
+            <div
+              className={`earn-faq-item ${activeFaq === 1 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
             >
               <h3 className="earn-faq-question">How does staking work?</h3>
               <p className="earn-faq-answer">
                 Staking allows you to lock your VEX tokens in the staking
-                contract to earn USDC rewards. The more VEX you activate and the
+                contract to earn USD rewards. The more VEX you activate and the
                 longer you activate it, the more rewards you can earn.
               </p>
             </div>
 
-            <div 
-              className={`earn-faq-item ${activeFaq === 2 ? 'active' : ''}`}
+            <div
+              className={`earn-faq-item ${activeFaq === 2 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
             >
               <h3 className="earn-faq-question">
@@ -176,15 +157,15 @@ const EarnPage = () => {
               </p>
             </div>
 
-            <div 
-              className={`earn-faq-item ${activeFaq === 3 ? 'active' : ''}`}
+            <div
+              className={`earn-faq-item ${activeFaq === 3 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
             >
               <h3 className="earn-faq-question">
-                How do I swap between VEX and USDC?
+                How do I swap between VEX and USD?
               </h3>
               <p className="earn-faq-answer">
-                Use the Token Swap feature to exchange between VEX and USDC
+                Use the Token Swap feature to exchange between VEX and USD
                 tokens. The swap is processed through the REF Finance platform,
                 ensuring the best rates and liquidity.
               </p>

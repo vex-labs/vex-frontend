@@ -205,10 +205,6 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                   <span className="info-label">Amount to deposit:</span>
                   <span className="info-value">{amount || 0} USD</span>
                 </div>
-                <div className="info-item">
-                  <span className="info-label">Destination account:</span>
-                  <span className="info-value account-id">{accountId}</span>
-                </div>
               </div>
 
               <div className="modal-actions">
