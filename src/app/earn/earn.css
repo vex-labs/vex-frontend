@@ -1219,7 +1219,21 @@ input:checked + .slider:before {
   font-size: 16px;
   font-weight: 600;
   color: white;
-  margin: 0 0 12px 0;
+  margin: 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.earn-faq-question:after {
+  content: '+';
+  font-size: 20px;
+  transition: transform 0.3s ease;
+}
+
+.earn-faq-item.active .earn-faq-question:after {
+  transform: rotate(45deg);
 }
 
 .earn-faq-answer {
@@ -1227,6 +1241,14 @@ input:checked + .slider:before {
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
   line-height: 1.5;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin 0.3s ease;
+}
+
+.earn-faq-item.active .earn-faq-answer {
+  max-height: 200px;
+  margin-top: 12px;
 }
 
 /* Responsive adjustments */
