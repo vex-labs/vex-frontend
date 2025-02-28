@@ -3,7 +3,7 @@ import "./earn.css";
 import Staking from "@/components/Stake";
 import Swap from "@/components/Swap";
 import Sidebar2 from "@/components/Sidebar2";
-import { Wallet, Coins, ArrowUpDown } from "lucide-react";
+import { DollarSign, Coins, ArrowUpDown } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
@@ -65,7 +65,7 @@ const EarnPage = () => {
         <div className="earn-stats">
           <div className="earn-stat-card">
             <div className="earn-stat-icon">
-              <Wallet size={20} />
+              <Coins size={20} />
             </div>
             <div className="earn-stat-content">
               <span className="earn-stat-value">
@@ -77,7 +77,7 @@ const EarnPage = () => {
 
           <div className="earn-stat-card">
             <div className="earn-stat-icon">
-              <Coins size={20} />
+              <DollarSign size={20} />
             </div>
             <div className="earn-stat-content">
               <span className="earn-stat-value">

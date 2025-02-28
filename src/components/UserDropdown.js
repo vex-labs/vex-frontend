@@ -1,7 +1,7 @@
 import * as React from "react";
 import { DropdownMenu } from "radix-ui";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import GiftModal from "./GiftModal";
@@ -11,6 +11,8 @@ const UserDropdown = ({ onLogout }) => {
   const [open, setOpen] = useState(false);
   const [giftModalOpen, setGiftModalOpen] = useState(false);
   const [activeItem, setActiveItem] = useState(null);
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
   const { web3auth } = useWeb3Auth();
   const { accountId } = useGlobalContext();
 
@@ -31,22 +33,23 @@ const UserDropdown = ({ onLogout }) => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      // Close if dropdown is open and click is outside dropdown
-      if (open) {
+      // Only close if dropdown is open AND click is outside both the dropdown and the button
+      if (
+        open && 
+        dropdownRef.current && 
+        buttonRef.current && 
+        !dropdownRef.current.contains(event.target) && 
+        !buttonRef.current.contains(event.target)
+      ) {
         setOpen(false);
       }
     };
 
     // Add listener to document
-    if (open) {
-      // Use setTimeout to avoid immediately closing when clicking the trigger button
-      setTimeout(() => {
-        document.addEventListener("click", handleClickOutside);
-      }, 0);
-    }
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
 
@@ -93,14 +96,13 @@ const UserDropdown = ({ onLogout }) => {
       <DropdownMenu.Root open={open} onOpenChange={setOpen}>
         <DropdownMenu.Trigger asChild>
           <button
+            ref={buttonRef}
             className="IconButton"
             aria-label="User menu"
             onClick={(e) => {
               e.stopPropagation();
               // Toggle dropdown
               setOpen((prev) => !prev);
-              // Prevent this click from being handled by the document event listener
-              e.nativeEvent.stopImmediatePropagation();
             }}
           >
             <div className="user-avatar">
@@ -112,6 +114,7 @@ const UserDropdown = ({ onLogout }) => {
 
         <DropdownMenu.Portal>
           <DropdownMenu.Content
+            ref={dropdownRef}
             className="DropdownMenuContent"
             sideOffset={5}
             onClick={(e) => e.stopPropagation()}

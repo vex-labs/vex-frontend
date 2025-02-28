@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   Coins,
   ArrowUp,
   ArrowDown,
@@ -58,7 +57,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   const mainNavItems = [
     {
       name: "home",
-      label: "Home",
+      label: "Betting",
       path: "/",
       icon: <Home size={20} strokeWidth={1.5} />,
     },
@@ -280,7 +279,6 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
                       className={`nav-label ${isCollapsed ? "tooltip" : ""}`}
                     >
                       <span>{social.name}</span>
-                      <ExternalLink size={12} className="external-link-icon" />
                     </span>
                   )}
                 </a>
