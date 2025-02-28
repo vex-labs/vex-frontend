@@ -1160,7 +1160,9 @@ input:checked + .slider:before {
 }
 
 .earn-card-header {
-  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .earn-card-title {
@@ -1197,8 +1199,10 @@ input:checked + .slider:before {
 
 .earn-faq-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 24px;
+  max-width: 768px;
+  margin: 0 auto;
   margin-top: 24px;
 }
 
@@ -1227,7 +1231,7 @@ input:checked + .slider:before {
 }
 
 .earn-faq-question:after {
-  content: '+';
+  content: "+";
   font-size: 20px;
   transition: transform 0.3s ease;
 }

@@ -88,7 +88,9 @@ const Staking = () => {
       const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
 
       // Round to 2 decimal places
-      const roundedBalance = isNaN(stakedBalanceRaw) ? 0 : parseFloat(stakedBalanceRaw.toFixed(2));
+      const roundedBalance = isNaN(stakedBalanceRaw)
+        ? 0
+        : parseFloat(stakedBalanceRaw.toFixed(2));
       setStakedBalance(roundedBalance);
     } catch (error) {
       console.error("Error fetching staked balance:", error);
@@ -145,7 +147,9 @@ const Staking = () => {
     setMessage({ text: "Processing stake transaction...", type: "info" });
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
-    const formattedAmount = BigInt(parseFloat(parseFloat(amount).toFixed(2)) * 1e18).toString();
+    const formattedAmount = BigInt(
+      parseFloat(parseFloat(amount).toFixed(2)) * 1e18
+    ).toString();
     const msg = JSON.stringify("Stake");
     const gas = "100000000000000";
     const deposit = "0";
@@ -247,7 +251,9 @@ const Staking = () => {
     setMessage({ text: "Processing unstake transaction...", type: "info" });
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
-    const formattedAmount = BigInt(parseFloat(parseFloat(amount).toFixed(2)) * 1e18).toString();
+    const formattedAmount = BigInt(
+      parseFloat(parseFloat(amount).toFixed(2)) * 1e18
+    ).toString();
     const gas = "100000000000000";
     const deposit = "0";
 
@@ -409,9 +415,14 @@ const Staking = () => {
   return (
     <div className="staking-container">
       <div className="staking-header-row">
-        <h2 className="staking-heading">
-          {selectedOption === "stake" ? "Activate" : "Deactivate"} VEX Rewards
-        </h2>
+        <div className="earn-card-header">
+          <h2 className="staking-heading">
+            {selectedOption === "stake" ? "Activate" : "Deactivate"} VEX Rewards
+          </h2>
+          <div className="earn-card-subtitle">
+            Activate your VEX Rewards to earn
+          </div>
+        </div>
 
         <button
           className={`distribute-rewards-button ${
@@ -447,21 +458,25 @@ const Staking = () => {
         <div className="stat-card">
           <div className="stat-title">Your Balance</div>
           <div className="stat-value">
-            {parseFloat(balance).toFixed(2)} <span className="token-unit">VEX</span>
+            {parseFloat(balance).toFixed(2)}{" "}
+            <span className="token-unit">VEX</span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-title">Your Activated Balance</div>
           <div className="stat-value">
-            {parseFloat(stakedBalance).toFixed(2)} <span className="token-unit">VEX</span>
+            {parseFloat(stakedBalance).toFixed(2)}{" "}
+            <span className="token-unit">VEX</span>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-title">USD Rewards Available</div>
           <div className="stat-value usdc-value">
-            {totalUSDCRewards !== null ? parseFloat(totalUSDCRewards).toFixed(2) : "0.00"}{" "}
+            {totalUSDCRewards !== null
+              ? parseFloat(totalUSDCRewards).toFixed(2)
+              : "0.00"}{" "}
             <span className="token-unit">USD</span>
           </div>
         </div>
@@ -513,7 +528,10 @@ const Staking = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(selectedOption === "stake" ? balance : stakedBalance).toFixed(2)} VEX
+            {parseFloat(
+              selectedOption === "stake" ? balance : stakedBalance
+            ).toFixed(2)}{" "}
+            VEX
           </span>
         </span>
         <div className="percentage-options">

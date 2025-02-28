@@ -356,8 +356,6 @@ const UserBets = ({ userBets }) => {
               " "
             )} vs ${matchParts[1].replace("_", " ")}`;
 
-            console.log(bet);
-
             // Determine if bet is claimable (only in claimable tab)
             const isClaimable =
               activeCategory === "claimable" ||
@@ -451,7 +449,7 @@ const UserBets = ({ userBets }) => {
                     <p className="amount-label">Bet Amount</p>
                     <p className="amount-value">
                       ${(bet_amount / Math.pow(10, 6)).toFixed(2)}{" "}
-                      <span className="currency">USDC</span>
+                      <span className="currency">USD</span>
                     </p>
                   </div>
                   <div className="winnings-amount-container">
@@ -471,7 +469,7 @@ const UserBets = ({ userBets }) => {
                       }`}
                     >
                       ${(potential_winnings / Math.pow(10, 6)).toFixed(2)}{" "}
-                      <span className="currency">USDC</span>
+                      <span className="currency">USD</span>
                     </p>
                   </div>
                 </div>

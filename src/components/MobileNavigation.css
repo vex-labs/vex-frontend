@@ -41,6 +41,32 @@
   gap: 8px;
 }
 
+.mob-navbar__balance {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 4px 10px;
+  margin-right: 8px;
+}
+
+.mob-navbar__balance .token-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mob-navbar__balance .token-icon {
+  color: var(--green-button, #00e6b3);
+}
+
+.mob-navbar__balance .token-balance {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
 .mob-navbar__user {
   margin-right: 4px;
 }
