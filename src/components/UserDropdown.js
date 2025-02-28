@@ -27,12 +27,13 @@ const UserDropdown = ({ onLogout }) => {
     return accountId.replace(".users.betvex.testnet", "");
   };
 
-  const displayAccountId =
-    formatAccountId(accountId).length > 20
+  const displayAccountId = accountId
+    ? formatAccountId(accountId).length > 20
       ? `${formatAccountId(accountId).slice(0, 8)}...${formatAccountId(
           accountId
         ).slice(-8)}`
-      : formatAccountId(accountId);
+      : formatAccountId(accountId)
+    : "";
 
   // Close dropdown when clicking outside
   useEffect(() => {
