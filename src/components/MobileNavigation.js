@@ -49,7 +49,8 @@ const MobileNavbar = ({ isLoggedIn, onLogin, onLogout }) => {
     { name: "Home", path: "/" },
     { name: "Earn", path: "/earn" },
     { name: "Leaderboard", path: "/leaderboard" },
-    { name: "Governance", path: "/governance" },
+    { name: "Governance Community", path: "/governance" },
+    { name: "View Bets", path: "/user" },
   ];
 
   const handleDepositClick = () => {

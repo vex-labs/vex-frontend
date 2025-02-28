@@ -2,11 +2,10 @@ import * as React from "react";
 import { DropdownMenu } from "radix-ui";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { useNear } from "@/app/context/NearContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import GiftModal from "./GiftModal";
-import { LogOut, Gift, Settings, ArrowDown, UserCircle } from "lucide-react";
+import { LogOut, Gift, Settings, Coins } from "lucide-react";
 
 const UserDropdown = ({ onLogout }) => {
   const [open, setOpen] = useState(false);
@@ -66,12 +65,13 @@ const UserDropdown = ({ onLogout }) => {
       link: "/user",
     },
     {
-      id: "withdraw",
-      label: "Withdraw",
-      icon: ArrowDown,
+      id: "bets",
+      label: "View Bets",
+      icon: Coins,
       action: () => {
-        console.log("Withdraw clicked");
+        setOpen(false);
       },
+      link: "/user",
     },
     {
       id: "gift",

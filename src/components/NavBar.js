@@ -177,7 +177,7 @@ const NavBar = () => {
                   }`}
                   onClick={() => setActiveLink("governance")}
                 >
-                  Governance
+                  Governance Community
                 </Link>
                 <Link
                   href="/leaderboard"

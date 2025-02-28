@@ -144,7 +144,8 @@ const Staking = () => {
     setIsProcessing(true);
     setMessage({ text: "Processing stake transaction...", type: "info" });
 
-    const formattedAmount = BigInt(parseFloat(amount) * 1e18).toString();
+    // Convert amount to a fixed number with 2 decimal places, then to BigInt format
+    const formattedAmount = BigInt(parseFloat(parseFloat(amount).toFixed(2)) * 1e18).toString();
     const msg = JSON.stringify("Stake");
     const gas = "100000000000000";
     const deposit = "0";
@@ -245,7 +246,8 @@ const Staking = () => {
     setIsProcessing(true);
     setMessage({ text: "Processing unstake transaction...", type: "info" });
 
-    const formattedAmount = BigInt(parseFloat(amount) * 1e18).toString();
+    // Convert amount to a fixed number with 2 decimal places, then to BigInt format
+    const formattedAmount = BigInt(parseFloat(parseFloat(amount).toFixed(2)) * 1e18).toString();
     const gas = "100000000000000";
     const deposit = "0";
 

@@ -109,10 +109,10 @@ const Swap = () => {
         decodedResult / Math.pow(10, swapDirection ? 6 : 18);
 
       if (swapDirection) {
-        setUsdcAmount(outputEquivalent.toFixed(6));
+        setUsdcAmount(outputEquivalent.toFixed(2));
         setDisplayUsdcAmount(outputEquivalent.toFixed(2));
       } else {
-        setVexAmount(outputEquivalent.toFixed(6));
+        setVexAmount(outputEquivalent.toFixed(2));
       }
     } catch (error) {
       console.error("Failed to fetch output amount:", error);
