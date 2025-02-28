@@ -13,14 +13,7 @@ const UserDropdown = ({ onLogout }) => {
   const [activeItem, setActiveItem] = useState(null);
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
-  const { web3auth } = useWeb3Auth();
   const { accountId } = useGlobalContext();
-
-  // Format account ID if too long
-  const displayAccountId =
-    accountId && accountId.length > 16
-      ? `${accountId.slice(0, 8)}...${accountId.slice(-8)}`
-      : accountId;
 
   // Handle keyboard navigation
   const handleKeyDown = (e, action) => {
@@ -30,15 +23,26 @@ const UserDropdown = ({ onLogout }) => {
     }
   };
 
+  const formatAccountId = (accountId) => {
+    return accountId.replace(".users.betvex.testnet", "");
+  };
+
+  const displayAccountId =
+    formatAccountId(accountId).length > 20
+      ? `${formatAccountId(accountId).slice(0, 8)}...${formatAccountId(
+          accountId
+        ).slice(-8)}`
+      : formatAccountId(accountId);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       // Only close if dropdown is open AND click is outside both the dropdown and the button
       if (
-        open && 
-        dropdownRef.current && 
-        buttonRef.current && 
-        !dropdownRef.current.contains(event.target) && 
+        open &&
+        dropdownRef.current &&
+        buttonRef.current &&
+        !dropdownRef.current.contains(event.target) &&
         !buttonRef.current.contains(event.target)
       ) {
         setOpen(false);
@@ -125,9 +129,7 @@ const UserDropdown = ({ onLogout }) => {
               </div>
               <div className="user-info">
                 <span className="user-account-id">{displayAccountId}</span>
-                <span className="user-wallet-type">
-                  {web3auth?.connected ? "Web3Auth" : "NEAR Wallet"}
-                </span>
+                <span className="user-wallet-type"></span>
               </div>
             </div>
 

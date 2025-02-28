@@ -55,7 +55,7 @@ export const CreateAccountModal = ({ isOpen, onClose, onAccountCreated }) => {
         throw new Error(
           `Failed to create account: ${data.error}${
             data.details ? ` (${JSON.stringify(data.details)})` : ""
-          }`,
+          }`
         );
       }
 
@@ -97,12 +97,6 @@ export const CreateAccountModal = ({ isOpen, onClose, onAccountCreated }) => {
                 placeholder="Enter username"
                 required
               />
-              <div className="vex-form-helper">
-                Your full account will be:{" "}
-                <span className="vex-account-name">
-                  {username ? `${username}.users.betvex.testnet` : ""}
-                </span>
-              </div>
             </div>
 
             {error && <div className="vex-error-message">{error}</div>}

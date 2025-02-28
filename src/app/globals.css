@@ -7,11 +7,46 @@
   --accent-color-muted: #ff562290;
   --white-color: #ffffff;
   --green-button: #00e6b3;
+  --warning-color: #ffcc00;
 }
 body {
   background-color: var(--secondary-color);
   color: var(--text-color);
   padding-top: 0px !important;
+}
+
+/* Testnet banner styles */
+.testnet-banner {
+  background-color: rgba(0, 0, 0, 0.9);
+  border-bottom: 1px solid var(--warning-color);
+  color: var(--warning-color);
+  text-align: center;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+}
+
+.testnet-banner p {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .testnet-banner {
+    top: 65px; /* Position below mobile navbar */
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  
+  /* Adjust the page content to account for banner */
+  body {
+    padding-top: 30px;
+  }
 }
 button {
   all: unset;

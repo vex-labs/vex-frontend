@@ -287,7 +287,7 @@
 @media (max-width: 768px) {
   .mob-navbar {
     display: block;
-    margin-bottom: 65px;
+    margin-bottom: 95px; /* Increased to account for banner height */
   }
 
   /* Hide desktop navbar when mobile is active */
