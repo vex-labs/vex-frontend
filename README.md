@@ -50,7 +50,7 @@ bun install
 │   │   ├── earn/
 │   │   │   ├── earn.css
 │   │   │   └── page.js
-│   │   ├── governance/
+│   │   ├── community/
 │   │   │   └── page.js
 │   │   ├── layout.js
 │   │   ├── page.js
@@ -84,10 +84,10 @@ bun install
 
 ## Main Pages
 
-- **Home Page**: Displays the main dashboard with upcoming games and betting options.
+- **Betting Page**: Displays the main dashboard with upcoming games and betting options.
 - **Earn Page**: Allows users Swap tokens and to stake and unstake their tokens.
-- **Governance Page**: TBC.
-- **User Page**: Shows the user's bets and allows them to claim winnings.
+- **Community Page**: TBC.
+- **View Bets Page**: Shows the user's bets and allows them to claim winnings.
 
 ## Third-Party APIs
 

@@ -1,13 +1,13 @@
 "use client";
 
 import Sidebar2 from "@/components/Sidebar2";
-import "./governance.css";
+import "./community.css";
 
-const GovernancePage = () => {
+const CommunityPage = () => {
   return (
     <div className="mainContent">
       <Sidebar2 />
-      <div className="container governance-content">
+      <div className="container community-content">
         <h2
           style={{
             fontSize: "2rem",
@@ -23,4 +23,4 @@ const GovernancePage = () => {
   );
 };
 
-export default GovernancePage;
+export default CommunityPage;

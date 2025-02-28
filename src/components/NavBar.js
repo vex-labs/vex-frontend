@@ -54,7 +54,7 @@ const NavBar = () => {
     const path = pathname;
     if (path === "/") setActiveLink("betting");
     else if (path.includes("/earn")) setActiveLink("earn");
-    else if (path.includes("/governance")) setActiveLink("governance");
+    else if (path.includes("/community")) setActiveLink("community");
     else if (path.includes("/leaderboard")) setActiveLink("leaderboard");
     else setActiveLink("");
   }, [pathname]);
@@ -132,7 +132,10 @@ const NavBar = () => {
   return (
     <>
       <div className="testnet-banner">
-        <p>TESTNET ACCOUNT: All funds are for testing purposes only and have no real value</p>
+        <p>
+          TESTNET ACCOUNT: All funds are for testing purposes only and have no
+          real value
+        </p>
       </div>
       <MobileNavbar
         isLoggedIn={isLoggedIn}
@@ -140,7 +143,10 @@ const NavBar = () => {
         onLogout={handleLogout}
         onLogin={() => setIsLoginModalOpen(true)}
       />
-      <nav className={`nav ${isScrolled ? "nav-scrolled" : ""}`} style={{ marginTop: "35px" }}>
+      <nav
+        className={`nav ${isScrolled ? "nav-scrolled" : ""}`}
+        style={{ marginTop: "35px" }}
+      >
         <div className="desktop-nav">
           <div className="desktop-nav-content">
             <div className="left-container">
@@ -174,13 +180,13 @@ const NavBar = () => {
                   Earn
                 </Link>
                 <Link
-                  href="/governance"
+                  href="/community"
                   className={`nav-link ${
-                    activeLink === "governance" ? "nav-link-active" : ""
+                    activeLink === "community" ? "nav-link-active" : ""
                   }`}
-                  onClick={() => setActiveLink("governance")}
+                  onClick={() => setActiveLink("community")}
                 >
-                  Governance Community
+                  Community
                 </Link>
                 <Link
                   href="/leaderboard"

@@ -47,7 +47,7 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
     { name: "Home", path: "/" },
     { name: "Earn", path: "/earn" },
     { name: "Leaderboard", path: "/leaderboard" },
-    { name: "Governance Community", path: "/governance" },
+    { name: "Community", path: "/community" },
     { name: "View Bets", path: "/user" },
   ];
 
