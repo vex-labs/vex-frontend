@@ -93,7 +93,7 @@ const GameCard = ({
 
       // Decode and parse the result
       const decodedResult = JSON.parse(
-        Buffer.from(matchDetails.result).toString(),
+        Buffer.from(matchDetails.result).toString()
       );
 
       // Update odds with the fetched data
@@ -155,7 +155,7 @@ const GameCard = ({
 
       // Decode the u128 response and convert back to USDC format
       const winningsRaw = BigInt(
-        JSON.parse(Buffer.from(potentialWinnings.result).toString()),
+        JSON.parse(Buffer.from(potentialWinnings.result).toString())
       );
       const winningsUSDC = Number(winningsRaw) / 1e5;
 
@@ -181,8 +181,10 @@ const GameCard = ({
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
     setStake(newStake);
+  };
 
-    if (newStake && selectedBet) {
+  useEffect(() => {
+    if (selectedBet) {
       fetchPotentialWinnings();
     } else {
       setMessage({
@@ -190,7 +192,7 @@ const GameCard = ({
         type: "info",
       });
     }
-  };
+  }, [selectedBet, stake]);
 
   // Handle placing a bet
   const handlePlaceBet = async () => {
@@ -247,7 +249,7 @@ const GameCard = ({
         "usdc.betvex.testnet",
         wallet,
         web3authAccountId,
-        nearConnection,
+        nearConnection
       );
 
       setBetSuccess(true);
@@ -569,7 +571,7 @@ const GameCard = ({
               )}
             </div>
           </div>,
-          document.body,
+          document.body
         )}
     </>
   );
