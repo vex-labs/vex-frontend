@@ -5,7 +5,7 @@ export const socials = [
     link: "https://t.me/+4x6uwCjC7BgzNmRk",
   },
   {
-    name: "X (Twitter)",
+    name: "X",
     icon: "/icons/socials/x.png",
     link: "https://x.com/betvex",
   },

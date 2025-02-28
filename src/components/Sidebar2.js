@@ -8,7 +8,6 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  ExternalLink,
   Coins,
 } from "lucide-react";
 import { socials } from "@/data/socials";
@@ -51,7 +50,7 @@ const Sidebar2 = () => {
   const mainNavItems = [
     {
       name: "home",
-      label: "Home",
+      label: "Betting",
       path: "/",
       icon: <Home size={20} strokeWidth={1.5} />,
     },
@@ -192,7 +191,6 @@ const Sidebar2 = () => {
                       className={`nav-label ${isCollapsed ? "tooltip" : ""}`}
                     >
                       <span>{social.name}</span>
-                      <ExternalLink size={12} className="external-link-icon" />
                     </span>
                   )}
                 </a>
