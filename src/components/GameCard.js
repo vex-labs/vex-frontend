@@ -612,6 +612,11 @@ const GameCard = ({
               ) : (
                 // Bet input view
                 <>
+                  <div className="balance-display">
+                    <span className="balance-label">Your Balance:</span>
+                    <span className="balance-amount">${parseFloat(walletBalance || 0).toFixed(2)} USD</span>
+                  </div>
+                  
                   <div className="bet-input-container">
                     <div className="stake-container">
                       <div className="stake-input-wrapper">

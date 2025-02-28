@@ -66,7 +66,7 @@ const UserDropdown = ({ onLogout }) => {
       action: () => {
         setOpen(false);
       },
-      link: "/user",
+      link: "/settings",
     },
     {
       id: "bets",

@@ -176,26 +176,27 @@ const UserBets = ({ userBets }) => {
     );
   };
 
-  // Filter bets into categories with improved history handling
+  // Filter bets into categories with improved handling
   const createBetCategories = () => {
-    // Claimable bets are only won bets that haven't been claimed
+    // Claimable bets include both:
+    // 1. Won bets that haven't been claimed
+    // 2. Error bets eligible for refunds (now merged with claimable)
     const claimableBets = userBets.filter(
       (bet) =>
-        bet.match_state === "Finished" &&
-        !bet.pay_state &&
-        !claimedBets[bet.betId] &&
-        didBetWin(bet)
+        // Regular winnings to claim
+        (bet.match_state === "Finished" &&
+         !bet.pay_state &&
+         !claimedBets[bet.betId] &&
+         didBetWin(bet)) ||
+        // Error bets eligible for refund
+        (bet.match_state === "Error" && 
+         !bet.pay_state && 
+         !claimedBets[bet.betId])
     );
 
     // Pending bets are matches that haven't finished yet
     const pendingBets = userBets.filter(
       (bet) => bet.match_state === "Future" || bet.match_state === "Current"
-    );
-
-    // Error bets are eligible for refunds
-    const errorBets = userBets.filter(
-      (bet) =>
-        bet.match_state === "Error" && !bet.pay_state && !claimedBets[bet.betId]
     );
 
     // History includes:
@@ -218,7 +219,6 @@ const UserBets = ({ userBets }) => {
     return {
       claimable: claimableBets,
       pending: pendingBets,
-      error: errorBets,
       history: historyBets,
     };
   };
@@ -254,7 +254,11 @@ const UserBets = ({ userBets }) => {
 
   // Helper function to get CSS class for bet outcome
   const getBetOutcomeClass = (bet) => {
-    if (bet.pay_state) {
+    if (bet.pay_state === "Paid") {
+      return "status-paid"; // New class for paid status
+    }
+    
+    if (bet.pay_state === "RefundPaid") {
       return "status-settled";
     }
 
@@ -305,14 +309,7 @@ const UserBets = ({ userBets }) => {
           {betCategories.pending.length > 0 &&
             `(${betCategories.pending.length})`}
         </button>
-        <button
-          className={`tab-button ${activeCategory === "error" ? "active" : ""}`}
-          onClick={() => setActiveCategory("error")}
-        >
-          <AlertTriangle size={16} />
-          Error{" "}
-          {betCategories.error.length > 0 && `(${betCategories.error.length})`}
-        </button>
+        {/* Error tab removed - now merged with claimable */}
         <button
           className={`tab-button ${
             activeCategory === "history" ? "active" : ""
@@ -387,20 +384,20 @@ const UserBets = ({ userBets }) => {
                     <p
                       className={`status-badge ${
                         activeCategory === "claimable"
-                          ? "status-won"
+                          ? bet.match_state === "Error"
+                            ? "status-error"
+                            : "status-won"
                           : activeCategory === "pending"
                           ? "status-pending"
-                          : activeCategory === "error"
-                          ? "status-error"
                           : outcomeClass
                       }`}
                     >
                       {activeCategory === "claimable"
-                        ? "Ready to Claim"
+                        ? bet.match_state === "Error" 
+                          ? "Refund Available" 
+                          : "Ready to Claim"
                         : activeCategory === "pending"
                         ? match_state
-                        : activeCategory === "error"
-                        ? "Refund Available"
                         : outcomeText}
                     </p>
                   </div>
@@ -462,8 +459,10 @@ const UserBets = ({ userBets }) => {
                     </p>
                     <p
                       className={`amount-value ${
-                        activeCategory === "claimable" ||
-                        (activeCategory === "history" && didBetWin(bet))
+                        // Display green only for actual winnings (won bets, claimed, or paid)
+                        (activeCategory === "claimable") ||
+                        (activeCategory === "history" && 
+                         (didBetWin(bet) || bet.pay_state === "Paid" || claimedBets[bet.betId]))
                           ? "won-value"
                           : "potential-value"
                       }`}

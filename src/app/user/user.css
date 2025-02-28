@@ -1,5 +1,5 @@
 .user-page {
-  margin-top: 55px;
+  margin-top: 90px;
   padding: 20px;
   margin-left: 230px;
   transition: margin-left 300ms ease-in-out;
@@ -200,6 +200,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.status-paid {
+  background-color: rgba(0, 230, 179, 0.1);
+  color: #00e6b3;
+  border: 1px solid rgba(0, 230, 179, 0.2);
+}
+
 .claim-button {
   padding: 8px 16px;
   background-color: rgba(0, 230, 179, 0.2);
@@ -289,8 +295,12 @@
   margin: 0;
 }
 
-.potential-value {
+.won-value {
   color: #00e6b3;
+}
+
+.potential-value {
+  color: white;
 }
 
 .currency {

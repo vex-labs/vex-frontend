@@ -2349,6 +2349,29 @@ input::placeholder {
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Balance display in betslip */
+.balance-display {
+  margin-bottom: 15px;
+  padding: 10px 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.balance-display .balance-label {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.balance-display .balance-amount {
+  font-size: 15px;
+  font-weight: 600;
+  color: #00e6b3;
+}
+
 .show-more-games {
   width: 100%;
   text-align: center;
