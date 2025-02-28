@@ -64,28 +64,28 @@ const Staking = () => {
       fetchStakedBalance(accountId);
       rewards_ready_to_swap(stakingContractId);
     }
-  }, [accountId, refreshBalances]);
+  }, [accountId, refreshBalances, tokenBalances]);
 
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
     setAmount((currentBalance * percentage).toFixed(2));
   };
-  
+
   // Handle stepping amount up or down
   const handleAmountStep = (direction) => {
     const currentAmount = parseFloat(amount || 0);
     // Define step size based on balance to make it more useful
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
     const stepSize = Math.max(10, Math.floor(currentBalance * 0.05)); // 5% of balance or minimum 10 VEX
-    
+
     // Calculate new amount based on direction
     let newAmount = currentAmount;
-    if (direction === 'up') {
+    if (direction === "up") {
       newAmount = currentAmount + stepSize;
-    } else if (direction === 'down') {
+    } else if (direction === "down") {
       newAmount = Math.max(0, currentAmount - stepSize);
     }
-    
+
     // Format and update the amount
     setAmount(newAmount.toFixed(2));
   };
@@ -145,11 +145,6 @@ const Staking = () => {
       setTotalUSDCRewards(0);
     }
   };
-
-  // Fetch rewards on component mount or as needed
-  useEffect(() => {
-    rewards_ready_to_swap();
-  }, []);
 
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
@@ -543,16 +538,16 @@ const Staking = () => {
             disabled={isProcessing}
           />
           <div className="amount-stepper">
-            <button 
-              className="stepper-btn" 
-              onClick={() => handleAmountStep('up')}
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("up")}
               disabled={isProcessing}
             >
               <ChevronUp size={14} />
             </button>
-            <button 
-              className="stepper-btn" 
-              onClick={() => handleAmountStep('down')}
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("down")}
               disabled={isProcessing || parseFloat(amount || 0) <= 0}
             >
               <ChevronDown size={14} />
