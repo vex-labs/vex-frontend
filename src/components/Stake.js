@@ -10,6 +10,8 @@ import {
   AlertCircle,
   DollarSign,
   CoinsIcon,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
@@ -67,6 +69,25 @@ const Staking = () => {
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
     setAmount((currentBalance * percentage).toFixed(2));
+  };
+  
+  // Handle stepping amount up or down
+  const handleAmountStep = (direction) => {
+    const currentAmount = parseFloat(amount || 0);
+    // Define step size based on balance to make it more useful
+    const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
+    const stepSize = Math.max(10, Math.floor(currentBalance * 0.05)); // 5% of balance or minimum 10 VEX
+    
+    // Calculate new amount based on direction
+    let newAmount = currentAmount;
+    if (direction === 'up') {
+      newAmount = currentAmount + stepSize;
+    } else if (direction === 'down') {
+      newAmount = Math.max(0, currentAmount - stepSize);
+    }
+    
+    // Format and update the amount
+    setAmount(newAmount.toFixed(2));
   };
 
   // This function fetches the staked balance for the user
@@ -521,6 +542,22 @@ const Staking = () => {
             className="token-input"
             disabled={isProcessing}
           />
+          <div className="amount-stepper">
+            <button 
+              className="stepper-btn" 
+              onClick={() => handleAmountStep('up')}
+              disabled={isProcessing}
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button 
+              className="stepper-btn" 
+              onClick={() => handleAmountStep('down')}
+              disabled={isProcessing || parseFloat(amount || 0) <= 0}
+            >
+              <ChevronDown size={14} />
+            </button>
+          </div>
         </div>
       </div>
 

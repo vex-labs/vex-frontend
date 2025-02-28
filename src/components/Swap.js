@@ -9,6 +9,8 @@ import {
   CheckCircle,
   AlertCircle,
   DollarSign,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
@@ -222,6 +224,39 @@ const Swap = () => {
     setUsdcAmount(newAmount);
     if (!swapDirection) {
       await getOutputAmount(newAmount);
+    }
+  };
+  
+  // Step amount handlers for up/down steppers
+  const handleAmountStep = async (direction, isVex) => {
+    const currentAmount = isVex 
+      ? parseFloat(vexAmount || 0) 
+      : parseFloat(usdcAmount || 0);
+    
+    // Define step size (smaller for USDC, larger for VEX)
+    const stepSize = isVex ? 10 : 1;
+    
+    // Calculate new amount based on direction
+    let newAmount = currentAmount;
+    if (direction === 'up') {
+      newAmount = currentAmount + stepSize;
+    } else if (direction === 'down') {
+      newAmount = Math.max(0, currentAmount - stepSize);
+    }
+    
+    // Format and update the amount
+    newAmount = newAmount.toFixed(2);
+    
+    if (isVex) {
+      setVexAmount(newAmount);
+      if (swapDirection) {
+        await getOutputAmount(newAmount);
+      }
+    } else {
+      setUsdcAmount(newAmount);
+      if (!swapDirection) {
+        await getOutputAmount(newAmount);
+      }
     }
   };
 
@@ -536,6 +571,23 @@ const Swap = () => {
             className="token-input"
             disabled={isSwapping || isCheckingRegistration}
           />
+          <div className="amount-stepper">
+            <button 
+              className="stepper-btn" 
+              onClick={() => handleAmountStep('up', swapDirection)}
+              disabled={isSwapping || isCheckingRegistration}
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button 
+              className="stepper-btn" 
+              onClick={() => handleAmountStep('down', swapDirection)}
+              disabled={isSwapping || isCheckingRegistration || 
+                (swapDirection ? parseFloat(vexAmount || 0) <= 0 : parseFloat(usdcAmount || 0) <= 0)}
+            >
+              <ChevronDown size={14} />
+            </button>
+          </div>
         </div>
       </div>
 

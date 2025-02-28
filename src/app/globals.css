@@ -71,7 +71,7 @@ input::placeholder {
 }
 .container {
   display: flex;
-  margin-top: 55px;
+  margin-top: 90px; /* Increased from 55px to push content down */
 }
 .mainContent {
   flex: 1;
@@ -1153,8 +1153,8 @@ input::placeholder {
 .app-sidebar {
   position: fixed;
   width: 230px;
-  height: calc(100vh - 60px);
-  top: 60px;
+  height: calc(100vh - 95px); /* Adjusted height to account for taller header */
+  top: 95px; /* Increased from 60px to match the testnet banner + navbar height */
   left: 0;
   background-color: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(12px);
