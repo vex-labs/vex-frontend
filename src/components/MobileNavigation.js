@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Book, FileUp, LogIn, Wallet } from "lucide-react";
+import { Menu, X, FileUp, LogIn, DollarSign, Coins } from "lucide-react";
 import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
-import { useNear } from "@/app/context/NearContext";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import "./MobileNavigation.css";
 
 /**
@@ -58,6 +56,15 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
     setIsDepositModalOpen(true);
   };
 
+  // Format token balances with proper decimals
+  const formatBalance = (balance) => {
+    if (!balance) return "0.00";
+
+    // Convert to number and format with 2 decimal places
+    const numBalance = parseFloat(balance);
+    return numBalance.toFixed(2);
+  };
+
   return (
     <>
       <div className="mob-navbar">
@@ -69,13 +76,26 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
           <div className="mob-navbar__actions">
             {isLoggedIn && (
               <>
-                <div className="mob-navbar__balance">
-                  {walletBalance && walletBalance.USDC && (
-                    <div className="token-item">
-                      <Wallet size={16} className="token-icon" />
-                      <span className="token-balance">
-                        {parseFloat(walletBalance.USDC).toFixed(2)}
-                      </span>
+                <div className="wallet-balance-container">
+                  {Object.keys(walletBalance).length > 0 ? (
+                    <div className="token-list">
+                      {Object.entries(walletBalance).map(([token, balance]) => (
+                        <div key={token} className="token-item">
+                          <img
+                            src={`/icons/${token}.svg`}
+                            alt={`${token} icon`}
+                            className="token-icon"
+                          />
+                          <span className="token-balance">
+                            {formatBalance(balance)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="loading-balance">
+                      <div className="loading-pulse"></div>
+                      <span>Loading balance...</span>
                     </div>
                   )}
                 </div>

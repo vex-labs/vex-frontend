@@ -36,7 +36,7 @@ export function NearProvider({ children }) {
         // If user signed in with wallet, create/verify their DB entry
         if (newSignedAccountId) {
           try {
-            const response = await fetch("/api/auth/create-wallet-user", {
+            const response = await fetch("/api/auth/create-wallet-account", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

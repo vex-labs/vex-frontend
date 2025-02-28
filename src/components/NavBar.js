@@ -62,7 +62,7 @@ const NavBar = () => {
   // Monitor scroll position for navbar styling
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setIsScrolled(window.scrollY > 30); // Increased threshold to account for banner
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -131,6 +131,9 @@ const NavBar = () => {
 
   return (
     <>
+      <div className="testnet-banner">
+        <p>TESTNET ACCOUNT: All funds are for testing purposes only and have no real value</p>
+      </div>
       <MobileNavbar
         isLoggedIn={isLoggedIn}
         walletBalance={tokenBalances}
