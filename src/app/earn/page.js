@@ -10,12 +10,14 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import { VexContract, NearRpcUrl } from "@/app/config";
+import { ChevronDown } from "lucide-react";
 
 const EarnPage = () => {
   const { accountId } = useGlobalContext();
   const { tokenBalances } = useGlobalContext();
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
   const [stakedBalance, setStakedBalance] = useState(0);
+  const [activeFaq, setActiveFaq] = useState(null);
 
   const fetchStakedBalance = async (accountId) => {
     try {
@@ -137,7 +139,10 @@ const EarnPage = () => {
           <h2 className="earn-section-title">Frequently Asked Questions</h2>
 
           <div className="earn-faq-container">
-            <div className="earn-faq-item">
+            <div 
+              className={`earn-faq-item ${activeFaq === 0 ? 'active' : ''}`}
+              onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)}
+            >
               <h3 className="earn-faq-question">What is VEX token?</h3>
               <p className="earn-faq-answer">
                 VEX is the utility token of the BetVEX platform. It can be used
@@ -145,7 +150,10 @@ const EarnPage = () => {
               </p>
             </div>
 
-            <div className="earn-faq-item">
+            <div 
+              className={`earn-faq-item ${activeFaq === 1 ? 'active' : ''}`}
+              onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
+            >
               <h3 className="earn-faq-question">How does staking work?</h3>
               <p className="earn-faq-answer">
                 Staking allows you to lock your VEX tokens in the staking
@@ -154,7 +162,10 @@ const EarnPage = () => {
               </p>
             </div>
 
-            <div className="earn-faq-item">
+            <div 
+              className={`earn-faq-item ${activeFaq === 2 ? 'active' : ''}`}
+              onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
+            >
               <h3 className="earn-faq-question">
                 Can I deactivate my tokens at any time?
               </h3>
@@ -165,7 +176,10 @@ const EarnPage = () => {
               </p>
             </div>
 
-            <div className="earn-faq-item">
+            <div 
+              className={`earn-faq-item ${activeFaq === 3 ? 'active' : ''}`}
+              onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
+            >
               <h3 className="earn-faq-question">
                 How do I swap between VEX and USDC?
               </h3>
