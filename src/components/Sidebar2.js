@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
-  Users,
   Coins,
 } from "lucide-react";
 import { socials } from "@/data/socials";
@@ -66,7 +65,7 @@ const Sidebar2 = () => {
     },
     {
       name: "governance",
-      label: "Governance",
+      label: "Governance Community",
       path: "/governance",
       icon: (
         <img

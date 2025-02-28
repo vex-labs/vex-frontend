@@ -234,91 +234,87 @@ const Swap = () => {
    */
   const ensureTokenRegistrations = async (sourceTokenId, targetTokenId) => {
     setIsCheckingRegistration(true);
-    setMessage({ text: "Checking token registrations...", type: "info" });
+    setMessage({ text: "Processing...", type: "info" });
 
     try {
       const userId = accountId; // Use the unified accountId from GlobalContext
       const refSwapId = "ref-finance-101.testnet";
 
-      // Check if user is registered with source token
-      const isUserRegisteredWithSource = await isAccountRegistered(
-        sourceTokenId,
-        userId
-      );
+      // Check all registrations
+      const isUserRegisteredWithSource = await isAccountRegistered(sourceTokenId, userId);
+      const isRefswapRegisteredWithSource = await isAccountRegistered(sourceTokenId, refSwapId);
+      const isUserRegisteredWithTarget = await isAccountRegistered(targetTokenId, userId);
 
-      // Check if refswap contract is registered with source token
-      const isRefswapRegisteredWithSource = await isAccountRegistered(
-        sourceTokenId,
-        refSwapId
-      );
-
-      // Check if user is registered with target token
-      const isUserRegisteredWithTarget = await isAccountRegistered(
-        targetTokenId,
-        userId
-      );
-
+      // Collect registrations needed
       let registrationsNeeded = [];
-
       if (!isUserRegisteredWithSource) {
         registrationsNeeded.push({
           tokenId: sourceTokenId,
           accountId: userId,
-          description: "Registering your account with source token",
         });
       }
-
       if (!isRefswapRegisteredWithSource) {
         registrationsNeeded.push({
           tokenId: sourceTokenId,
           accountId: refSwapId,
-          description: "Registering swap contract with source token",
         });
       }
-
       if (!isUserRegisteredWithTarget) {
         registrationsNeeded.push({
           tokenId: targetTokenId,
           accountId: userId,
-          description: "Registering your account with target token",
         });
       }
 
-      // Perform any needed registrations
+      // If registrations are needed, perform them all in a batch
       if (registrationsNeeded.length > 0) {
-        setMessage({
-          text: `${registrationsNeeded.length} registration(s) needed before swap`,
-          type: "info",
-        });
-
-        for (const reg of registrationsNeeded) {
-          setMessage({ text: reg.description, type: "info" });
-
-          const success = await registerAccount(reg.tokenId, reg.accountId);
-
-          if (!success) {
-            setMessage({
-              text: `Failed to register ${reg.accountId} with ${reg.tokenId}`,
-              type: "error",
+        // If using Web3Auth
+        if (web3auth?.connected) {
+          const account = await nearConnection.account(web3authAccountId);
+          
+          // Create a batch of transactions
+          const actions = registrationsNeeded.map(reg => ({
+            receiverId: reg.tokenId,
+            actions: [
+              {
+                type: 'FunctionCall',
+                params: {
+                  methodName: "storage_deposit",
+                  args: { account_id: reg.accountId },
+                  gas: "30000000000000", // 30 TGas
+                  deposit: STORAGE_DEPOSIT_AMOUNT,
+                }
+              }
+            ]
+          }));
+          
+          await account.signAndSendTransaction({
+            receiverId: registrationsNeeded[0].tokenId,
+            actions: actions
+          });
+        } 
+        // If using NEAR Wallet
+        else if (signedAccountId && wallet) {
+          // Can't batch with wallet selector, do sequentially
+          for (const reg of registrationsNeeded) {
+            await wallet.callMethod({
+              contractId: reg.tokenId,
+              method: "storage_deposit",
+              args: { account_id: reg.accountId },
+              gas: "30000000000000", // 30 TGas
+              deposit: STORAGE_DEPOSIT_AMOUNT,
             });
-            setIsCheckingRegistration(false);
-            return false;
           }
+        } else {
+          throw new Error("No wallet connected");
         }
-
-        setMessage({ text: "All registrations completed", type: "success" });
-      } else {
-        setMessage({
-          text: "All accounts are properly registered",
-          type: "info",
-        });
       }
 
       return true;
     } catch (error) {
-      console.error("Registration check failed:", error);
+      console.error("Registration failed:", error);
       setMessage({
-        text: `Registration check failed: ${error.message || "Unknown error"}`,
+        text: "Registration failed",
         type: "error",
       });
       return false;
@@ -594,22 +590,13 @@ const Swap = () => {
         </span>
       </div>
 
-      {(message.text || insufficientBalance) && (
-        <div className={`message-box ${getMessageClass()}`}>
+      {insufficientBalance && (
+        <div className="message-box message-error">
           <div className="message-content">
             <span className="message-icon">
-              {message.type === "error" || insufficientBalance ? (
-                <AlertCircle size={16} />
-              ) : null}
-              {message.type === "success" ? <CheckCircle size={16} /> : null}
-              {message.type === "info" && !insufficientBalance ? (
-                <DollarSign size={16} />
-              ) : null}
+              <AlertCircle size={16} />
             </span>
-            <span>
-              {message.text ||
-                (insufficientBalance ? "Insufficient balance" : "")}
-            </span>
+            <span>Insufficient balance</span>
           </div>
         </div>
       )}
@@ -624,9 +611,7 @@ const Swap = () => {
         {isSwapping || isCheckingRegistration ? (
           <span className="button-content">
             <Loader2 size={18} className="loading-icon" />
-            {isCheckingRegistration
-              ? "Checking registration..."
-              : "Processing..."}
+            Processing...
           </span>
         ) : swapSuccess ? (
           <span className="button-content">
