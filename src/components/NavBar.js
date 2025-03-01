@@ -27,6 +27,7 @@ const NavBar = () => {
     accountId,
     setAccountId,
     keyPair,
+    isFindingAccount,
   } = useWeb3Auth();
 
   // Near wallet context
@@ -79,8 +80,13 @@ const NavBar = () => {
 
   // Check for existing accounts before showing modal
   useEffect(() => {
-    if (isClientLoaded && keyPair && !accountId && !signedAccountId) {
-      // Only show create account modal if no accounts exist
+    if (
+      !isFindingAccount &&
+      isClientLoaded &&
+      keyPair &&
+      !accountId &&
+      !signedAccountId
+    ) {
       setIsCreateAccountModalOpen(true);
     } else {
       // Close the modal if any account exists
