@@ -1,6 +1,5 @@
-import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
-import dbConfig from "@/db-config";
+import { connectDB, dbConfig } from "@/lib/db";
 
 export async function POST(request) {
   try {
@@ -11,15 +10,12 @@ export async function POST(request) {
     if (!publicKey) {
       return NextResponse.json(
         { message: "Public key is required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
-    const client = new MongoClient(process.env.MONGODB_URI);
-
     try {
-      await client.connect();
-      const db = client.db(dbConfig.dbName);
+      const db = await connectDB();
       const collection = db.collection(dbConfig.collections.users);
 
       // Find user by public key
@@ -42,16 +38,14 @@ export async function POST(request) {
           message: "Error checking account",
           error: error.message,
         },
-        { status: 500 },
+        { status: 500 }
       );
-    } finally {
-      await client.close();
     }
   } catch (requestError) {
     console.error("Request parsing error:", requestError);
     return NextResponse.json(
       { message: "Invalid request format" },
-      { status: 400 },
+      { status: 400 }
     );
   }
 }
