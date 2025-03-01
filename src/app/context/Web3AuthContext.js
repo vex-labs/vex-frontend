@@ -38,6 +38,7 @@ export function Web3AuthProvider({ children }) {
   const [web3auth, setWeb3auth] = useState(null);
   const [isClientLoaded, setIsClientLoaded] = useState(false);
   const [keyPair, setKeyPair] = useState(null);
+  const [isFindingAccount, setIsFindingAccount] = useState(false);
 
   // Handle client-side initialization and restore keypair
   useEffect(() => {
@@ -188,9 +189,11 @@ export function Web3AuthProvider({ children }) {
       });
       setProvider(web3authProvider);
 
+      setIsFindingAccount(true);
       // Get credentials and check for existing account
-      const { keyPair: theKeyPair } =
-        await getNearCredentials(web3authProvider);
+      const { keyPair: theKeyPair } = await getNearCredentials(
+        web3authProvider
+      );
       const publicKey = theKeyPair.getPublicKey().toString();
 
       // Check if account exists
@@ -207,11 +210,13 @@ export function Web3AuthProvider({ children }) {
       if (data.exists) {
         // Account exists, set it up
         await setupAccount(data.accountId, theKeyPair);
+        setIsFindingAccount(false);
         return web3authProvider;
       }
 
       // If no account exists, the CreateAccountModal will show automatically
       // due to the effect in Navigation component that checks for
+      setIsFindingAccount(false);
       return web3authProvider;
     } catch (error) {
       console.error(`Login with ${loginProvider} failed:`, error);
@@ -256,6 +261,7 @@ export function Web3AuthProvider({ children }) {
         setupAccount,
         loginWithProvider,
         logout,
+        isFindingAccount,
       }}
     >
       {children}
