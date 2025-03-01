@@ -376,16 +376,13 @@ const GiftModal = ({ open, setIsOpen }) => {
       const formattedRecipient = getFormattedRecipientId();
       const selectedTokenContract = TOKEN_CONTRACTS[giftType];
 
-      // Check if the account is registered with the token contract
-      setMessage("Checking if account is registered...");
       const isRegistered = await isAccountRegistered(
         formattedRecipient,
         selectedTokenContract
       );
 
       if (isRegistered) {
-        // Account is already registered, just transfer tokens
-        setMessage("Account is registered. Transferring tokens...");
+        setMessage("Sending gift...");
         const success = await transferTokens(
           formattedRecipient,
           amount,
@@ -409,8 +406,6 @@ const GiftModal = ({ open, setIsOpen }) => {
         }
       } else {
         // Account needs to be registered first
-        setMessage("Account needs to be registered. Registering...");
-
         if (web3auth?.connected) {
           // For social login, do sequential calls
           const registrationSuccess = await registerAccount(
@@ -421,7 +416,7 @@ const GiftModal = ({ open, setIsOpen }) => {
             throw new Error("Registration failed");
           }
 
-          setMessage("Account registered. Transferring tokens...");
+          setMessage("Sending gift...");
           const transferSuccess = await transferTokens(
             formattedRecipient,
             amount,
@@ -445,8 +440,7 @@ const GiftModal = ({ open, setIsOpen }) => {
           }
         } else if (wallet) {
           // For NEAR wallet, use batch actions
-          setMessage("Preparing batch transaction...");
-
+          setMessage("Sending gift...");
           try {
             // Create batch transactions for registration and transfer
             await wallet
