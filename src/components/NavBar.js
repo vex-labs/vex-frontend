@@ -92,7 +92,7 @@ const NavBar = () => {
       // Close the modal if any account exists
       setIsCreateAccountModalOpen(false);
     }
-  }, [keyPair, accountId, signedAccountId, isClientLoaded]);
+  }, [keyPair, accountId, signedAccountId, isClientLoaded, isFindingAccount]);
 
   // Handle login with Web3Auth provider
   const handleLoginWithProvider = async (provider, options) => {
