@@ -8,15 +8,11 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  DollarSign,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
-
-// Minimum storage deposit required for token registration
-const STORAGE_DEPOSIT_AMOUNT = "1250000000000000000000";
 
 /**
  * Enhanced Swap component with token registration support
@@ -128,74 +124,67 @@ const Swap = () => {
   };
 
   /**
-   * Checks if an account is registered with a token contract
+   * Ensures that necessary accounts are registered with token contracts before swap
+   * Now using the new API endpoint
    *
-   * @param {string} tokenContractId - The token contract ID
-   * @param {string} accountId - The account to check
-   * @returns {Promise<boolean>} True if registered, false otherwise
+   * @param {string} targetTokenId - The target token contract ID
+   * @returns {Promise<boolean>} True if all necessary registrations are complete
    */
-  const isAccountRegistered = async (tokenContractId, accountId) => {
-    try {
-      const provider = new providers.JsonRpcProvider(NearRpcUrl);
-      const args = { account_id: accountId };
+  const ensureTokenRegistrations = async (targetTokenId) => {
+    setIsCheckingRegistration(true);
 
-      const result = await provider.query({
-        request_type: "call_function",
-        account_id: tokenContractId,
-        method_name: "storage_balance_of",
-        args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
-        finality: "final",
+    try {
+      const userId = accountId; // Use the unified accountId from GlobalContext
+      const refSwapId = "ref-finance-101.testnet";
+
+      // Check and register user for target token
+      const targetResponse = await fetch("/api/auth/register-if-needed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId: userId,
+          tokenContract: targetTokenId,
+        }),
       });
 
-      const balance = JSON.parse(Buffer.from(result.result).toString());
-
-      // Account is registered if they have a storage balance
-      return (
-        balance !== null &&
-        BigInt(balance.total) >= BigInt(STORAGE_DEPOSIT_AMOUNT)
-      );
-    } catch (error) {
-      console.error(`Error checking registration for ${accountId}:`, error);
-      return false;
-    }
-  };
-
-  /**
-   * Registers an account with a token contract
-   *
-   * @param {string} tokenContractId - The token contract ID
-   * @param {string} accountId - The account to register
-   * @returns {Promise<boolean>} True if registration was successful
-   */
-  const registerAccount = async (tokenContractId, accountId) => {
-    try {
-      // If using Web3Auth
-      if (web3auth?.connected) {
-        const account = await nearConnection.account(web3authAccountId);
-        await account.functionCall({
-          contractId: tokenContractId,
-          methodName: "storage_deposit",
-          args: { account_id: accountId },
-          gas: "30000000000000", // 30 TGas
-          attachedDeposit: STORAGE_DEPOSIT_AMOUNT,
-        });
+      if (!targetResponse.ok) {
+        const errorData = await targetResponse.json();
+        throw new Error(
+          `Failed to register with target token: ${errorData.message}`
+        );
       }
-      // If using NEAR Wallet
-      else if (signedAccountId && wallet) {
-        await wallet.callMethod({
-          contractId: tokenContractId,
-          method: "storage_deposit",
-          args: { account_id: accountId },
-          gas: "30000000000000", // 30 TGas
-          deposit: STORAGE_DEPOSIT_AMOUNT,
+
+      if (wallet && !web3auth?.connected) {
+        // Check and register RefSwap for source token
+        const refSwapResponse = await fetch("/api/auth/register-if-needed", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            accountId: refSwapId,
+            tokenContract: sourceTokenId,
+          }),
         });
-      } else {
-        throw new Error("No wallet connected");
+
+        if (!refSwapResponse.ok) {
+          const errorData = await refSwapResponse.json();
+          throw new Error(`Failed to register RefSwap: ${errorData.message}`);
+        }
       }
+
       return true;
     } catch (error) {
-      console.error(`Error registering ${accountId}:`, error);
+      console.error("Registration failed:", error);
+      setMessage({
+        text: `Registration failed: ${error.message}`,
+        type: "error",
+      });
       return false;
+    } finally {
+      setIsCheckingRegistration(false);
     }
   };
 
@@ -226,27 +215,27 @@ const Swap = () => {
       await getOutputAmount(newAmount);
     }
   };
-  
+
   // Step amount handlers for up/down steppers
   const handleAmountStep = async (direction, isVex) => {
-    const currentAmount = isVex 
-      ? parseFloat(vexAmount || 0) 
+    const currentAmount = isVex
+      ? parseFloat(vexAmount || 0)
       : parseFloat(usdcAmount || 0);
-    
+
     // Define step size (smaller for USDC, larger for VEX)
     const stepSize = isVex ? 10 : 1;
-    
+
     // Calculate new amount based on direction
     let newAmount = currentAmount;
-    if (direction === 'up') {
+    if (direction === "up") {
       newAmount = currentAmount + stepSize;
-    } else if (direction === 'down') {
+    } else if (direction === "down") {
       newAmount = Math.max(0, currentAmount - stepSize);
     }
-    
+
     // Format and update the amount
     newAmount = newAmount.toFixed(2);
-    
+
     if (isVex) {
       setVexAmount(newAmount);
       if (swapDirection) {
@@ -257,113 +246,6 @@ const Swap = () => {
       if (!swapDirection) {
         await getOutputAmount(newAmount);
       }
-    }
-  };
-
-  /**
-   * Ensures that necessary accounts are registered with token contracts before swap
-   *
-   * @param {string} sourceTokenId - The source token contract ID
-   * @param {string} targetTokenId - The target token contract ID
-   * @returns {Promise<boolean>} True if all necessary registrations are complete
-   */
-  const ensureTokenRegistrations = async (sourceTokenId, targetTokenId) => {
-    setIsCheckingRegistration(true);
-    setMessage({ text: "Processing...", type: "info" });
-
-    try {
-      const userId = accountId; // Use the unified accountId from GlobalContext
-      const refSwapId = "ref-finance-101.testnet";
-
-      // Check all registrations
-      const isUserRegisteredWithSource = await isAccountRegistered(
-        sourceTokenId,
-        userId
-      );
-      const isRefswapRegisteredWithSource = await isAccountRegistered(
-        sourceTokenId,
-        refSwapId
-      );
-      const isUserRegisteredWithTarget = await isAccountRegistered(
-        targetTokenId,
-        userId
-      );
-
-      // Collect registrations needed
-      let registrationsNeeded = [];
-      if (!isUserRegisteredWithSource) {
-        registrationsNeeded.push({
-          tokenId: sourceTokenId,
-          accountId: userId,
-        });
-      }
-      if (!isRefswapRegisteredWithSource) {
-        registrationsNeeded.push({
-          tokenId: sourceTokenId,
-          accountId: refSwapId,
-        });
-      }
-      if (!isUserRegisteredWithTarget) {
-        registrationsNeeded.push({
-          tokenId: targetTokenId,
-          accountId: userId,
-        });
-      }
-
-      // If registrations are needed, perform them all in a batch
-      if (registrationsNeeded.length > 0) {
-        // If using Web3Auth
-        if (web3auth?.connected) {
-          const account = await nearConnection.account(web3authAccountId);
-
-          // Create a batch of transactions
-          const actions = registrationsNeeded.map((reg) => ({
-            receiverId: reg.tokenId,
-            actions: [
-              {
-                type: "FunctionCall",
-                params: {
-                  methodName: "storage_deposit",
-                  args: { account_id: reg.accountId },
-                  gas: "30000000000000", // 30 TGas
-                  deposit: STORAGE_DEPOSIT_AMOUNT,
-                },
-              },
-            ],
-          }));
-
-          await account.signAndSendTransaction({
-            receiverId: registrationsNeeded[0].tokenId,
-            actions: actions,
-          });
-        }
-        // If using NEAR Wallet
-        else if (signedAccountId && wallet) {
-          // Can't batch with wallet selector, do sequentially
-          for (const reg of registrationsNeeded) {
-            await wallet.callMethod({
-              contractId: reg.tokenId,
-              method: "storage_deposit",
-              args: { account_id: reg.accountId },
-              gas: "30000000000000", // 30 TGas
-              deposit: STORAGE_DEPOSIT_AMOUNT,
-            });
-          }
-        } else {
-          throw new Error("No wallet connected");
-        }
-      }
-
-      return true;
-    } catch (error) {
-      console.error("Registration failed:", error);
-      setMessage({
-        text: "Registration failed",
-        type: "error",
-      });
-      return false;
-    } finally {
-      setIsCheckingRegistration(false);
     }
   };
 
@@ -389,17 +271,14 @@ const Swap = () => {
       ? "usdc.betvex.testnet"
       : "token.betvex.testnet";
 
-    // Ensure all necessary token registrations are complete
-    const registrationsComplete = await ensureTokenRegistrations(
-      sourceTokenId,
-      targetTokenId
-    );
+    // Ensure all necessary token registrations are complete using the new API
+    const registrationsComplete = await ensureTokenRegistrations(targetTokenId);
+
     if (!registrationsComplete) {
       return;
     }
 
     setIsSwapping(true);
-    setMessage({ text: "Processing swap...", type: "info" });
 
     const formattedAmount = BigInt(
       Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
@@ -454,7 +333,7 @@ const Swap = () => {
 
       setSwapSuccess(true);
       setMessage({
-        text: "Swap successful! Tokens have been transferred",
+        text: "Successful!",
         type: "success",
       });
 
@@ -468,7 +347,7 @@ const Swap = () => {
     } catch (error) {
       console.error("Swap failed:", error.message || error);
       setMessage({
-        text: `Swap failed: ${error.message || "Unknown error"}`,
+        text: `Error: ${error.message || "Unknown error"}`,
         type: "error",
       });
     } finally {
@@ -572,18 +451,23 @@ const Swap = () => {
             disabled={isSwapping || isCheckingRegistration}
           />
           <div className="amount-stepper">
-            <button 
-              className="stepper-btn" 
-              onClick={() => handleAmountStep('up', swapDirection)}
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("up", swapDirection)}
               disabled={isSwapping || isCheckingRegistration}
             >
               <ChevronUp size={14} />
             </button>
-            <button 
-              className="stepper-btn" 
-              onClick={() => handleAmountStep('down', swapDirection)}
-              disabled={isSwapping || isCheckingRegistration || 
-                (swapDirection ? parseFloat(vexAmount || 0) <= 0 : parseFloat(usdcAmount || 0) <= 0)}
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("down", swapDirection)}
+              disabled={
+                isSwapping ||
+                isCheckingRegistration ||
+                (swapDirection
+                  ? parseFloat(vexAmount || 0) <= 0
+                  : parseFloat(usdcAmount || 0) <= 0)
+              }
             >
               <ChevronDown size={14} />
             </button>
@@ -665,6 +549,28 @@ const Swap = () => {
               <AlertCircle size={16} />
             </span>
             <span>Insufficient balance</span>
+          </div>
+        </div>
+      )}
+
+      {message.text && (
+        <div className={`message-box ${getMessageClass()}`}>
+          <div className="message-content">
+            <span className="message-icon">
+              {message.type === "error" ? (
+                <AlertCircle size={16} />
+              ) : message.type === "success" ? (
+                <CheckCircle size={16} />
+              ) : (
+                <Loader2
+                  size={16}
+                  className={
+                    isCheckingRegistration || isSwapping ? "animate-spin" : ""
+                  }
+                />
+              )}
+            </span>
+            <span>{message.text}</span>
           </div>
         </div>
       )}
