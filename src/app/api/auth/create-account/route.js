@@ -51,15 +51,34 @@ export async function POST(request) {
           parentAccount: ACCOUNT_ID,
         });
 
-        const initialDeposit = "20000000000000000000000";
-        // Create the NEAR account
-        await account.createAccount(newAccountId, publicKey, initialDeposit);
-
         console.log("Connecting to MongoDB");
         // Connect to MongoDB and create user entry
         await client.connect();
-
         console.log("Connected to MongoDB");
+
+        // check if user exists
+        const userExists = await collection.findOne({
+          account_id: newAccountId,
+        });
+        if (userExists) {
+          return NextResponse.json(
+            {
+              message: "User already exists",
+              error: userExists.message || "User already exists",
+              details: {
+                accountId: newAccountId,
+                publicKey,
+                errorType: userExists.type,
+                errorCause: userExists.cause,
+              },
+            },
+            { status: 400 }
+          );
+        }
+
+        const initialDeposit = "20000000000000000000000";
+        // Create the NEAR account
+        await account.createAccount(newAccountId, publicKey, initialDeposit);
 
         const db = client.db(dbConfig.dbName);
         const collection = db.collection(dbConfig.collections.users);
