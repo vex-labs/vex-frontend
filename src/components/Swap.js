@@ -4,7 +4,6 @@ import { useGlobalContext } from "../app/context/GlobalContext";
 import { providers } from "near-api-js";
 import { NearRpcUrl } from "@/app/config";
 import {
-  ArrowDownUp,
   Loader2,
   CheckCircle,
   AlertCircle,
@@ -36,7 +35,7 @@ const Swap = () => {
   const [vexAmount, setVexAmount] = useState("");
   const [usdcAmount, setUsdcAmount] = useState("");
   const [displayUsdcAmount, setDisplayUsdcAmount] = useState("");
-  const [swapDirection, setSwapDirection] = useState(false); // true = VEX → USDC, false = USDC → VEX
+  const [swapDirection, setSwapDirection] = useState(false); // true = VEX → USDC (selling), false = USDC → VEX (buying)
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapSuccess, setSwapSuccess] = useState(false);
@@ -45,27 +44,15 @@ const Swap = () => {
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
-  const handlePercentageClick = async (percentage) => {
-    const balance = swapDirection ? tokenBalances.VEX : tokenBalances.USDC;
-    const newAmount = (balance * percentage).toFixed(2);
-
-    if (swapDirection) {
-      setVexAmount(newAmount);
-      await getOutputAmount(newAmount); // Calculate USDC equivalent
-    } else {
-      setUsdcAmount(newAmount);
-      await getOutputAmount(newAmount); // Calculate VEX equivalent
-    }
+  const handleFixedAmountClick = async (amount) => {
+    // Always set VEX amount regardless of direction
+    setVexAmount(amount.toString());
+    await getOutputAmount(amount.toString());
   };
 
   const getOutputAmount = async (inputAmount) => {
     if (!inputAmount || isNaN(inputAmount) || parseFloat(inputAmount) <= 0) {
-      if (swapDirection) {
-        setUsdcAmount("");
-        setDisplayUsdcAmount("");
-      } else {
-        setVexAmount("");
-      }
+      setDisplayUsdcAmount("");
       return;
     }
 
@@ -76,21 +63,16 @@ const Swap = () => {
       const contractId = "ref-finance-101.testnet";
       const poolId = 2197;
 
+      // For both buying and selling, we're always converting VEX amount to USDC
       const amountInYocto = BigInt(
-        Math.floor(
-          parseFloat(inputAmount) * Math.pow(10, swapDirection ? 18 : 6)
-        )
+        Math.floor(parseFloat(inputAmount) * Math.pow(10, 18))
       ).toString();
 
       const args = {
         pool_id: poolId,
-        token_in: swapDirection
-          ? "token.betvex.testnet"
-          : "usdc.betvex.testnet",
+        token_in: "token.betvex.testnet", // Always inputting VEX
         amount_in: amountInYocto,
-        token_out: swapDirection
-          ? "usdc.betvex.testnet"
-          : "token.betvex.testnet",
+        token_out: "usdc.betvex.testnet", // Always getting USDC equivalent
       };
 
       const result = await provider.query({
@@ -102,15 +84,14 @@ const Swap = () => {
       });
 
       const decodedResult = JSON.parse(Buffer.from(result.result).toString());
-      const outputEquivalent =
-        decodedResult / Math.pow(10, swapDirection ? 6 : 18);
+      // Convert from USDC's 6 decimals
+      const outputUsdcAmount = decodedResult / Math.pow(10, 6);
 
-      if (swapDirection) {
-        setUsdcAmount(outputEquivalent.toFixed(2));
-        setDisplayUsdcAmount(outputEquivalent.toFixed(2));
-      } else {
-        setVexAmount(outputEquivalent.toFixed(2));
-      }
+      // Set the USDC amount to display
+      setDisplayUsdcAmount(outputUsdcAmount.toFixed(2));
+
+      // Also update usdcAmount for the swap functionality
+      setUsdcAmount(outputUsdcAmount.toFixed(2));
     } catch (error) {
       console.error("Failed to fetch output amount:", error);
       toast.error("Failed to calculate exchange rate");
@@ -190,33 +171,15 @@ const Swap = () => {
     }
 
     setVexAmount(newAmount);
-    if (swapDirection) {
-      await getOutputAmount(newAmount);
-    }
-  };
-
-  const handleUsdcAmountChange = async (e) => {
-    const newAmount = e.target.value;
-    if (newAmount === "" || isNaN(newAmount)) {
-      setUsdcAmount("");
-      setVexAmount("");
-      return;
-    }
-
-    setUsdcAmount(newAmount);
-    if (!swapDirection) {
-      await getOutputAmount(newAmount);
-    }
+    await getOutputAmount(newAmount);
   };
 
   // Step amount handlers for up/down steppers
   const handleAmountStep = async (direction, isVex) => {
-    const currentAmount = isVex
-      ? parseFloat(vexAmount || 0)
-      : parseFloat(usdcAmount || 0);
+    const currentAmount = parseFloat(vexAmount || 0);
 
-    // Define step size (smaller for USDC, larger for VEX)
-    const stepSize = isVex ? 10 : 1;
+    // Define step size
+    const stepSize = 10;
 
     // Calculate new amount based on direction
     let newAmount = currentAmount;
@@ -228,18 +191,8 @@ const Swap = () => {
 
     // Format and update the amount
     newAmount = newAmount.toFixed(2);
-
-    if (isVex) {
-      setVexAmount(newAmount);
-      if (swapDirection) {
-        await getOutputAmount(newAmount);
-      }
-    } else {
-      setUsdcAmount(newAmount);
-      if (!swapDirection) {
-        await getOutputAmount(newAmount);
-      }
-    }
+    setVexAmount(newAmount);
+    await getOutputAmount(newAmount);
   };
 
   const handleSwap = async () => {
@@ -249,20 +202,19 @@ const Swap = () => {
       return;
     }
 
-    const tokenAmount = parseFloat(
-      swapDirection ? vexAmount : usdcAmount || "0"
-    );
+    // Always use vexAmount for input
+    const tokenAmount = parseFloat(vexAmount || "0");
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
       toast.error("Invalid swap amount");
       return;
     }
 
     const sourceTokenId = swapDirection
-      ? "token.betvex.testnet"
-      : "usdc.betvex.testnet";
+      ? "token.betvex.testnet" // Selling VEX
+      : "usdc.betvex.testnet"; // Buying VEX with USDC
     const targetTokenId = swapDirection
-      ? "usdc.betvex.testnet"
-      : "token.betvex.testnet";
+      ? "usdc.betvex.testnet" // Getting USDC when selling
+      : "token.betvex.testnet"; // Getting VEX when buying
 
     // Ensure all necessary token registrations are complete using the new API
     const registrationsComplete = await ensureTokenRegistrations(targetTokenId);
@@ -273,9 +225,10 @@ const Swap = () => {
 
     setIsSwapping(true);
 
-    const formattedAmount = BigInt(
-      Math.floor(tokenAmount * Math.pow(10, swapDirection ? 18 : 6))
-    ).toString();
+    // Format the amount based on whether we're selling VEX or buying with USDC
+    const formattedAmount = swapDirection
+      ? BigInt(Math.floor(tokenAmount * Math.pow(10, 18))).toString() // Selling VEX amount
+      : BigInt(Math.floor(parseFloat(usdcAmount) * Math.pow(10, 6))).toString(); // USDC amount to spend
 
     try {
       // If using Web3Auth
@@ -343,27 +296,15 @@ const Swap = () => {
     }
   };
 
-  const toggleSwapDirection = () => {
-    setSwapDirection(!swapDirection);
-    setVexAmount("");
-    setUsdcAmount("");
-    setDisplayUsdcAmount("");
-  };
-
   const handleAmountClick = (amount) => {
-    if (swapDirection) {
-      setVexAmount(amount.toString());
-      getOutputAmount(amount.toString());
-    } else {
-      setUsdcAmount(amount.toString());
-      getOutputAmount(amount.toString());
-    }
+    setVexAmount(amount.toString());
+    getOutputAmount(amount.toString());
   };
 
   // Check if the user has enough balance for the swap
   const insufficientBalance = swapDirection
-    ? Number(tokenBalances.VEX) < Number(vexAmount)
-    : Number(tokenBalances.USDC) < Number(usdcAmount);
+    ? Number(tokenBalances.VEX) < Number(vexAmount) // For selling, check VEX balance
+    : Number(tokenBalances.USDC) < Number(usdcAmount); // For buying, check USDC balance
 
   // Check if amounts are valid for the swap button to be enabled
   const isSwapDisabled =
@@ -371,30 +312,18 @@ const Swap = () => {
     isCalculating ||
     isCheckingRegistration ||
     insufficientBalance ||
-    (swapDirection ? !Number(vexAmount) : !Number(usdcAmount));
-
-  // Get message class for styling
-  const getMessageClass = () => {
-    switch (message.type) {
-      case "error":
-        return "message-error";
-      case "warning":
-        return "message-warning";
-      case "success":
-        return "message-success";
-      default:
-        return "message-info";
-    }
-  };
+    !Number(vexAmount);
 
   return (
     <div className="swap-container">
       <div className="swap-header">
         <div className="earn-card-header">
-          <h2 className="swap-heading">
-            {swapDirection ? "Sell" : "Buy"} VEX Rewards
-          </h2>
-          <div className="earn-card-subtitle">Buy and sell VEX Rewards</div>
+          <h2 className="swap-heading">{swapDirection ? "Sell" : "Buy"} VEX</h2>
+          <div className="earn-card-subtitle">
+            {swapDirection
+              ? "Enter the amount of VEX you want to sell"
+              : "Enter the amount of VEX you want to buy"}
+          </div>
         </div>
 
         <div className="swap-toggle">
@@ -416,43 +345,38 @@ const Swap = () => {
       <div className="token-box">
         <div className="token-info">
           <img
-            src={swapDirection ? "/icons/g12.svg" : "/icons/usdc-logo.svg"}
-            alt={swapDirection ? "VEX Token Logo" : "USDC Token Logo"}
+            src="/icons/g12.svg"
+            alt="VEX Token Logo"
             className="token-logo"
           />
           <div>
-            <p className="token-name">{swapDirection ? "VEX" : "USD"}</p>
+            <p className="token-name">VEX</p>
           </div>
         </div>
         <div className="input-wrapper">
-          {swapDirection ? null : <span className="currency-symbol">$</span>}
           <input
             type="number"
             placeholder="0.00"
-            value={swapDirection ? vexAmount : usdcAmount}
-            onChange={
-              swapDirection ? handleVexAmountChange : handleUsdcAmountChange
-            }
+            value={vexAmount}
+            onChange={handleVexAmountChange}
             className="token-input"
             disabled={isSwapping || isCheckingRegistration}
           />
           <div className="amount-stepper">
             <button
               className="stepper-btn"
-              onClick={() => handleAmountStep("up", swapDirection)}
+              onClick={() => handleAmountStep("up", true)}
               disabled={isSwapping || isCheckingRegistration}
             >
               <ChevronUp size={14} />
             </button>
             <button
               className="stepper-btn"
-              onClick={() => handleAmountStep("down", swapDirection)}
+              onClick={() => handleAmountStep("down", true)}
               disabled={
                 isSwapping ||
                 isCheckingRegistration ||
-                (swapDirection
-                  ? parseFloat(vexAmount || 0) <= 0
-                  : parseFloat(usdcAmount || 0) <= 0)
+                parseFloat(vexAmount || 0) <= 0
               }
             >
               <ChevronDown size={14} />
@@ -465,47 +389,35 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(
-              swapDirection ? tokenBalances.VEX : tokenBalances.USDC
-            ).toFixed(2)}
+            {parseFloat(tokenBalances.VEX).toFixed(2)}
           </span>
         </span>
         <div className="percentage-options">
-          <button onClick={() => handlePercentageClick(0.25)}>25%</button>
-          <button onClick={() => handlePercentageClick(0.5)}>50%</button>
-          <button onClick={() => handlePercentageClick(0.75)}>75%</button>
-          <button onClick={() => handlePercentageClick(1)}>100%</button>
+          <button onClick={() => handleAmountClick(50)}>50</button>
+          <button onClick={() => handleAmountClick(250)}>250</button>
+          <button onClick={() => handleAmountClick(1000)}>1000</button>
+          <button onClick={() => handleAmountClick(2500)}>2500</button>
         </div>
-      </div>
-
-      <div className="swap-arrow-container">
-        <button
-          className="swap-direction-button"
-          onClick={toggleSwapDirection}
-          disabled={isSwapping || isCheckingRegistration}
-        >
-          <ArrowDownUp size={20} />
-        </button>
       </div>
 
       <div className="token-box">
         <div className="token-info">
           <img
-            src={swapDirection ? "/icons/usdc-logo.svg" : "/icons/g12.svg"}
-            alt={swapDirection ? "USDC Token Logo" : "VEX Token Logo"}
+            src="/icons/usdc-logo.svg"
+            alt="USDC Token Logo"
             className="token-logo"
           />
           <div>
-            <p className="token-name">{swapDirection ? "USDC" : "VEX"}</p>
+            <p className="token-name">USDC</p>
           </div>
         </div>
 
         <div className="input-wrapper estimated">
-          {!swapDirection ? null : <span className="currency-symbol">$</span>}
+          <span className="currency-symbol">$</span>
           <input
             type="text"
             placeholder="0.00"
-            value={swapDirection ? displayUsdcAmount : vexAmount}
+            value={displayUsdcAmount}
             readOnly
             className="token-input"
           />
@@ -521,14 +433,10 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(
-              swapDirection ? tokenBalances.USDC : tokenBalances.VEX
-            ).toFixed(2)}
+            {parseFloat(tokenBalances.USDC).toFixed(2)}
           </span>
         </span>
       </div>
-
-      {insufficientBalance && toast.error("Insufficient balance")}
 
       <button
         className={`swap-button ${
@@ -545,12 +453,14 @@ const Swap = () => {
         ) : swapSuccess ? (
           <span className="button-content">
             <CheckCircle size={18} />
-            Swap Successful!
+            {swapDirection ? "Sold" : "Purchased"} Successfully!
           </span>
         ) : insufficientBalance ? (
           "Insufficient Balance"
+        ) : swapDirection ? (
+          "Sell VEX"
         ) : (
-          "Swap Tokens"
+          "Buy VEX"
         )}
       </button>
     </div>

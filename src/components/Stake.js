@@ -5,7 +5,6 @@ import { NearRpcUrl, VexContract } from "@/app/config";
 import {
   Loader2,
   CheckCircle,
-  CoinsIcon,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
@@ -39,7 +38,6 @@ const Staking = () => {
   const [totalUSDCRewards, setTotalUSDCRewards] = useState(null);
   const [refreshBalances, setRefreshBalances] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isDistributingRewards, setIsDistributingRewards] = useState(false);
   const [actionSuccess, setActionSuccess] = useState(false);
 
   const tokenContractId = "token.betvex.testnet";
@@ -192,10 +190,7 @@ const Staking = () => {
           attachedDeposit: deposit1,
         });
 
-        setMessage({
-          text: "Stake transaction successful",
-          type: "success",
-        });
+        toast.success("Stake transaction successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -213,20 +208,14 @@ const Staking = () => {
         });
 
         if (stakeResult && !stakeResult.error) {
-          setMessage({ text: "Stake successful!", type: "success" });
+          toast.success("Stake successful!");
           setActionSuccess(true);
         } else {
-          setMessage({
-            text: "Failed to stake. Please try again",
-            type: "error",
-          });
+          toast.error("Failed to stake. Please try again");
         }
       }
     } catch (error) {
-      setMessage({
-        text: `An error occurred: ${error.message || "Please try again"}`,
-        type: "error",
-      });
+      toast.error(`An error occurred: ${error.message || "Please try again"}`);
       console.error("Error during deposit and stake process:", error);
     } finally {
       setIsProcessing(false);
@@ -278,10 +267,7 @@ const Staking = () => {
           attachedDeposit: deposit,
         });
 
-        setMessage({
-          text: "Withdraw transaction successful",
-          type: "success",
-        });
+        toast.success("Withdraw transaction successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -295,17 +281,11 @@ const Staking = () => {
         });
 
         if (unstakeResult.error) {
-          setMessage({
-            text: "Unstake failed. Please try again",
-            type: "error",
-          });
+          toast.error("Unstake failed. Please try again");
           return;
         }
 
-        setMessage({
-          text: "Unstake successful.",
-          type: "info",
-        });
+        toast.success("Unstake successful.");
         setActionSuccess(true);
       }
 
@@ -326,72 +306,6 @@ const Staking = () => {
     }
   };
 
-  // This functions swaps the rewards from the staking contract to USDC and distributes them to the users
-  const handleStakeSwap = async () => {
-    // Check if user is logged in with either web3auth or NEAR wallet
-    if (!web3auth?.connected && !signedAccountId) {
-      toast.error("Please connect your wallet first");
-      return;
-    }
-
-    setIsDistributingRewards(true);
-    toast("Distributing rewards...");
-
-    const contractId = VexContract;
-    const gas = "300000000000000"; // 300 TGas
-
-    try {
-      // If using Web3Auth
-      if (web3auth?.connected) {
-        const account = await nearConnection.account(web3authAccountId);
-
-        await account.functionCall({
-          contractId: contractId,
-          methodName: "perform_stake_swap",
-          args: {}, // No arguments required
-          gas,
-          attachedDeposit: "0", // Minimal deposit in yoctoNEAR
-        });
-
-        console.log("Stake swap successful!");
-        toast.success("Rewards distributed successfully");
-        setActionSuccess(true);
-      }
-      // If using NEAR Wallet
-      else if (signedAccountId && wallet) {
-        const outcome = await wallet.callMethod({
-          contractId: contractId,
-          method: "perform_stake_swap",
-          args: {},
-          gas,
-          deposit: "0", // Minimal deposit in yoctoNEAR
-        });
-
-        console.log("Stake swap successful!", outcome);
-        setMessage({
-          text: "Rewards distributed successfully!",
-          type: "success",
-        });
-        setActionSuccess(true);
-      } else {
-        setMessage({
-          text: "Failed to distribute rewards. Please try again.",
-          type: "error",
-        });
-      }
-
-      // Refresh rewards data
-      setTimeout(() => {
-        rewards_ready_to_swap();
-        setActionSuccess(false);
-      }, 3000);
-    } catch (error) {
-      console.error("Failed to perform stake swap:", error.message || error);
-      toast.error("Failed to distribute rewards");
-    } finally {
-      setIsDistributingRewards(false);
-    }
-  };
 
   // Check if the user has enough balance for the action
   const insufficientBalance =
@@ -410,35 +324,6 @@ const Staking = () => {
             Activate your VEX Rewards to earn
           </div>
         </div>
-
-        <button
-          className={`distribute-rewards-button ${
-            isDistributingRewards ? "loading" : ""
-          } ${
-            actionSuccess && selectedOption === "stakeSwap" ? "success" : ""
-          }`}
-          onClick={handleStakeSwap}
-          disabled={
-            isDistributingRewards || !totalUSDCRewards || totalUSDCRewards <= 0
-          }
-        >
-          {isDistributingRewards ? (
-            <span className="button-content">
-              <Loader2 size={18} className="loading-icon" />
-              Distributing...
-            </span>
-          ) : actionSuccess && selectedOption === "stakeSwap" ? (
-            <span className="button-content">
-              <CheckCircle size={18} />
-              Distributed!
-            </span>
-          ) : (
-            <span className="button-content">
-              <CoinsIcon size={18} />
-              Distribute Rewards
-            </span>
-          )}
-        </button>
       </div>
 
       <div className="staking-stats-container">
