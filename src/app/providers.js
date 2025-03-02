@@ -7,6 +7,7 @@ import {
 import { Web3AuthProvider } from "@/app/context/Web3AuthContext";
 import { NearProvider } from "./context/NearContext";
 import { GlobalProvider } from "./context/GlobalContext";
+import { Toaster } from "sonner";
 
 function makeQueryClient() {
   return new QueryClient({
@@ -43,6 +44,7 @@ export default function Providers({ children }) {
       <NearProvider>
         <GlobalProvider>
           <QueryClientProvider client={queryClient}>
+            <Toaster />
             {children}
           </QueryClientProvider>
         </GlobalProvider>
