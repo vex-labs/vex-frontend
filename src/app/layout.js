@@ -1,8 +1,5 @@
-"use client";
-
 import React from "react";
 import { Exo, Asap } from "next/font/google";
-import { Toaster } from "sonner";
 import Providers from "./providers";
 import AppLayout from "@/components/AppLayout";
 import "./globals.css";
@@ -38,7 +35,6 @@ export default function RootLayout({ children }) {
       }}
     >
       <body className={asap.className}>
-        <Toaster />
         <Providers>
           <AppLayout>{children}</AppLayout>
         </Providers>
