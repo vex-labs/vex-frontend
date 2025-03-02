@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { providers } from "near-api-js";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { NearRpcUrl, VexContract } from "@/app/config";
@@ -7,6 +7,7 @@ import {
   CheckCircle,
   ChevronUp,
   ChevronDown,
+  Clock,
 } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
@@ -39,6 +40,9 @@ const Staking = () => {
   const [refreshBalances, setRefreshBalances] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [actionSuccess, setActionSuccess] = useState(false);
+  const [unstakeTimestamp, setUnstakeTimestamp] = useState(null);
+  // Add a refresh interval to periodically check if cooldown ended
+  const [refreshCooldown, setRefreshCooldown] = useState(0);
 
   const tokenContractId = "token.betvex.testnet";
   const stakingContractId = VexContract;
@@ -56,8 +60,90 @@ const Staking = () => {
     if (accountId) {
       fetchStakedBalance(accountId);
       rewards_ready_to_swap(stakingContractId);
+      fetchUserStakeInfo(accountId);
     }
-  }, [accountId, refreshBalances, tokenBalances]);
+  }, [accountId, refreshBalances, tokenBalances, refreshCooldown]);
+
+  // Set up a timer to check for cooldown expiration
+  useEffect(() => {
+    // Refresh the cooldown status every 10 seconds
+    const intervalId = setInterval(() => {
+      if (unstakeTimestamp && isNearCooldownEnd()) {
+        setRefreshCooldown((prev) => prev + 1);
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [unstakeTimestamp]);
+
+  // Check if we're near the end of the cooldown period
+  const isNearCooldownEnd = () => {
+    if (!unstakeTimestamp) return false;
+
+    const currentTimeNano = getCurrentTimeInNanoseconds();
+    const timestampNano = BigInt(unstakeTimestamp);
+
+    // If less than 1 minute remains, or cooldown has passed
+    return (
+      currentTimeNano >= timestampNano ||
+      timestampNano - currentTimeNano < BigInt(60 * 1000000000)
+    );
+  };
+
+  // Format timestamp to readable date and time
+  const formatUnstakeTime = (timestamp) => {
+    if (!timestamp) return "";
+
+    // Convert from nanoseconds to milliseconds (divide by 1,000,000)
+    const milliseconds = Math.floor(Number(timestamp) / 1000000);
+
+    const date = new Date(milliseconds);
+
+    const dateStr = date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+    });
+
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return `${dateStr} ${timeStr}`;
+  };
+
+  // Get current time in nanoseconds
+  const getCurrentTimeInNanoseconds = () => {
+    return BigInt(Date.now()) * BigInt(1000000);
+  };
+
+  // Fetch user's stake info including unstake timestamp
+  const fetchUserStakeInfo = async (accountId) => {
+    try {
+      const args = { account_id: accountId };
+      const encodedArgs = Buffer.from(JSON.stringify(args)).toString("base64");
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: stakingContractId,
+        method_name: "get_user_stake_info",
+        args_base64: encodedArgs,
+        finality: "final",
+      });
+
+      const resultString = Buffer.from(result.result).toString();
+      const stakeInfo = JSON.parse(resultString);
+
+      if (stakeInfo && stakeInfo.unstake_timestamp) {
+        setUnstakeTimestamp(stakeInfo.unstake_timestamp);
+      } else {
+        setUnstakeTimestamp(null);
+      }
+    } catch (error) {
+      console.error("Error fetching stake info:", error);
+      setUnstakeTimestamp(null);
+    }
+  };
 
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
@@ -142,7 +228,7 @@ const Staking = () => {
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
     if (!amount) {
-      toast.warning("Please enter an amount to stake");
+      toast.warning("Please enter an amount to activate");
       return;
     }
 
@@ -153,7 +239,7 @@ const Staking = () => {
     }
 
     setIsProcessing(true);
-    toast("Processing stake transaction...");
+    toast("Activating VEX...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -190,7 +276,7 @@ const Staking = () => {
           attachedDeposit: deposit1,
         });
 
-        toast.success("Stake transaction successful");
+        toast.success("Activation successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -208,15 +294,15 @@ const Staking = () => {
         });
 
         if (stakeResult && !stakeResult.error) {
-          toast.success("Stake successful!");
+          toast.success("Activation successful!");
           setActionSuccess(true);
         } else {
-          toast.error("Failed to stake. Please try again");
+          toast.error("Failed to Activate. Please try again");
         }
       }
     } catch (error) {
       toast.error(`An error occurred: ${error.message || "Please try again"}`);
-      console.error("Error during deposit and stake process:", error);
+      console.error("Error during activation process:", error);
     } finally {
       setIsProcessing(false);
 
@@ -226,6 +312,7 @@ const Staking = () => {
         setActionSuccess(false);
         setRefreshBalances((prev) => !prev);
         toggleRefreshBalances();
+        fetchUserStakeInfo(accountId);
       }, 3000);
     }
   };
@@ -233,7 +320,7 @@ const Staking = () => {
   // This function unstakes the user's tokens and withdraws them from the staking contract
   const handleUnstake = async () => {
     if (!amount) {
-      toast.warning("Please enter an amount to unstake");
+      toast.warning("Please enter an amount to deactivate");
       return;
     }
 
@@ -243,8 +330,21 @@ const Staking = () => {
       return;
     }
 
+    // Double-check if unstaking is allowed before proceeding
+    if (unstakeTimestamp) {
+      const currentTimeNano = getCurrentTimeInNanoseconds();
+      if (currentTimeNano < BigInt(unstakeTimestamp)) {
+        toast.error(
+          "You cannot deactivate until the cooldown period has ended"
+        );
+        // Force refresh the stake info to get the latest timestamp
+        fetchUserStakeInfo(accountId);
+        return;
+      }
+    }
+
     setIsProcessing(true);
-    toast("Processing unstake transaction...");
+    toast("Deactivating VEX...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -267,7 +367,7 @@ const Staking = () => {
           attachedDeposit: deposit,
         });
 
-        toast.success("Withdraw transaction successful");
+        toast.success("Deactivation successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -281,17 +381,18 @@ const Staking = () => {
         });
 
         if (unstakeResult.error) {
-          toast.error("Unstake failed. Please try again");
+          toast.error("Deactivation failed. Please try again");
           return;
         }
 
-        toast.success("Unstake successful.");
+        toast.success("Deactivation successful.");
         setActionSuccess(true);
       }
 
       // Refresh balances and reset form
       setRefreshBalances((prev) => !prev);
       toggleRefreshBalances();
+      fetchUserStakeInfo(accountId);
 
       // Reset form after successful transaction
       setTimeout(() => {
@@ -306,12 +407,59 @@ const Staking = () => {
     }
   };
 
-
   // Check if the user has enough balance for the action
   const insufficientBalance =
     selectedOption === "stake"
       ? Number(balance) < Number(amount)
       : Number(stakedBalance) < Number(amount);
+
+  // Check if unstaking is currently allowed (cooldown period ended)
+  const canUnstake = useMemo(() => {
+    if (!unstakeTimestamp) return true;
+
+    const currentTimeNano = getCurrentTimeInNanoseconds();
+    return currentTimeNano >= BigInt(unstakeTimestamp);
+  }, [unstakeTimestamp, refreshCooldown]);
+
+  // Unstaking is disabled if it's in cooldown period or if there's insufficient balance
+  const unstakeDisabled =
+    !canUnstake || insufficientBalance || !amount || isProcessing;
+
+  // Get button text for unstake button
+  const getUnstakeButtonText = () => {
+    if (isProcessing) {
+      return (
+        <span className="button-content">
+          <Loader2 size={18} className="loading-icon" />
+          Processing...
+        </span>
+      );
+    }
+
+    if (actionSuccess && selectedOption === "unstake") {
+      return (
+        <span className="button-content">
+          <CheckCircle size={18} />
+          Unstaked Successfully!
+        </span>
+      );
+    }
+
+    if (insufficientBalance) {
+      return "Insufficient Balance";
+    }
+
+    if (selectedOption === "unstake" && !canUnstake) {
+      return (
+        <span className="button-content">
+          <Clock size={16} className="mr-2" />
+          Available {formatUnstakeTime(unstakeTimestamp)}
+        </span>
+      );
+    }
+
+    return "Deactivate VEX";
+  };
 
   return (
     <div className="staking-container">
@@ -340,16 +488,6 @@ const Staking = () => {
           <div className="stat-value">
             {parseFloat(stakedBalance).toFixed(2)}{" "}
             <span className="token-unit">VEX</span>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-title">USD Rewards Available</div>
-          <div className="stat-value usdc-value">
-            {totalUSDCRewards !== null
-              ? parseFloat(totalUSDCRewards).toFixed(2)
-              : "0.00"}{" "}
-            <span className="token-unit">USD</span>
           </div>
         </div>
       </div>
@@ -438,27 +576,32 @@ const Staking = () => {
           (selectedOption === "stake" || selectedOption === "unstake")
             ? "success"
             : ""
-        }`}
+        } ${selectedOption === "unstake" && !canUnstake ? "cooldown" : ""}`}
         onClick={selectedOption === "stake" ? handleStake : handleUnstake}
-        disabled={isProcessing || !amount || insufficientBalance}
+        disabled={
+          selectedOption === "stake"
+            ? isProcessing || !amount || insufficientBalance
+            : unstakeDisabled
+        }
       >
-        {isProcessing ? (
-          <span className="button-content">
-            <Loader2 size={18} className="loading-icon" />
-            Processing...
-          </span>
-        ) : actionSuccess &&
-          (selectedOption === "stake" || selectedOption === "unstake") ? (
-          <span className="button-content">
-            <CheckCircle size={18} />
-            {selectedOption === "stake"
-              ? "Staked Successfully!"
-              : "Unstaked Successfully!"}
-          </span>
-        ) : insufficientBalance ? (
-          "Insufficient Balance"
+        {selectedOption === "stake" ? (
+          isProcessing ? (
+            <span className="button-content">
+              <Loader2 size={18} className="loading-icon" />
+              Processing...
+            </span>
+          ) : actionSuccess ? (
+            <span className="button-content">
+              <CheckCircle size={18} />
+              Staked Successfully!
+            </span>
+          ) : insufficientBalance ? (
+            "Insufficient Balance"
+          ) : (
+            "Activate VEX"
+          )
         ) : (
-          `${selectedOption === "stake" ? "Activate" : "Deactivate"} VEX`
+          getUnstakeButtonText()
         )}
       </button>
     </div>

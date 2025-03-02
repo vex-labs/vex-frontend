@@ -25,5 +25,4 @@ export const NearRpcUrl = "https://test.rpc.fastnear.com";
 
 // Backend API URL for fetching matches
 // export const BackendApiUrl = "https://vexdb-production.up.railway.app/matches";
-export const QueryURL =
-  "https://gateway.thegraph.com/api/49018f91437ea6ac6523f84df24c6fb1/subgraphs/id/3gbWvYJntCzFNnEdL2AET9zwkMASK52YpbfMay9jSH9G";
+export const QueryURL = process.env.NEXT_PUBLIC_QUERY_URL;
