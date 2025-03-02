@@ -18,7 +18,7 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  z-index: 1001; /* Higher than testnet banner */
+  z-index: 500; /* Higher than testnet banner */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -100,7 +100,7 @@
   background-color: rgba(0, 0, 0, 0.95);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  z-index: 999;
+  z-index: 550;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -108,10 +108,7 @@
   transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease,
-    visibility 0s linear 0.3s;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0.3s;
   overflow-y: auto;
 }
 
@@ -119,10 +116,7 @@
   transform: translateY(0);
   opacity: 1;
   visibility: visible;
-  transition:
-    transform 0.3s ease,
-    opacity 0.3s ease,
-    visibility 0s linear 0s;
+  transition: transform 0.3s ease, opacity 0.3s ease, visibility 0s linear 0s;
 }
 
 .mob-navbar__menu-content {
@@ -363,11 +357,11 @@
     padding: 14px;
     font-size: 15px;
   }
-  
+
   .mob-navbar__socials-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
+
   .mob-navbar__social-name {
     font-size: 11px;
   }

@@ -48,7 +48,7 @@ body {
     padding: 6px 10px;
     height: 30px;
   }
-  
+
   /* Adjust the page content to account for banner */
   body {
     padding-top: 30px;
@@ -625,13 +625,7 @@ input::placeholder {
   justify-content: center;
   padding: 8px;
 }
-.featured-grid-container,
-.upcoming-grid-container {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 16px;
-  margin: 16px;
-}
+
 .vex-login-prompt {
   position: fixed;
   top: 50%;
@@ -728,8 +722,8 @@ input::placeholder {
   max-width: 100%;
   overflow: hidden;
 }
-.featured-card-3-col {
-  grid-column: span 3;
+.featured-card-4-col {
+  grid-column: span 4;
 }
 .upcoming-card-4-col {
   grid-column: span 4;
@@ -901,9 +895,6 @@ input::placeholder {
   width: 100%;
   padding: 0 16px;
   box-sizing: border-box;
-}
-.featured-card-3-col {
-  grid-column: span 3;
 }
 .upcoming-card-4-col {
   grid-column: span 4;
@@ -1111,7 +1102,7 @@ input::placeholder {
     gap: 16px;
     margin: 16px 0px;
   }
-  .featured-card-3-col,
+  .featured-card-4-col,
   .upcoming-card-4-col {
     grid-column: span 3;
     width: 100%;
@@ -1124,7 +1115,7 @@ input::placeholder {
     gap: 16px;
     padding: 0 12px;
   }
-  .featured-card-3-col,
+  .featured-card-4-col,
   .upcoming-card-4-col {
     grid-column: span 3;
     width: 100%;
@@ -1137,7 +1128,7 @@ input::placeholder {
     gap: 12px;
     padding: 0 10px;
   }
-  .featured-card-3-col,
+  .featured-card-4-col,
   .upcoming-card-4-col {
     grid-column: span 2;
     width: 100%;
@@ -1150,7 +1141,7 @@ input::placeholder {
     gap: 12px;
     padding: 0 8px;
   }
-  .featured-card-3-col,
+  .featured-card-4-col,
   .upcoming-card-4-col {
     grid-column: span 1;
     width: 100%;

@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { providers } from "near-api-js";
-import { handleTransaction } from "@/utils/accountHandler";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { NearRpcUrl, VexContract } from "@/app/config";
 import {
-  ArrowDownUp,
   Loader2,
   CheckCircle,
-  AlertCircle,
-  DollarSign,
   CoinsIcon,
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { createPortal } from "react-dom";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
+import { toast } from "sonner";
 
 /**
  * Enhanced Staking component
@@ -41,7 +37,6 @@ const Staking = () => {
   const [balance, setBalance] = useState(0);
   const [stakedBalance, setStakedBalance] = useState(0);
   const [totalUSDCRewards, setTotalUSDCRewards] = useState(null);
-  const [message, setMessage] = useState({ text: "", type: "info" });
   const [refreshBalances, setRefreshBalances] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDistributingRewards, setIsDistributingRewards] = useState(false);
@@ -149,18 +144,18 @@ const Staking = () => {
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
     if (!amount) {
-      setMessage({ text: "Please enter an amount to stake", type: "warning" });
+      toast.warning("Please enter an amount to stake");
       return;
     }
 
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      setMessage({ text: "Please connect your wallet first", type: "error" });
+      toast.error("Please connect your wallet first");
       return;
     }
 
     setIsProcessing(true);
-    setMessage({ text: "Processing stake transaction...", type: "info" });
+    toast("Processing stake transaction...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -173,10 +168,9 @@ const Staking = () => {
 
     try {
       if (parseFloat(amount) < 50) {
-        setMessage({
-          text: "Minimum of 50 VEX is required to register in the contract",
-          type: "error",
-        });
+        toast.error(
+          "Minimum of 50 VEX is required to register in the contract"
+        );
         setIsProcessing(false);
         return;
       }
@@ -250,21 +244,18 @@ const Staking = () => {
   // This function unstakes the user's tokens and withdraws them from the staking contract
   const handleUnstake = async () => {
     if (!amount) {
-      setMessage({
-        text: "Please enter an amount to unstake",
-        type: "warning",
-      });
+      toast.warning("Please enter an amount to unstake");
       return;
     }
 
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      setMessage({ text: "Please connect your wallet first", type: "error" });
+      toast.error("Please connect your wallet first");
       return;
     }
 
     setIsProcessing(true);
-    setMessage({ text: "Processing unstake transaction...", type: "info" });
+    toast("Processing unstake transaction...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -328,10 +319,7 @@ const Staking = () => {
         setActionSuccess(false);
       }, 3000);
     } catch (error) {
-      setMessage({
-        text: `An error occurred: ${error.message || "Please try again"}`,
-        type: "error",
-      });
+      toast.error(`An error occurred: ${error.message || "Please try again"}`);
       console.error("Error during unstaking process:", error);
     } finally {
       setIsProcessing(false);
@@ -342,12 +330,12 @@ const Staking = () => {
   const handleStakeSwap = async () => {
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      setMessage({ text: "Please connect your wallet first", type: "error" });
+      toast.error("Please connect your wallet first");
       return;
     }
 
     setIsDistributingRewards(true);
-    setMessage({ text: "Distributing rewards...", type: "info" });
+    toast("Distributing rewards...");
 
     const contractId = VexContract;
     const gas = "300000000000000"; // 300 TGas
@@ -366,10 +354,7 @@ const Staking = () => {
         });
 
         console.log("Stake swap successful!");
-        setMessage({
-          text: "Rewards distributed successfully",
-          type: "success",
-        });
+        toast.success("Rewards distributed successfully");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -402,23 +387,9 @@ const Staking = () => {
       }, 3000);
     } catch (error) {
       console.error("Failed to perform stake swap:", error.message || error);
-      setMessage({ text: "Failed to distribute rewards", type: "error" });
+      toast.error("Failed to distribute rewards");
     } finally {
       setIsDistributingRewards(false);
-    }
-  };
-
-  // Get message styling based on message type
-  const getMessageClass = () => {
-    switch (message.type) {
-      case "error":
-        return "message-error";
-      case "warning":
-        return "message-warning";
-      case "success":
-        return "message-success";
-      default:
-        return "message-info";
     }
   };
 
@@ -574,25 +545,7 @@ const Staking = () => {
         </div>
       </div>
 
-      {(message.text || insufficientBalance) && (
-        <div className={`message-box ${getMessageClass()}`}>
-          <div className="message-content">
-            <span className="message-icon">
-              {message.type === "error" || insufficientBalance ? (
-                <AlertCircle size={16} />
-              ) : null}
-              {message.type === "success" ? <CheckCircle size={16} /> : null}
-              {message.type === "info" && !insufficientBalance ? (
-                <DollarSign size={16} />
-              ) : null}
-            </span>
-            <span>
-              {message.text ||
-                (insufficientBalance ? "Insufficient balance" : "")}
-            </span>
-          </div>
-        </div>
-      )}
+      {insufficientBalance && toast.error("Insufficient balance")}
 
       <button
         className={`confirm-button last ${isProcessing ? "loading" : ""} ${

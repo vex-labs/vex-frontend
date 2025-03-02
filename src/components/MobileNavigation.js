@@ -45,10 +45,10 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
 
   // Navigation links
   const navLinks = [
-    { name: "Home", path: "/" },
+    { name: "Betting", path: "/" },
     { name: "Earn", path: "/earn" },
-    { name: "Leaderboard", path: "/leaderboard" },
     { name: "Community", path: "/community" },
+    { name: "Leaderboard", path: "/leaderboard" },
     { name: "View Bets", path: "/user" },
   ];
 
@@ -206,8 +206,14 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
                     rel="noopener noreferrer"
                     aria-label={social.name}
                   >
-                    <img src={social.icon} alt={social.name} className="mob-navbar__social-icon" />
-                    <span className="mob-navbar__social-name">{social.name}</span>
+                    <img
+                      src={social.icon}
+                      alt={social.name}
+                      className="mob-navbar__social-icon"
+                    />
+                    <span className="mob-navbar__social-name">
+                      {social.name}
+                    </span>
                   </a>
                 ))}
               </div>

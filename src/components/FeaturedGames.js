@@ -126,7 +126,7 @@ const FeaturedGames = ({
         const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
         return maxBetsB - maxBetsA; // descending order
       })
-      .slice(0, 4); // Take only the top 4
+      .slice(0, 3); // Take only the top 4
   }, [data?.matches, searchTerm]);
 
   // Get team logo with fallback
@@ -205,8 +205,8 @@ const FeaturedGames = ({
         {searchTerm
           ? `No matches match your search "${searchTerm}"`
           : selectedGame
-            ? `No featured matches available for ${selectedGame}`
-            : "No featured matches available at this time."}
+          ? `No featured matches available for ${selectedGame}`
+          : "No featured matches available at this time."}
       </h3>
       <p>
         {searchTerm
@@ -220,12 +220,6 @@ const FeaturedGames = ({
     <section className="featured-games-section">
       <div className="section-header">
         <h1>Featured Games</h1>
-        {filteredAndSortedMatches?.length > 0 && (
-          <div className="match-count">
-            {filteredAndSortedMatches.length} match
-            {filteredAndSortedMatches.length !== 1 ? "es" : ""}
-          </div>
-        )}
       </div>
 
       {isLoading || parentIsLoading ? (
@@ -239,7 +233,7 @@ const FeaturedGames = ({
           {filteredAndSortedMatches.map((match, index) => (
             <GameCard
               key={match.id || index}
-              className="featured-card featured-card-3-col"
+              className="featured-card featured-card-4-col"
               tournamentIcon={
                 match.tournament_icon || "/icons/events/vct_china.png"
               }

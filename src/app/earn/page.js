@@ -2,8 +2,9 @@
 import "./earn.css";
 import Staking from "@/components/Stake";
 import Swap from "@/components/Swap";
+import RewardsDistribution from "@/components/RewardsDistribution";
 import Sidebar2 from "@/components/Sidebar2";
-import { DollarSign, Coins, ArrowUpDown } from "lucide-react";
+import { DollarSign, Coins, HandCoins } from "lucide-react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
@@ -89,7 +90,7 @@ const EarnPage = () => {
 
           <div className="earn-stat-card">
             <div className="earn-stat-icon">
-              <ArrowUpDown size={20} />
+              <HandCoins size={20} />
             </div>
             <div className="earn-stat-content">
               <span className="earn-stat-value">
@@ -112,6 +113,10 @@ const EarnPage = () => {
 
             <div className="earn-card stake-section">
               <Staking />
+            </div>
+
+            <div className="rewards-section">
+              <RewardsDistribution />
             </div>
           </div>
         </div>

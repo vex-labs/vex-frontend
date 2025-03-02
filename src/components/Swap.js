@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
+import { toast } from "sonner";
 
 /**
  * Enhanced Swap component with token registration support
@@ -36,7 +37,6 @@ const Swap = () => {
   const [usdcAmount, setUsdcAmount] = useState("");
   const [displayUsdcAmount, setDisplayUsdcAmount] = useState("");
   const [swapDirection, setSwapDirection] = useState(false); // true = VEX → USDC, false = USDC → VEX
-  const [message, setMessage] = useState({ text: "", type: "info" });
   const [isCalculating, setIsCalculating] = useState(false);
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapSuccess, setSwapSuccess] = useState(false);
@@ -70,7 +70,6 @@ const Swap = () => {
     }
 
     setIsCalculating(true);
-    setMessage({ text: "", type: "info" });
 
     try {
       const provider = new providers.JsonRpcProvider(NearRpcUrl);
@@ -114,10 +113,7 @@ const Swap = () => {
       }
     } catch (error) {
       console.error("Failed to fetch output amount:", error);
-      setMessage({
-        text: "Failed to calculate exchange rate",
-        type: "error",
-      });
+      toast.error("Failed to calculate exchange rate");
     } finally {
       setIsCalculating(false);
     }
@@ -178,10 +174,7 @@ const Swap = () => {
       return true;
     } catch (error) {
       console.error("Registration failed:", error);
-      setMessage({
-        text: `Registration failed: ${error.message}`,
-        type: "error",
-      });
+      toast.error(`Registration failed: ${error.message}`);
       return false;
     } finally {
       setIsCheckingRegistration(false);
@@ -252,7 +245,7 @@ const Swap = () => {
   const handleSwap = async () => {
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      setMessage({ text: "Please connect your wallet first", type: "error" });
+      toast.error("Please connect your wallet first");
       return;
     }
 
@@ -260,7 +253,7 @@ const Swap = () => {
       swapDirection ? vexAmount : usdcAmount || "0"
     );
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
-      setMessage({ text: "Invalid swap amount", type: "error" });
+      toast.error("Invalid swap amount");
       return;
     }
 
@@ -332,10 +325,7 @@ const Swap = () => {
       }
 
       setSwapSuccess(true);
-      setMessage({
-        text: "Successful!",
-        type: "success",
-      });
+      toast.success("Swap successful!");
 
       // Reset form after successful swap
       setTimeout(() => {
@@ -346,10 +336,7 @@ const Swap = () => {
       }, 3000);
     } catch (error) {
       console.error("Swap failed:", error.message || error);
-      setMessage({
-        text: `Error: ${error.message || "Unknown error"}`,
-        type: "error",
-      });
+      toast.error(`Error: ${error.message || "Unknown error"}`);
     } finally {
       setIsSwapping(false);
       toggleRefreshBalances();
@@ -361,7 +348,6 @@ const Swap = () => {
     setVexAmount("");
     setUsdcAmount("");
     setDisplayUsdcAmount("");
-    setMessage({ text: "", type: "info" });
   };
 
   const handleAmountClick = (amount) => {
@@ -542,38 +528,7 @@ const Swap = () => {
         </span>
       </div>
 
-      {insufficientBalance && (
-        <div className="message-box message-error">
-          <div className="message-content">
-            <span className="message-icon">
-              <AlertCircle size={16} />
-            </span>
-            <span>Insufficient balance</span>
-          </div>
-        </div>
-      )}
-
-      {message.text && (
-        <div className={`message-box ${getMessageClass()}`}>
-          <div className="message-content">
-            <span className="message-icon">
-              {message.type === "error" ? (
-                <AlertCircle size={16} />
-              ) : message.type === "success" ? (
-                <CheckCircle size={16} />
-              ) : (
-                <Loader2
-                  size={16}
-                  className={
-                    isCheckingRegistration || isSwapping ? "animate-spin" : ""
-                  }
-                />
-              )}
-            </span>
-            <span>{message.text}</span>
-          </div>
-        </div>
-      )}
+      {insufficientBalance && toast.error("Insufficient balance")}
 
       <button
         className={`swap-button ${
