@@ -9,6 +9,8 @@ import { setupWalletSelector } from "@near-wallet-selector/core";
 import { setupHereWallet } from "@near-wallet-selector/here-wallet";
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { wagmiConfig, web3Modal } from "@/app/wallet/web3modal";
+import { setupEthereumWallets } from "@near-wallet-selector/ethereum-wallets";
 import { NearRpcUrl } from "../config";
 
 const THIRTY_TGAS = "30000000000000";
@@ -40,7 +42,16 @@ export class Wallet {
       // Initialize the wallet selector
       this.selector = await setupWalletSelector({
         network: this.networkId,
-        modules: [setupMyNearWallet(), setupHereWallet(), setupMeteorWallet()],
+        modules: [
+          setupMyNearWallet(),
+          setupHereWallet(),
+          setupMeteorWallet(),
+          setupEthereumWallets({
+            wagmiConfig,
+            web3Modal,
+            alwaysOnboardDuringSignIn: true,
+          }),
+        ],
       });
 
       const walletSelector = await this.selector;
@@ -58,11 +69,11 @@ export class Wallet {
       walletSelector.store.observable
         .pipe(
           map((state) => state.accounts),
-          distinctUntilChanged(),
+          distinctUntilChanged()
         )
         .subscribe((accounts) => {
           const signedAccount = accounts.find(
-            (account) => account.active,
+            (account) => account.active
           )?.accountId;
 
           console.log("Active Account Changed:", signedAccount);
