@@ -3,13 +3,7 @@ import { swapTokens } from "@/utils/swapTokens";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { providers } from "near-api-js";
 import { NearRpcUrl } from "@/app/config";
-import {
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import { Loader2, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { toast } from "sonner";

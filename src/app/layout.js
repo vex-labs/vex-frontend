@@ -15,6 +15,53 @@ const asap = Asap({
   weight: ["400", "700"],
 });
 
+const baseUrl =
+  process.env.NEXT_PUBLIC_BASE_URL || "https://testnet.betvex.xyz";
+
+export const metadata = {
+  title: {
+    default: "betVEX - Community Powered Esports Betting Platform",
+    template: "%s | betVEX",
+  },
+  description:
+    "betVEX is a next-generation esports betting platform that puts its future in its user's hands with better odds, guaranteed payouts, and community rewards.",
+  keywords: [
+    "betVEX",
+    "esports betting",
+    "esports",
+    "betting platform",
+    "crypto betting",
+    "community powered",
+    "VEX token",
+    "blockchain betting",
+    "better odds",
+    "gaming",
+    "esports wagers",
+    "decentralized betting",
+  ],
+  authors: [{ name: "Vex Labs Ltd" }],
+  creator: "Vex Labs Ltd",
+  publisher: "Vex Labs Ltd",
+  category: "Esports Betting",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: baseUrl,
+    title: "betVEX - Community Powered Esports Betting Platform",
+    description:
+      "The only community powered esports betting platform with better odds and community rewards.",
+    siteName: "betVEX",
+    images: [
+      {
+        url: `/api/og?title=${encodeURIComponent("Betting")}`,
+        width: 1200,
+        height: 630,
+        alt: "betVEX Platform",
+      },
+    ],
+  },
+};
+
 /**
  * RootLayout component
  *
