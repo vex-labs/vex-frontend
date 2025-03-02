@@ -75,7 +75,7 @@ const LeaderboardPage = () => {
 
   // Filter users based on search term
   const filteredUsers = usersWithRanks.filter((user) =>
-    user.id.toLowerCase().includes(searchTerm.toLowerCase()),
+    user.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sort users based on current sort configuration
@@ -277,7 +277,7 @@ const LeaderboardPage = () => {
                             displayRank <= 3 ? (
                               <div
                                 className={`trophy ${getTrophyColor(
-                                  displayRank,
+                                  displayRank
                                 )}`}
                               >
                                 {displayRank}
@@ -286,7 +286,9 @@ const LeaderboardPage = () => {
                               <div className="trophy normal">{displayRank}</div>
                             )}
                           </td>
-                          <td className="username-cell">{user.id}</td>
+                          <td className="username-cell">
+                            {user.id.replace(".users.betvex.testnet", "")}
+                          </td>
                           <td className="winnings-cell">
                             {formatWinnings(user.total_winnings)}
                           </td>
