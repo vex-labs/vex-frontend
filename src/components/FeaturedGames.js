@@ -168,10 +168,10 @@ const FeaturedGames = ({
   // Render loading skeleton
   const renderSkeleton = () => (
     <div className="featured-grid-container">
-      {[1, 2, 3, 4].map((skeleton) => (
+      {[1, 2, 3].map((skeleton) => (
         <div
           key={skeleton}
-          className="featured-card featured-card-3-col skeleton-card"
+          className="featured-card featured-card-4-col skeleton-card"
         >
           <div className="skeleton-header"></div>
           <div className="skeleton-body">
