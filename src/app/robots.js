@@ -1,5 +1,6 @@
 export default function robots() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://betvex.xyz";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL || "https://testnet.betvex.xyz";
   return {
     rules: {
       userAgent: "*",
