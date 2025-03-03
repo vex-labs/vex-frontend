@@ -1,11 +1,11 @@
 import * as React from "react";
-import { DropdownMenu } from "radix-ui";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import GiftModal from "./GiftModal";
 import { LogOut, Gift, Settings, Coins } from "lucide-react";
+import "./UserDropdown.css";
 
 const UserDropdown = ({ onLogout }) => {
   const [open, setOpen] = useState(false);
@@ -34,27 +34,30 @@ const UserDropdown = ({ onLogout }) => {
         ).slice(-8)}`
       : formatAccountId(accountId)
     : "";
-
-  // Close dropdown when clicking outside
+    
+  // Handle global click events to close the dropdown
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Only close if dropdown is open AND click is outside both the dropdown and the button
+    function handleClickAway(event) {
+      // If the dropdown is open and the click is outside dropdown and button
       if (
-        open &&
-        dropdownRef.current &&
-        buttonRef.current &&
-        !dropdownRef.current.contains(event.target) &&
+        open && 
+        dropdownRef.current && 
+        buttonRef.current && 
+        !dropdownRef.current.contains(event.target) && 
         !buttonRef.current.contains(event.target)
       ) {
         setOpen(false);
       }
-    };
-
-    // Add listener to document
-    document.addEventListener("mousedown", handleClickOutside);
-
+    }
+    
+    // Add event listeners
+    document.addEventListener('mousedown', handleClickAway);
+    document.addEventListener('touchend', handleClickAway);
+    
+    // Clean up
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener('mousedown', handleClickAway);
+      document.removeEventListener('touchend', handleClickAway);
     };
   }, [open]);
 
@@ -98,30 +101,27 @@ const UserDropdown = ({ onLogout }) => {
 
   return (
     <>
-      <DropdownMenu.Root open={open} onOpenChange={setOpen}>
-        <DropdownMenu.Trigger asChild>
-          <button
-            ref={buttonRef}
-            className="IconButton"
-            aria-label="User menu"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Toggle dropdown
-              setOpen((prev) => !prev);
-            }}
-          >
-            <div className="user-avatar">
-              <img src="/icons/user.png" alt="User icon" />
-              {open && <div className="avatar-ring"></div>}
-            </div>
-          </button>
-        </DropdownMenu.Trigger>
-
-        <DropdownMenu.Portal>
-          <DropdownMenu.Content
+      {/* Custom dropdown implementation - no Radix UI */}
+      <div className="user-dropdown-container">
+        <button
+          ref={buttonRef}
+          className="user-dropdown-button"
+          aria-label="User menu"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen(!open);
+          }}
+        >
+          <div className="user-avatar">
+            <img src="/icons/user.png" alt="User icon" />
+            {open && <div className="avatar-ring"></div>}
+          </div>
+        </button>
+        
+        {open && (
+          <div 
             ref={dropdownRef}
-            className="DropdownMenuContent"
-            sideOffset={5}
+            className="user-dropdown-menu"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="user-profile-header">
@@ -133,16 +133,15 @@ const UserDropdown = ({ onLogout }) => {
                 <span className="user-wallet-type"></span>
               </div>
             </div>
-
-            <DropdownMenu.Separator className="DropdownMenuSeparator" />
-
+            
+            <div className="dropdown-divider"></div>
+            
             <div className="menu-items-container">
               {menuItems.map((item) => (
                 <React.Fragment key={item.id}>
                   {item.link ? (
                     <Link
                       href={item.link}
-                      passHref
                       style={{
                         display: "block",
                         width: "100%",
@@ -150,17 +149,19 @@ const UserDropdown = ({ onLogout }) => {
                         textDecoration: "none",
                       }}
                     >
-                      <DropdownMenu.Item
-                        className={`DropdownMenuItem ${
+                      <div
+                        className={`dropdown-menu-item ${
                           activeItem === item.id ? "active" : ""
                         } ${item.danger ? "danger-item" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
+                          setOpen(false);
                           item.action();
                         }}
                         onMouseEnter={() => setActiveItem(item.id)}
                         onMouseLeave={() => setActiveItem(null)}
                         onKeyDown={(e) => handleKeyDown(e, item.action)}
+                        tabIndex={0}
                       >
                         <div className="menu-item-content">
                           <div className="menu-item-icon">
@@ -168,21 +169,23 @@ const UserDropdown = ({ onLogout }) => {
                           </div>
                           <span className="menu-item-label">{item.label}</span>
                         </div>
-                      </DropdownMenu.Item>
+                      </div>
                     </Link>
                   ) : (
-                    <DropdownMenu.Item
-                      className={`DropdownMenuItem ${
+                    <div
+                      className={`dropdown-menu-item ${
                         activeItem === item.id ? "active" : ""
                       } ${item.danger ? "danger-item" : ""}`}
                       onClick={(e) => {
                         e.stopPropagation();
+                        setOpen(false);
                         item.action();
                       }}
                       style={{ cursor: "pointer" }}
                       onMouseEnter={() => setActiveItem(item.id)}
                       onMouseLeave={() => setActiveItem(null)}
                       onKeyDown={(e) => handleKeyDown(e, item.action)}
+                      tabIndex={0}
                     >
                       <div className="menu-item-content">
                         <div className="menu-item-icon">
@@ -190,22 +193,23 @@ const UserDropdown = ({ onLogout }) => {
                         </div>
                         <span className="menu-item-label">{item.label}</span>
                       </div>
-                    </DropdownMenu.Item>
+                    </div>
                   )}
 
                   {item.id !== "logout" && (
-                    <DropdownMenu.Separator className="DropdownMenuSeparator" />
+                    <div className="dropdown-divider"></div>
                   )}
                 </React.Fragment>
               ))}
             </div>
-          </DropdownMenu.Content>
-        </DropdownMenu.Portal>
-      </DropdownMenu.Root>
+          </div>
+        )}
+      </div>
 
       <GiftModal open={giftModalOpen} setIsOpen={setGiftModalOpen} />
     </>
   );
 };
+
 
 export default UserDropdown;

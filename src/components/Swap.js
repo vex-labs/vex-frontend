@@ -7,6 +7,7 @@ import { Loader2, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { toast } from "sonner";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 /**
  * Enhanced Swap component with token registration support
@@ -103,6 +104,10 @@ const Swap = () => {
    */
   const ensureTokenRegistrations = async (targetTokenId) => {
     setIsCheckingRegistration(true);
+
+    const sourceTokenId = swapDirection
+      ? "token.betvex.testnet" // Selling VEX
+      : "usdc.betvex.testnet"; // Buying VEX with USDC
 
     try {
       const userId = accountId; // Use the unified accountId from GlobalContext
@@ -254,17 +259,52 @@ const Swap = () => {
         });
 
         const account = await nearConnection.account(web3authAccountId);
-        await account.functionCall({
-          contractId: sourceTokenId,
-          methodName: "ft_transfer_call",
-          args: {
+
+        const action = actionCreators.functionCall(
+          "ft_transfer_call",
+          {
             receiver_id: receiverId,
             amount: formattedAmount,
             msg: msg,
           },
-          gas: "100000000000000",
-          attachedDeposit: "1",
+          "100000000000000",
+          "1"
+        );
+
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: sourceTokenId,
         });
+
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
+
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to relay transaction");
+        }
+
+        const { data } = await response.json();
+        console.log("Relayed transaction:", data);
+
+        setTimeout(() => {
+          setVexAmount("");
+          setUsdcAmount("");
+          setDisplayUsdcAmount("");
+
+          toggleRefreshBalances();
+        }, 3000);
       }
       // If using NEAR Wallet
       else if (signedAccountId && wallet) {
@@ -279,7 +319,8 @@ const Swap = () => {
         setVexAmount("");
         setUsdcAmount("");
         setDisplayUsdcAmount("");
-        setSwapSuccess(false);
+
+        toggleRefreshBalances();
       }, 3000);
     } catch (error) {
       console.error("Swap failed:", error.message || error);

@@ -10,7 +10,7 @@ const contractPerNetwork = {
 };
 
 // The network ID to be used ("testnet" or "mainnet")
-export const NetworkId = "testnet";
+export const NetworkId = process.env.NEAR_NETWORK || "testnet";
 
 const evmWalletChains = {
   mainnet: {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { providers } from "near-api-js";
 import { NearRpcUrl, VexContract } from "@/app/config";
-import { Loader2, CheckCircle, AlertCircle, CoinsIcon } from "lucide-react";
+import { Loader2, CheckCircle, CoinsIcon } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
@@ -19,6 +19,7 @@ const RewardsDistribution = () => {
   const [totalUSDCRewards, setTotalUSDCRewards] = useState(null);
   const [isDistributingRewards, setIsDistributingRewards] = useState(false);
   const [actionSuccess, setActionSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Get authentication contexts
   const {
@@ -40,6 +41,7 @@ const RewardsDistribution = () => {
 
   // This function fetches the total USDC rewards available to distribute
   const fetchRewardsData = async () => {
+    setIsLoading(true);
     try {
       // Call the view function `get_usdc_staking_rewards` on the contract
       const result = await provider.query({
@@ -50,9 +52,14 @@ const RewardsDistribution = () => {
         finality: "final",
       });
 
+      console.log("result:", result);
+
       // Parse the response and convert to the correct format (assuming 6 decimals for USDC)
       const parsedResult = JSON.parse(Buffer.from(result.result).toString());
       const totalUSDCRewardsToSwap = parseFloat(parsedResult) / 1e6;
+
+      console.log("parsedResult:", parsedResult);
+      console.log("totalUSDCRewardsToSwap:", totalUSDCRewardsToSwap);
 
       // Round to 2 decimal places
       if (totalUSDCRewardsToSwap > 0) {
@@ -63,6 +70,8 @@ const RewardsDistribution = () => {
     } catch (error) {
       console.error("Failed to retrieve USDC rewards to swap:", error);
       setTotalUSDCRewards(0);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -83,28 +92,42 @@ const RewardsDistribution = () => {
     try {
       // If using Web3Auth, use the relayer API
       if (web3auth?.connected) {
-        // Call relayer API to distribute rewards
-        const response = await fetch("/api/relayer/distribute-rewards", {
+        const account = await nearConnection.account(web3authAccountId);
+
+        const action = actionCreators.functionCall(
+          "perform_stake_swap",
+          {},
+          gas,
+          "0"
+        );
+
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: contractId,
+        });
+
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
+
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            userId: web3authAccountId,
-          }),
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
         });
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(
-            `Distribute rewards via relayer failed: ${
-              errorData.error || "Unknown error"
-            }`
-          );
+          const error = await response.json();
+          throw new Error(error.message || "Failed to relay transaction");
         }
 
-        const result = await response.json();
-        console.log("Distribute rewards via relayer successful:", result);
+        const { data } = await response.json();
+
+        console.log("Relayed transaction:", data);
 
         toast.success("Rewards distributed successfully");
         setActionSuccess(true);
@@ -151,12 +174,18 @@ const RewardsDistribution = () => {
       <div className="rewards-stats-container">
         <div className="stat-card">
           <div className="stat-title">Available USD Rewards</div>
-          <div className="stat-value usdc-value">
-            {totalUSDCRewards !== null
-              ? parseFloat(totalUSDCRewards).toFixed(2)
-              : "0.00"}{" "}
-            <span className="token-unit">USD</span>
-          </div>
+          {isLoading ? (
+            <div className="loading-indicator">
+              <Loader2 size={24} className="loading-icon" />
+            </div>
+          ) : (
+            <div className="stat-value usdc-value">
+              {totalUSDCRewards !== null
+                ? parseFloat(totalUSDCRewards).toFixed(2)
+                : "0.00"}{" "}
+              <span className="token-unit">USD</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -166,7 +195,10 @@ const RewardsDistribution = () => {
         } ${actionSuccess ? "success" : ""}`}
         onClick={handleDistributeRewards}
         disabled={
-          isDistributingRewards || !totalUSDCRewards || totalUSDCRewards <= 0
+          isLoading ||
+          isDistributingRewards ||
+          !totalUSDCRewards ||
+          totalUSDCRewards <= 0
         }
       >
         {isDistributingRewards ? (
@@ -186,169 +218,6 @@ const RewardsDistribution = () => {
           </span>
         )}
       </button>
-
-      <style jsx>{`
-        .rewards-distribution-container {
-          max-width: 700px;
-          width: 100%;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .rewards-distribution-header {
-          margin-bottom: 24px;
-          text-align: center;
-        }
-
-        .rewards-heading {
-          font-size: 24px;
-          font-weight: 600;
-          margin: 0;
-          color: white;
-          text-align: center;
-        }
-
-        .rewards-subtitle {
-          color: rgba(255, 255, 255, 0.6);
-          font-size: 14px;
-          margin-top: 4px;
-          text-align: center;
-        }
-
-        .rewards-stats-container {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 24px;
-          border-radius: 10px;
-          overflow: hidden;
-        }
-
-        .stat-card {
-          flex: 1;
-          background: rgba(30, 30, 30, 0.7);
-          padding: 20px;
-          border-radius: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          text-align: center;
-          max-width: 300px;
-          margin: 0 auto;
-        }
-
-        .stat-title {
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.6);
-          margin-bottom: 8px;
-        }
-
-        .stat-value {
-          font-size: 26px;
-          font-weight: 600;
-          color: white;
-        }
-
-        .usdc-value {
-          color: #2ce6ff;
-        }
-
-        .token-unit {
-          font-size: 16px;
-          opacity: 0.7;
-          margin-left: 4px;
-        }
-
-        .message-box {
-          padding: 12px 16px;
-          border-radius: 8px;
-          margin: 0 auto 20px;
-          max-width: 400px;
-          z-index: 5;
-          position: relative;
-        }
-
-        .message-error {
-          background: rgba(255, 60, 60, 0.1);
-          border-left: 3px solid rgba(255, 60, 60, 0.8);
-        }
-
-        .message-success {
-          background: rgba(43, 255, 136, 0.1);
-          border-left: 3px solid rgba(43, 255, 136, 0.8);
-        }
-
-        .message-info {
-          background: rgba(107, 151, 255, 0.1);
-          border-left: 3px solid rgba(107, 151, 255, 0.8);
-        }
-
-        .message-content {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          color: white;
-        }
-
-        .distribute-rewards-button {
-          width: 300px;
-          max-width: 100%;
-          margin: 0 auto;
-          padding: 14px;
-          border-radius: 10px;
-          background: linear-gradient(to right, #3dd68c, #4da6ff);
-          color: white;
-          font-weight: 500;
-          font-size: 16px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          border: none;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-          position: relative;
-          z-index: 2;
-          margin-top: 8px;
-        }
-
-        .distribute-rewards-button:hover:not(:disabled) {
-          transform: translateY(-2px);
-        }
-
-        .distribute-rewards-button:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .loading-icon {
-          animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-
-        .button-content {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        @media (max-width: 768px) {
-          .rewards-distribution-container {
-            padding: 20px;
-          }
-
-          .stat-value {
-            font-size: 22px;
-          }
-        }
-      `}</style>
     </div>
   );
 };
