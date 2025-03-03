@@ -9,6 +9,8 @@ import { setupWalletSelector } from "@near-wallet-selector/core";
 import { setupHereWallet } from "@near-wallet-selector/here-wallet";
 import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
 import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { wagmiConfig, web3Modal } from "@/app/wallet/web3modal";
+import { setupEthereumWallets } from "@near-wallet-selector/ethereum-wallets";
 const THIRTY_TGAS = "30000000000000";
 const NO_DEPOSIT = "0";
 
@@ -35,7 +37,16 @@ export class Wallet {
   startUp = async (accountChangeHook) => {
     this.selector = setupWalletSelector({
       network: this.networkId,
-      modules: [setupMyNearWallet(), setupHereWallet(), setupMeteorWallet()],
+      modules: [
+        setupMyNearWallet(),
+        setupHereWallet(),
+        setupMeteorWallet(),
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+        }),
+      ],
     });
 
     const walletSelector = await this.selector;
@@ -47,11 +58,11 @@ export class Wallet {
     walletSelector.store.observable
       .pipe(
         map((state) => state.accounts),
-        distinctUntilChanged(),
+        distinctUntilChanged()
       )
       .subscribe((accounts) => {
         const signedAccount = accounts.find(
-          (account) => account.active,
+          (account) => account.active
         )?.accountId;
         accountChangeHook(signedAccount);
       });
