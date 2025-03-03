@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   animation: overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000;
+  z-index: 500;
   backdrop-filter: blur(4px);
 }
 .dialog-content {
@@ -21,7 +21,7 @@
   max-height: 85vh;
   padding: 25px;
   animation: contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1001;
+  z-index: 501;
 }
 .dialog-header {
   margin-bottom: 24px;
