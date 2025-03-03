@@ -222,7 +222,7 @@ const GiftModal = ({ open, setIsOpen }) => {
       case "toplevel":
         return cleanUsername; // Top-level account
       case "ethereum":
-        return cleanUsername; // Ethereum address
+        return cleanUsername.toLowerCase(); // Ethereum address
       default:
         return cleanUsername;
     }
