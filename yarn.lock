@@ -1271,7 +1271,7 @@
     "@noble/hashes" "1.3.3"
     borsh "1.0.0"
 
-"@near-js/transactions@1.3.1":
+"@near-js/transactions@1.3.1", "@near-js/transactions@^1.3.1":
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/@near-js/transactions/-/transactions-1.3.1.tgz#abb38644731a059699be20f630814a41e33a0942"
   integrity sha512-kL9hxUqBr+tILQHFsh5T/bz3UkJrAq5tnyFqh0xf+7qGXZuRIPfuW/HMq4M6wFw0MGi/8ycmDT3yTQFH7PzZqw==

@@ -78,9 +78,23 @@ const NavBar = () => {
     toggleRefreshBalances();
   }, []);
 
+  // State to track initial loading
+  const [initialLoading, setInitialLoading] = useState(true);
+  
+  // Set initial loading to false after component mounts
+  useEffect(() => {
+    // Set a timeout to ensure that account restoration has time to complete
+    const timer = setTimeout(() => {
+      setInitialLoading(false);
+    }, 2000); // 2-second delay to allow for account restoration
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Check for existing accounts before showing modal
   useEffect(() => {
     if (
+      !initialLoading && // Don't show modal during initial loading
       !isFindingAccount &&
       isClientLoaded &&
       keyPair &&
@@ -92,7 +106,7 @@ const NavBar = () => {
       // Close the modal if any account exists
       setIsCreateAccountModalOpen(false);
     }
-  }, [keyPair, accountId, signedAccountId, isClientLoaded, isFindingAccount]);
+  }, [keyPair, accountId, signedAccountId, isClientLoaded, isFindingAccount, initialLoading]);
 
   // Handle login with Web3Auth provider
   const handleLoginWithProvider = async (provider, options) => {

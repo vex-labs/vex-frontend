@@ -1,3 +1,5 @@
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+
 /**
  * Places a bet on a specified match.
  *
@@ -23,7 +25,7 @@ export async function placeBet(
   tokenContractId,
   wallet,
   web3authAccountId,
-  nearConnection,
+  nearConnection
 ) {
   try {
     // Prepare the message for the bet
@@ -40,20 +42,48 @@ export async function placeBet(
     // If using Web3Auth
     if (web3authAccountId && nearConnection) {
       const account = await nearConnection.account(web3authAccountId);
-      const outcome = await account.functionCall({
-        contractId: tokenContractId,
-        methodName: "ft_transfer_call",
-        args: {
+
+      console.log("relayed transaction");
+
+      const action = actionCreators.functionCall(
+        "ft_transfer_call",
+        {
           receiver_id: contractId,
           amount: betAmount,
           msg: msg,
         },
         gas,
-        attachedDeposit: deposit,
+        deposit
+      );
+
+      const signedDelegate = await account.signedDelegate({
+        actions: [action],
+        blockHeightTtl: 120,
+        receiverId: tokenContractId,
       });
 
-      console.log("Bet placed successfully using Web3Auth!", outcome);
-      return outcome;
+      const encodedDelegate = Array.from(encodeSignedDelegate(signedDelegate));
+
+      // Send the signed delegate to our relay API
+      const response = await fetch("/api/transactions/relay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to relay transaction");
+      }
+
+      const { data } = await response.json();
+
+      console.log("Relayed transaction:", data);
+
+      console.log("Bet placed successfully using Web3Auth!", data[0]);
+      return data[0];
     }
     // If using NEAR Wallet
     else if (wallet) {
@@ -72,7 +102,7 @@ export async function placeBet(
       return outcome;
     } else {
       throw new Error(
-        "No valid wallet or Web3Auth account available for placing a bet.",
+        "No valid wallet or Web3Auth account available for placing a bet."
       );
     }
   } catch (error) {

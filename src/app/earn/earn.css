@@ -18,9 +18,19 @@
   height: 460px; /* Fixed height for alignment with staking container */
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     height: auto;
+    padding: 20px;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 15px;
+    width: 100%;
   }
 }
 
@@ -82,6 +92,8 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
   height: auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .token-box:hover {
@@ -114,6 +126,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  max-width: 100%;
+  width: auto;
 }
 
 .input-wrapper.estimated {
@@ -182,6 +196,7 @@
   height: auto;
   /* Hide default number input spinners */
   -moz-appearance: textfield; /* Firefox */
+  box-sizing: border-box;
 }
 
 /* Hide default spinners in WebKit/Blink browsers */
@@ -803,7 +818,6 @@ input:checked + .slider:before {
   .swap-container {
     width: 100%;
     max-width: 360px;
-    padding: 20px;
     border-radius: 12px;
   }
 
@@ -830,7 +844,7 @@ input:checked + .slider:before {
   }
 
   .token-input {
-    width: 110px;
+    width: 90px;
     font-size: 16px;
     padding: 10px;
     padding-left: 22px;
@@ -863,6 +877,10 @@ input:checked + .slider:before {
   .betting-modal-header h3 {
     font-size: 18px;
   }
+  
+  .input-wrapper {
+    max-width: 100%;
+  }
 }
 
 /* Enhanced Staking Component Styles */
@@ -880,9 +898,19 @@ input:checked + .slider:before {
   height: 460px; /* Matches swap container height for alignment */
   display: flex;
   flex-direction: column;
+  max-width: 100%;
+  box-sizing: border-box;
 
   @media (max-width: 768px) {
     height: auto;
+    padding: 20px;
+    width: 100%;
+    min-width: 0;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 15px;
+    width: 100%;
   }
 }
 
@@ -899,43 +927,6 @@ input:checked + .slider:before {
   font-weight: 600;
   color: white;
   height: 30px; /* Match the height of swap-heading for alignment */
-}
-
-.distribute-rewards-button {
-  padding: 8px 16px;
-  background-color: rgba(255, 87, 34, 0.2);
-  color: #ff5722;
-  border: 1px solid rgba(255, 87, 34, 0.3);
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.distribute-rewards-button:hover:not(:disabled) {
-  background-color: rgba(255, 87, 34, 0.3);
-  transform: translateY(-2px);
-}
-
-.distribute-rewards-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.distribute-rewards-button.loading {
-  background-color: rgba(255, 87, 34, 0.1);
-  color: rgba(255, 87, 34, 0.7);
-}
-
-.distribute-rewards-button.success {
-  background-color: rgba(0, 230, 179, 0.2);
-  color: var(--green-button);
-  border-color: rgba(0, 230, 179, 0.3);
 }
 
 .staking-stats-container {
@@ -1067,17 +1058,11 @@ input:checked + .slider:before {
   .staking-container {
     width: 100%;
     max-width: 360px;
-    padding: 20px;
     border-radius: 12px;
   }
 
   .staking-heading {
     font-size: 18px;
-  }
-
-  .distribute-rewards-button {
-    padding: 6px 10px;
-    font-size: 12px;
   }
 
   .staking-stats-container {
@@ -1088,6 +1073,11 @@ input:checked + .slider:before {
   .toggle-button {
     padding: 10px;
     font-size: 13px;
+  }
+  
+  .action-toggle {
+    width: 100%;
+    overflow-x: auto;
   }
 }
 
@@ -1214,6 +1204,7 @@ input:checked + .slider:before {
   grid-template-columns: repeat(2, 1fr);
   gap: 32px;
   align-items: flex-start; /* Ensure cards align at the top */
+  width: 100%;
 }
 
 .earn-card {
@@ -1224,6 +1215,8 @@ input:checked + .slider:before {
   height: auto;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .rewards-section {
@@ -1235,6 +1228,21 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+@media (max-width: 600px) {
+  .earn-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .swap-container, 
+  .staking-container,
+  .rewards-distribution-container {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
 }
 
 .earn-card-header {
@@ -1404,5 +1412,182 @@ input:checked + .slider:before {
 
   @media (max-width: 768px) {
     margin-left: 0;
+  }
+}
+
+.rewards-distribution-container {
+  max-width: 700px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+.rewards-distribution-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.rewards-heading {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+  text-align: center;
+}
+
+.rewards-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.rewards-stats-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stat-card {
+  flex: 1;
+  background: rgba(30, 30, 30, 0.7);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.stat-title {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-size: 26px;
+  font-weight: 600;
+  color: white;
+}
+
+.usdc-value {
+  color: #2ce6ff;
+}
+
+.token-unit {
+  font-size: 16px;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+
+.message-box {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 0 auto 20px;
+  max-width: 400px;
+  z-index: 5;
+  position: relative;
+}
+
+.message-error {
+  background: rgba(255, 60, 60, 0.1);
+  border-left: 3px solid rgba(255, 60, 60, 0.8);
+}
+
+.message-success {
+  background: rgba(43, 255, 136, 0.1);
+  border-left: 3px solid rgba(43, 255, 136, 0.8);
+}
+
+.message-info {
+  background: rgba(107, 151, 255, 0.1);
+  border-left: 3px solid rgba(107, 151, 255, 0.8);
+}
+
+.message-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.distribute-rewards-button {
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(to right, #3dd68c, #4da6ff);
+  color: white;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  margin-top: 8px;
+}
+
+.distribute-rewards-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.distribute-rewards-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: linear-gradient(to right, #3dd68c, #4da6ff);
+}
+
+.distribute-rewards-button.loading {
+  background: linear-gradient(to right, #3dd68c, #4da6ff);
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  padding: 10px 0;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+  color: #2ce6ff;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (max-width: 768px) {
+  .rewards-distribution-container {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 22px;
   }
 }

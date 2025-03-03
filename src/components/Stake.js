@@ -12,6 +12,7 @@ import {
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { toast } from "sonner";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 /**
  * Enhanced Staking component
@@ -147,6 +148,12 @@ const Staking = () => {
 
   const handlePercentageClick = (percentage) => {
     const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
+
+    if (percentage === 1) {
+      setAmount(currentBalance);
+      return;
+    }
+
     setAmount((currentBalance * percentage).toFixed(2));
   };
 
@@ -247,8 +254,6 @@ const Staking = () => {
     ).toString();
     const msg = JSON.stringify("Stake");
     const gas = "100000000000000";
-    const deposit = "0";
-    const deposit1 = "1";
 
     try {
       if (parseFloat(amount) < 50) {
@@ -263,17 +268,36 @@ const Staking = () => {
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
 
-        // First transfer the tokens to the staking contract
-        await account.functionCall({
-          contractId: tokenContractId,
-          methodName: "ft_transfer_call",
-          args: {
+        console.log("here");
+
+        const action = actionCreators.functionCall(
+          "ft_transfer_call",
+          {
             receiver_id: stakingContractId,
             amount: formattedAmount,
             msg: msg,
           },
           gas,
-          attachedDeposit: deposit1,
+          "1"
+        );
+
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: tokenContractId,
+        });
+
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
+
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
         });
 
         toast.success("Activation successful");
@@ -358,14 +382,40 @@ const Staking = () => {
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
 
-        // First unstake tokens
-        await account.functionCall({
-          contractId: stakingContractId,
-          methodName: "unstake",
-          args: { amount: formattedAmount },
+        const action = actionCreators.functionCall(
+          "unstake",
+          { amount: formattedAmount },
           gas,
-          attachedDeposit: deposit,
+          deposit
+        );
+
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: stakingContractId,
         });
+
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
+
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to relay transaction");
+        }
+
+        const { data } = await response.json();
+
+        console.log("Relayed transaction:", data);
 
         toast.success("Deactivation successful");
         setActionSuccess(true);
@@ -567,8 +617,6 @@ const Staking = () => {
           <button onClick={() => handlePercentageClick(1)}>100%</button>
         </div>
       </div>
-
-      {insufficientBalance && toast.error("Insufficient balance")}
 
       <button
         className={`confirm-button last ${isProcessing ? "loading" : ""} ${
