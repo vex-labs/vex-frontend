@@ -10,13 +10,14 @@ import { TEAM_ICON_MAP } from "@/data/team-icons";
  * Enhanced FeaturedGames component
  *
  * This component renders a list of featured games with improved UI/UX,
- * loading states, error handling, and filtering/search support.
+ * loading states, error handling, filtering/search support, and sorting options.
  *
  * @param {Object} props - Component props
  * @param {boolean} props.isLoading - Global loading state from parent
  * @param {string} props.selectedGame - Currently selected game filter
  * @param {string} props.searchTerm - Search term for filtering matches
  * @param {Function} props.onUpdateAvailableGames - Callback to update available games
+ * @param {string} props.sortOption - The current sort option (upcoming, distant, hot, new, for_me)
  *
  * @returns {JSX.Element} The rendered FeaturedGames component
  */
@@ -25,6 +26,7 @@ const FeaturedGames = ({
   selectedGame,
   searchTerm = "",
   onUpdateAvailableGames,
+  sortOption = "hot", // Default to Hot if not provided
 }) => {
   // Build the GraphQL query with game filter if provided
   const buildQuery = () => {
@@ -34,6 +36,8 @@ const FeaturedGames = ({
       whereClause = `{ match_state: Future, game: "${selectedGame}" }`;
     }
 
+    // The orderBy and orderDirection are handled client-side
+    // with our sorting logic, but we still need to fetch the fields
     return gql`
       {
         matches(
@@ -113,14 +117,35 @@ const FeaturedGames = ({
 
     if (!filteredMatches) return [];
 
-    return filteredMatches
-      .sort((a, b) => {
+    // Sort based on the selected sort option
+    const sortedMatches = [...filteredMatches].sort((a, b) => {
+      if (sortOption === "upcoming") {
+        // Sort by closest date first
+        return a.date_timestamp - b.date_timestamp;
+      } else if (sortOption === "distant") {
+        // Sort by furthest date first
+        return b.date_timestamp - a.date_timestamp;
+      } else if (sortOption === "hot") {
+        // Sort by highest bet volume
         const maxBetsA = Math.max(a.team_1_total_bets, a.team_2_total_bets);
         const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
-        return maxBetsB - maxBetsA; // descending order
-      })
-      .slice(0, 3); // Take only the top 4
-  }, [data?.matches, filterMatchesBySearch]);
+        return maxBetsB - maxBetsA;
+      } else if (sortOption === "new") {
+        // Sort by most recently added (created_at)
+        // Convert string timestamps to numbers for comparison
+        const createdAtA = new Date(a.created_at).getTime();
+        const createdAtB = new Date(b.created_at).getTime();
+        return createdAtB - createdAtA;
+      } else {
+        // Default sort - by bet volume
+        const maxBetsA = Math.max(a.team_1_total_bets, a.team_2_total_bets);
+        const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
+        return maxBetsB - maxBetsA;
+      }
+    });
+
+    return sortedMatches.slice(0, 3); // Take only the top 3
+  }, [data?.matches, filterMatchesBySearch, sortOption]);
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
