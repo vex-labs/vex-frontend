@@ -170,15 +170,106 @@
   }
 }
 
+/* Sort selector styles */
+.sort-selector-container {
+  position: relative;
+  min-width: 160px;
+  margin-left: auto; /* Push to the right side */
+}
+
+.sort-selector-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px; /* Match search bar height (14px padding) */
+  border-radius: 12px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  width: 100%;
+  justify-content: center;
+  height: 46px; /* Set explicit height to match search bar */
+}
+
+.sort-selector-button:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sort-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: rgba(20, 20, 20, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.sort-option {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sort-option:last-child {
+  border-bottom: none;
+}
+
+.sort-option:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.sort-option.active {
+  background-color: rgba(255, 51, 88, 0.1);
+  color: rgba(255, 51, 88, 0.9);
+}
+
+.sort-option:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (min-width: 769px) {
   .search-and-filter-container {
     display: flex;
     gap: 16px;
+    align-items: center;
   }
 
   .search-container {
     flex: 1;
     margin-bottom: 0;
     max-width: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sort-selector-container {
+    width: 100%;
+    margin-bottom: 16px;
+    order: 3; /* Position after mobile game selector */
+    margin-left: 0; /* Reset auto margin for small screens */
+  }
+  
+  .sort-selector-button {
+    justify-content: flex-start; /* Left align text on mobile */
   }
 }

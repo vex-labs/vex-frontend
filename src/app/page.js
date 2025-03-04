@@ -1,12 +1,23 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Sidebar from "@/components/Sidebar";
 import FeaturedGames from "@/components/FeaturedGames";
 import UpcomingGames from "@/components/UpcomingGames";
-import { Search, X } from "lucide-react";
+import { Search, X, ArrowUpDown } from "lucide-react";
 import "./search-styles.css";
 import MobileGameSelector from "@/components/MobileGameSelector";
+
+/**
+ * Sort options for the matches
+ */
+export const SORT_OPTIONS = {
+  UPCOMING: "upcoming", // Closest in time (default)
+  DISTANT: "distant", // Furthest in the future
+  HOT: "hot", // Highest betting volume
+  NEW: "new", // Most recently added
+  FOR_ME: "for_me", // Personalized (to be implemented)
+};
 
 /**
  * Enhanced HomePage component
@@ -22,6 +33,8 @@ export default function HomePage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS.HOT); // Default to Hot (highest betting volume)
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Set initial loading to false after a short delay to allow components to render
   useEffect(() => {
@@ -65,11 +78,64 @@ export default function HomePage() {
     setSearchTerm("");
   }, []);
 
-  // Restore previously selected game from sessionStorage
+  /**
+   * Handles changing the sort option
+   */
+  const handleSortChange = useCallback((option) => {
+    setSortOption(option);
+    setShowSortDropdown(false);
+    sessionStorage.setItem("sortOption", option);
+  }, []);
+
+  /**
+   * Toggles the sort dropdown visibility
+   */
+  const toggleSortDropdown = useCallback(() => {
+    setShowSortDropdown((prev) => !prev);
+  }, []);
+
+  /**
+   * Reference for the sort dropdown
+   */
+  const sortDropdownRef = React.useRef(null);
+
+  /**
+   * Handle clicks outside the sort dropdown to close it
+   */
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(event.target)
+      ) {
+        setShowSortDropdown(false);
+      }
+    };
+
+    // Add event listener when dropdown is open
+    if (showSortDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSortDropdown]);
+
+  // Restore previously selected game and sort option from sessionStorage
   useEffect(() => {
     const savedGame = sessionStorage.getItem("selectedGame");
     if (savedGame) {
       setSelectedGame(savedGame);
+    }
+
+    const savedSortOption = sessionStorage.getItem("sortOption");
+    if (
+      savedSortOption &&
+      Object.values(SORT_OPTIONS).includes(savedSortOption)
+    ) {
+      setSortOption(savedSortOption);
     }
   }, []);
 
@@ -125,10 +191,84 @@ export default function HomePage() {
               </button>
             )}
           </div>
+          
           <MobileGameSelector
             selectedGame={selectedGame}
             onSelectGame={handleGameSelection}
           />
+          
+          {/* Sort selector dropdown - moved to end for right alignment */}
+          <div className="sort-selector-container" ref={sortDropdownRef}>
+            <button
+              className="sort-selector-button"
+              onClick={toggleSortDropdown}
+              aria-haspopup="true"
+              aria-expanded={showSortDropdown}
+            >
+              <ArrowUpDown size={16} />
+              <span>
+                Sort:{" "}
+                {sortOption === SORT_OPTIONS.UPCOMING
+                  ? "Upcoming"
+                  : sortOption === SORT_OPTIONS.DISTANT
+                  ? "Distant"
+                  : sortOption === SORT_OPTIONS.HOT
+                  ? "Hot"
+                  : sortOption === SORT_OPTIONS.NEW
+                  ? "New"
+                  : sortOption === SORT_OPTIONS.FOR_ME
+                  ? "For Me"
+                  : "Sort"}
+              </span>
+            </button>
+
+            {showSortDropdown && (
+              <div className="sort-dropdown">
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.UPCOMING ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.UPCOMING)}
+                >
+                  Upcoming (Soonest)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.DISTANT ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.DISTANT)}
+                >
+                  Distant (Furthest)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.HOT ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.HOT)}
+                >
+                  Hot (Highest Volume)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.NEW ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.NEW)}
+                >
+                  New (Recently Added)
+                </button>
+                {/* For Me option - to be implemented */}
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.FOR_ME ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.FOR_ME)}
+                  disabled
+                >
+                  For Me (Coming Soon)
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="content-wrapper">
@@ -175,6 +315,7 @@ export default function HomePage() {
               selectedGame={selectedGame}
               searchTerm={searchTerm}
               onUpdateAvailableGames={updateAvailableGames}
+              sortOption={sortOption}
             />
           </section>
 
@@ -188,6 +329,7 @@ export default function HomePage() {
               selectedGame={selectedGame}
               searchTerm={searchTerm}
               isLoading={isInitialLoading}
+              sortOption={sortOption}
             />
           </section>
         </div>
