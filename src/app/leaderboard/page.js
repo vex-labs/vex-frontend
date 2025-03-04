@@ -77,8 +77,6 @@ const LeaderboardPage = () => {
     return sortConfig.direction === "asc" ? " ▲" : " ▼";
   };
 
-  console.log("data", data);
-
   const usersWithRanks =
     data?.users.map((user, index) => ({
       ...user,

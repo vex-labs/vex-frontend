@@ -76,6 +76,7 @@ export class Wallet {
   signIn = async () => {
     const modal = setupModal(await this.selector, {
       contractId: this.createAccessKeyFor,
+      modalContainerClassName: "ethereum-wallet-modal-content",
     });
     modal.show();
   };

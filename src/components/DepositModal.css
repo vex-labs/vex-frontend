@@ -28,6 +28,7 @@
   animation: overlayShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1000; /* Ensure modals appear above navigation */
   backdrop-filter: blur(4px);
+  pointer-events: auto;
 }
 .DialogContent {
   background: linear-gradient(
@@ -49,6 +50,11 @@
   animation: contentShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
   z-index: 1001; /* Ensure modal content appears above overlay */
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+/* Fix for Ethereum wallet modal issues */
+:global(.ethereum-wallet-modal-content) {
+  z-index: 1100 !important;
+  pointer-events: auto !important;
 }
 .DialogContent:focus {
   outline: none;
