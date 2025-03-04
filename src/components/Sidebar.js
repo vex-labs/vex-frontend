@@ -172,7 +172,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
       </nav>
 
       {/* Games Section */}
-      <div className="app-sidebar-section">
+      <div className="app-sidebar-section" id="sidebar-game-list">
         {renderSectionHeader("Games", "games", isGamesExpanded)}
 
         {(isGamesExpanded || isCollapsed) && (

@@ -12,6 +12,7 @@ import DepositModal from "./DepositModal";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { LogIn } from "lucide-react";
 import MobileNavbar from "./MobileNavigation";
+import { useTour } from "@/hooks/useTour";
 
 /**
  * Enhanced NavBar component with integrated authentication
@@ -80,14 +81,14 @@ const NavBar = () => {
 
   // State to track initial loading
   const [initialLoading, setInitialLoading] = useState(true);
-  
+
   // Set initial loading to false after component mounts
   useEffect(() => {
     // Set a timeout to ensure that account restoration has time to complete
     const timer = setTimeout(() => {
       setInitialLoading(false);
     }, 2000); // 2-second delay to allow for account restoration
-    
+
     return () => clearTimeout(timer);
   }, []);
 
@@ -106,7 +107,14 @@ const NavBar = () => {
       // Close the modal if any account exists
       setIsCreateAccountModalOpen(false);
     }
-  }, [keyPair, accountId, signedAccountId, isClientLoaded, isFindingAccount, initialLoading]);
+  }, [
+    keyPair,
+    accountId,
+    signedAccountId,
+    isClientLoaded,
+    isFindingAccount,
+    initialLoading,
+  ]);
 
   // Handle login with Web3Auth provider
   const handleLoginWithProvider = async (provider, options) => {
@@ -148,6 +156,8 @@ const NavBar = () => {
     const numBalance = parseFloat(balance);
     return numBalance.toFixed(2);
   };
+
+  const { startTour, isRunning } = useTour(); // Add isRunning
 
   return (
     <>
@@ -222,12 +232,21 @@ const NavBar = () => {
 
             <div className="nav-buttons">
               {/* TODO: LEARN */}
-
-              {/* <button className="nav-link-learn">
-                <span>Learn</span>
+              {/* 
+              <button
+                className={`nav-link-learn ${isRunning ? "active" : ""}`}
+                onClick={() => {
+                  if (!isRunning && isClientLoaded) {
+                    // Add check for client loaded
+                    startTour();
+                  }
+                }}
+                disabled={isRunning}
+              >
+                <span>{isRunning ? "Tour Running..." : "Learn"}</span>
               </button> */}
 
-              {isLoggedIn && <DepositModal />}
+              <DepositModal />
 
               {isLoggedIn ? (
                 <>
@@ -257,7 +276,9 @@ const NavBar = () => {
                     )}
                   </div>
 
-                  <UserDropdown onLogout={handleLogout} />
+                  <div className="login-button">
+                    <UserDropdown onLogout={handleLogout} />
+                  </div>
                 </>
               ) : (
                 <div className="auth-buttons">

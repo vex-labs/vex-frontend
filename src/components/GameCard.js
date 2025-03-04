@@ -329,16 +329,6 @@ const GameCard = ({
 
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
-    // Check if user is logged in with either web3auth or NEAR wallet
-    if (!web3auth?.connected && !signedAccountId) {
-      console.log("No wallet connected");
-      toast.error("Please connect your wallet first");
-      return;
-    }
-
-    console.log("Web3Auth connected:", web3auth?.connected);
-    console.log("Near wallet connected:", !!signedAccountId);
-
     setSelectedBet(bet);
     setShowBettingModal(true);
     setMessage({
@@ -375,7 +365,7 @@ const GameCard = ({
 
   return (
     <>
-      <div className={className}>
+      <div className={`${className} game-card`}>
         {/* Match View Card */}
         <div className="match-header">
           <div className="match-info">
@@ -614,9 +604,11 @@ const GameCard = ({
                 <>
                   <div className="balance-display">
                     <span className="balance-label">Your Balance:</span>
-                    <span className="balance-amount">${parseFloat(walletBalance || 0).toFixed(2)} USD</span>
+                    <span className="balance-amount">
+                      ${parseFloat(walletBalance || 0).toFixed(2)} USD
+                    </span>
                   </div>
-                  
+
                   <div className="bet-input-container">
                     <div className="stake-container">
                       <div className="stake-input-wrapper">

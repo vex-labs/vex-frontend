@@ -214,28 +214,45 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                     Cancel
                   </button>
                 </Dialog.Close>
-                <button
-                  className={`Button confirm-button ${
-                    isLoading ? "loading" : ""
-                  }`}
-                  disabled={
-                    !accountId ||
-                    amount > 100 ||
-                    amount < 1 ||
-                    isLoading ||
-                    isNaN(parseFloat(amount))
-                  }
-                  onClick={() => depositFunds(amount)}
-                >
-                  {isLoading ? (
-                    <>
-                      <span className="deposit-modal-spinner"></span>
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    "Confirm Deposit"
-                  )}
-                </button>
+                {!accountId ? (
+                  <button
+                    className="Button confirm-button"
+                    onClick={() => {
+                      // Close deposit modal
+                      modalOnly ? setModalOpen(false) : setIsOpen(false);
+                      
+                      // Trigger login modal to open
+                      setTimeout(() => {
+                        const loginButton = document.querySelector('.login-button');
+                        if (loginButton) loginButton.click();
+                      }, 100);
+                    }}
+                  >
+                    Login to Deposit
+                  </button>
+                ) : (
+                  <button
+                    className={`Button confirm-button ${
+                      isLoading ? "loading" : ""
+                    }`}
+                    disabled={
+                      amount > 100 ||
+                      amount < 1 ||
+                      isLoading ||
+                      isNaN(parseFloat(amount))
+                    }
+                    onClick={() => depositFunds(amount)}
+                  >
+                    {isLoading ? (
+                      <>
+                        <span className="deposit-modal-spinner"></span>
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      "Confirm Deposit"
+                    )}
+                  </button>
+                )}
               </div>
             </>
           ) : (
