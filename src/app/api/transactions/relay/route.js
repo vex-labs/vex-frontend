@@ -11,8 +11,17 @@ export async function POST(request) {
 
     // Set up connection to NEAR
     const keyStore = new keyStores.InMemoryKeyStore();
-    const RELAYER_PRIVATE_KEY = process.env.RELAYER_PRIVATE_KEY;
+    // Randomly select one of the 20 relay private keys
+    const randomKeyIndex = Math.floor(Math.random() * 20) + 1;
+    const RELAYER_PRIVATE_KEY =
+      process.env[`RELAY_ACCOUNT_PRIVATE_KEY_${randomKeyIndex}`];
     const RELAYER_ACCOUNT_ID = process.env.RELAYER_ACCOUNT_ID;
+
+    if (!RELAYER_PRIVATE_KEY) {
+      throw new Error(`Missing relay private key ${randomKeyIndex}`);
+    }
+
+    console.log(`Using relay key ${randomKeyIndex}`);
 
     // Add the relayer's key to the keystore
     await keyStore.setKey(
