@@ -4,8 +4,7 @@ import { useState } from "react";
 import Sidebar2 from "@/components/Sidebar2";
 import "./leaderboard.css";
 import { useQuery } from "@tanstack/react-query";
-import { QueryURL } from "../config";
-import { gql, request } from "graphql-request";
+import { gql } from "graphql-request";
 
 const LeaderboardPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,7 +15,6 @@ const LeaderboardPage = () => {
   });
   const itemsPerPage = 10;
 
-  const url = QueryURL;
   const gql_query = gql`
     {
       users(
@@ -35,7 +33,19 @@ const LeaderboardPage = () => {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["leaderboard"],
     queryFn: async () => {
-      return await request(url, gql_query);
+      const res = await fetch("/api/gql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gql: gql_query,
+        }),
+      });
+
+      const data = await res.json();
+
+      return data;
     },
   });
 
@@ -66,6 +76,8 @@ const LeaderboardPage = () => {
     if (sortConfig.key !== key) return null;
     return sortConfig.direction === "asc" ? " ▲" : " ▼";
   };
+
+  console.log("data", data);
 
   const usersWithRanks =
     data?.users.map((user, index) => ({

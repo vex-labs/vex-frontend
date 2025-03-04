@@ -1,16 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { VexContract, QueryURL } from "@/app/config";
+import { VexContract } from "@/app/config";
 import { DropdownMenu } from "radix-ui";
-import { gql, request } from "graphql-request";
-import {
-  Loader2,
-  Check,
-  X,
-  Award,
-  Clock,
-  AlertTriangle,
-  HistoryIcon,
-} from "lucide-react";
+import { gql } from "graphql-request";
+import { Loader2, Check, Award, Clock, HistoryIcon } from "lucide-react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
@@ -38,7 +30,6 @@ const UserBets = ({ userBets }) => {
     accountId: web3authAccountId,
   } = useWeb3Auth();
   const { wallet, signedAccountId } = useNear();
-  const [betToClaim, setBetToClaim] = useState(null);
   const [claimedBets, setClaimedBets] = useState({}); // Track successfully claimed bets
   const [activeCategory, setActiveCategory] = useState("claimable");
   const [matchResults, setMatchResults] = useState({});
@@ -81,7 +72,17 @@ const UserBets = ({ userBets }) => {
     setIsLoadingResults(true);
     try {
       const query = buildMatchResultsQuery(matchIds);
-      const data = await request(QueryURL, query);
+      const res = await fetch("/api/gql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gql: query,
+        }),
+      });
+
+      const data = await res.json();
 
       // Create a map of match ID to winner
       const resultMap = {};

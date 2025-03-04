@@ -1,46 +1,11 @@
-import React, { useState } from "react";
+import React, { useCallback } from "react";
 import GameCard from "./GameCard";
-import { useNear } from "@/app/context/NearContext";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
-import { RefreshCw, AlertCircle, Calendar } from "lucide-react";
-import { QueryURL } from "@/app/config";
-import { gql, request } from "graphql-request";
+import { RefreshCw, AlertCircle } from "lucide-react";
+import { gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
-
-// Team icon mapping with fallback handling
-const TEAM_ICON_MAP = {
-  KRÜ_BLAZE: "/icons/teams/kru_blaze.png",
-  FlyQuest_RED: "/icons/teams/flyquest_red.png",
-  SSG: "/icons/teams/ssg.png",
-  Team_Falcons: "/icons/teams/team_falcons.png",
-  Toronto_Defiant: "/icons/teams/toronto_defiant.png",
-  Crazy_Raccoon: "/icons/teams/crazy_raccon.png",
-  Team_Spirit: "/icons/teams/team_spirit.png",
-  Faze: "/icons/teams/faze.png",
-  Natus_Vincere: "/icons/teams/natus_vincere.png",
-  Shopify_Rebellion: "/icons/teams/shopify_rebellion.png",
-  Xipto_Esports: "/icons/teams/xipto_esport.png",
-  ENCE: "/icons/teams/ence.png",
-  NRG_Shock: "/icons/teams/nrg_shock.png",
-  NTMR: "/icons/teams/ntmr.png",
-  Twisted_Minds: "/icons/teams/twisted_minds.png",
-  Astralis: "/icons/teams/astralis.png",
-  "9_Pandas": "/icons/teams/9_pandas.png",
-  Cloud9: "/icons/teams/cloud9.png",
-};
-
-// Game name to display label mapping
-const GAME_LABELS = {
-  "counter-strike-2": "Counter Strike 2",
-  lol: "League of Legends",
-  valorant: "Valorant",
-  fortnite: "Fortnite",
-  apex: "Apex Legends",
-  rainbowsix: "Rainbow Six Siege",
-  dota2: "Dota 2",
-  "overwatch-2": "Overwatch 2",
-};
+import { TEAM_ICON_MAP } from "@/data/team-icons";
+import { GAME_LABELS } from "@/data/games";
 
 /**
  * Enhanced UpcomingGames component using GraphQL
@@ -97,37 +62,52 @@ const UpcomingGames = ({
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["upcomingGames", selectedGame],
     queryFn: async () => {
-      return await request(QueryURL, buildQuery());
+      const res = await fetch("/api/gql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gql: buildQuery(),
+        }),
+      });
+
+      const data = await res.json();
+
+      return data;
     },
   });
 
   // Filter matches by search term if one is provided
-  const filterMatchesBySearch = (matches) => {
-    if (!searchTerm || !matches) return matches;
+  const filterMatchesBySearch = useCallback(
+    (matches) => {
+      if (!searchTerm || !matches) return matches;
 
-    const lowercasedSearch = searchTerm.toLowerCase();
+      const lowercasedSearch = searchTerm.toLowerCase();
 
-    return matches.filter((match) => {
-      // Search in team names
-      const team1NameMatch = match.team_1
-        ?.toLowerCase()
-        .includes(lowercasedSearch);
-      const team2NameMatch = match.team_2
-        ?.toLowerCase()
-        .includes(lowercasedSearch);
+      return matches.filter((match) => {
+        // Search in team names
+        const team1NameMatch = match.team_1
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
+        const team2NameMatch = match.team_2
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
 
-      // Search in game name
-      const gameMatch = match.game?.toLowerCase().includes(lowercasedSearch);
+        // Search in game name
+        const gameMatch = match.game?.toLowerCase().includes(lowercasedSearch);
 
-      // Search in date string
-      const dateMatch = match.date_string
-        ?.toLowerCase()
-        .includes(lowercasedSearch);
+        // Search in date string
+        const dateMatch = match.date_string
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
 
-      // Return true if any field matches the search term
-      return team1NameMatch || team2NameMatch || gameMatch || dateMatch;
-    });
-  };
+        // Return true if any field matches the search term
+        return team1NameMatch || team2NameMatch || gameMatch || dateMatch;
+      });
+    },
+    [searchTerm]
+  );
 
   // Apply search filter and then sort the matches
   const filteredAndSortedMatches = React.useMemo(() => {
@@ -140,7 +120,7 @@ const UpcomingGames = ({
       const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
       return maxBetsB - maxBetsA; // descending order
     });
-  }, [data?.matches, searchTerm]);
+  }, [data?.matches, filterMatchesBySearch]);
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
@@ -165,11 +145,6 @@ const UpcomingGames = ({
     });
 
     return `${dateStr} ${timeStr}`;
-  };
-
-  // Get formatted game name
-  const getGameLabel = (gameName) => {
-    return GAME_LABELS[gameName] || gameName || "Unknown Game";
   };
 
   // Render loading skeleton
@@ -212,8 +187,8 @@ const UpcomingGames = ({
         {searchTerm
           ? `No upcoming matches available for your search "${searchTerm}"`
           : selectedGame
-            ? `No upcoming matches available for ${selectedGame}`
-            : "No upcoming matches available at this time."}
+          ? `No upcoming matches available for ${selectedGame}`
+          : "No upcoming matches available at this time."}
       </h3>
       <p>
         {searchTerm
