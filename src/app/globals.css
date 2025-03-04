@@ -1,4 +1,4 @@
-@import '../components/modal-z-index.css';
+@import "../components/modal-z-index.css";
 
 :root {
   --primary-color: #ff3358;
@@ -74,6 +74,10 @@ input::placeholder {
 .container {
   display: flex;
   margin-top: 90px; /* Increased from 55px to push content down */
+
+  @media (max-width: 768px) {
+    margin-top: 0;
+  }
 }
 .mainContent {
   flex: 1;

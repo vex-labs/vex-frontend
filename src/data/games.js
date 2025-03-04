@@ -40,3 +40,15 @@ export const games = [
     icon: "/icons/games/overwatch.png",
   },
 ];
+
+// Game name to display label mapping
+export const GAME_LABELS = {
+  "counter-strike-2": "Counter Strike 2",
+  lol: "League of Legends",
+  valorant: "Valorant",
+  fortnite: "Fortnite",
+  apex: "Apex Legends",
+  rainbowsix: "Rainbow Six Siege",
+  dota2: "Dota 2",
+  "overwatch-2": "Overwatch 2",
+};
