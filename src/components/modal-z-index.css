@@ -21,4 +21,15 @@
   /* Modals - must appear above everything else */
   --z-modal-overlay: 1000;
   --z-modal-content: 1001;
+  --z-ethereum-wallet-modal: 1100;
+}
+
+/* Ethereum wallet modal fix */
+.ethereum-wallet-modal-content {
+  z-index: var(--z-ethereum-wallet-modal) !important;
+  pointer-events: auto !important;
+}
+
+.ethereum-wallet-modal-content * {
+  pointer-events: auto !important;
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Dialog } from "radix-ui";
 import "./DepositModal.css";
+import "./modal-z-index.css";
 import { useNear } from "@/app/context/NearContext";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/app/context/GlobalContext";

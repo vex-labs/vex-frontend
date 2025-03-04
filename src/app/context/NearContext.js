@@ -26,7 +26,7 @@ export function NearProvider({ children }) {
 
     const initWallet = async () => {
       const newWallet = new Wallet({
-        createAccessKeyFor: VexContract,
+        // createAccessKeyFor: VexContract,
         networkId: NetworkId,
       });
 

@@ -267,9 +267,6 @@ const Staking = () => {
       // If using Web3Auth
       if (web3auth?.connected) {
         const account = await nearConnection.account(web3authAccountId);
-
-        console.log("here");
-
         const action = actionCreators.functionCall(
           "ft_transfer_call",
           {
