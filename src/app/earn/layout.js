@@ -1,25 +1,24 @@
 export const metadata = {
-  title: "Earn Rewards | betVEX",
-  description:
-    "Activate your VEX rewards and earn passive income from platform fees. Stake your VEX tokens to earn USDC rewards.",
+  title: "BetVEX Earn",
+  description: "Put your VEX Rewards to work and earn your share from BetVEX",
   keywords: [
-    "VEX rewards",
-    "staking",
-    "crypto earnings",
-    "passive income",
-    "betVEX rewards",
-    "VEX token staking",
+    "VEX Rewards",
+    "VEX Earn",
+    "BetVEX Earn",
+    "VEX token",
+    "BetVEX token",
+    "Activate VEX",
+    "Activate VEX Rewards",
   ],
   openGraph: {
-    title: "Earn Rewards with VEX Token | betVEX",
-    description:
-      "Activate your VEX tokens and earn USDC rewards from platform fees.",
+    title: "BetVEX Earn",
+    description: "Put your VEX Rewards to work and earn your share from BetVEX",
     images: [
       {
         url: `/api/og?title=${encodeURIComponent("Earn Rewards")}`,
         width: 1200,
         height: 630,
-        alt: "betVEX Earn Feature",
+        alt: "BetVEX Earn Feature",
       },
     ],
   },
