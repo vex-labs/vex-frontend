@@ -1,24 +1,29 @@
 export const metadata = {
-  title: "Community | betVEX",
+  title: "BetVEX Community",
   description:
-    "Join the betVEX community and participate in giveaways, competitions, bounties, challenges, grants, events, and governance.",
+    "The future of BetVEX is in your hands, decide how BetVEX should operate",
   keywords: [
-    "esports community",
-    "betVEX community",
-    "crypto community",
-    "gaming community",
-    "VEX holders",
+    "Community",
+    "VEX community",
+    "VEX governance",
+    "BetVEX governance",
+    "Governance",
+    "DAO",
+    "VEX DAO",
+    "BetVEX DAO",
+    "Decentralized Autonomous Organization",
+    "Decentralized Autonomous Organisation",
   ],
   openGraph: {
-    title: "Join the betVEX Community | Esports Betting Platform",
+    title: "BetVEX Community",
     description:
-      "Connect with like-minded esports enthusiasts and participate in community events, governance and rewards.",
+      "The future of BetVEX is in your hands, decide how BetVEX should operate",
     images: [
       {
         url: `/api/og?title=${encodeURIComponent("Community")}`,
         width: 1200,
         height: 630,
-        alt: "betVEX Community",
+        alt: "BetVEX Community",
       },
     ],
   },
