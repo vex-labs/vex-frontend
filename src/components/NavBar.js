@@ -12,7 +12,6 @@ import DepositModal from "./DepositModal";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { LogIn } from "lucide-react";
 import MobileNavbar from "./MobileNavigation";
-import { useTour } from "@/hooks/useTour";
 
 /**
  * Enhanced NavBar component with integrated authentication
@@ -156,8 +155,6 @@ const NavBar = () => {
     const numBalance = parseFloat(balance);
     return numBalance.toFixed(2);
   };
-
-  const { startTour, isRunning } = useTour(); // Add isRunning
 
   return (
     <>
