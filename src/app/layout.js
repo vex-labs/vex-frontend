@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Exo, Asap } from "next/font/google";
 import Providers from "./providers";
 import AppLayout from "@/components/AppLayout";
@@ -81,7 +81,9 @@ export default function RootLayout({ children }) {
     >
       <body className={asap.className}>
         <Providers>
-          <AppLayout>{children}</AppLayout>
+          <Suspense>
+            <AppLayout>{children}</AppLayout>
+          </Suspense>
         </Providers>
       </body>
     </html>
