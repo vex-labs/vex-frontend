@@ -7,22 +7,9 @@ import { useGlobalContext } from "@/app/context/GlobalContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+import { useTour } from "@reactour/tour";
 
-/**
- * Enhanced UserBets component
- *
- * This component displays the user's bets and allows them to claim their winnings.
- * It fetches match details to determine if bets were won or lost.
- * It categorizes bets by their status (claimable, pending, error, history).
- * Lost bets are automatically shown in history, and won bets move to history after claiming.
- *
- * @param {Object} props - The component props
- * @param {Array} props.userBets - Array of user's bet objects
- *
- * @returns {JSX.Element} The rendered UserBets component
- */
-
-const UserBets = ({ userBets }) => {
+const UserBets = ({ userBets = [], showTourExampleForStep9 = false }) => {
   // Get authentication contexts
   const {
     web3auth,
@@ -30,6 +17,7 @@ const UserBets = ({ userBets }) => {
     accountId: web3authAccountId,
   } = useWeb3Auth();
   const { wallet, signedAccountId } = useNear();
+  const { accountId } = useGlobalContext();
   const [claimedBets, setClaimedBets] = useState({}); // Track successfully claimed bets
   const [activeCategory, setActiveCategory] = useState("claimable");
   const [matchResults, setMatchResults] = useState({});
@@ -37,6 +25,7 @@ const UserBets = ({ userBets }) => {
   const [isClaiming, setIsClaiming] = useState(false);
   const [currentClaimingBet, setCurrentClaimingBet] = useState(null);
   const { toggleRefreshBalances } = useGlobalContext();
+  const { currentStep, setCurrentStep } = useTour();
 
   // Build the GraphQL query to fetch match results
   const buildMatchResultsQuery = (matchIds) => {
@@ -60,50 +49,83 @@ const UserBets = ({ userBets }) => {
 
   // Fetch match results for all finished matches
   const fetchMatchResults = useCallback(async () => {
+    // Skip API call if we have no actual bets (unless in tour mode)
+    if (userBets.length === 0 && !showTourExampleForStep9) return;
+
     const finishedBets = userBets.filter(
       (bet) => bet.match_state === "Finished" && !bet.pay_state
     );
 
-    if (finishedBets.length === 0) return;
+    if (finishedBets.length === 0 && !showTourExampleForStep9) return;
 
     const matchIds = finishedBets.map((bet) => bet.match_id);
-    if (matchIds.length === 0) return;
+    if (matchIds.length === 0 && !showTourExampleForStep9) return;
 
     setIsLoadingResults(true);
     try {
-      const query = buildMatchResultsQuery(matchIds);
-      const res = await fetch("/api/gql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          gql: query,
-        }),
-      });
+      if (matchIds.length > 0) {
+        const query = buildMatchResultsQuery(matchIds);
+        const res = await fetch("/api/gql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            gql: query,
+          }),
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      // Create a map of match ID to winner
-      const resultMap = {};
-      data.matches.forEach((match) => {
-        resultMap[match.id] = match.winner;
-      });
+        // Create a map of match ID to winner
+        const resultMap = {};
+        data.matches.forEach((match) => {
+          resultMap[match.id] = match.winner;
+        });
 
-      setMatchResults(resultMap);
+        setMatchResults(resultMap);
+      }
     } catch (error) {
       console.error("Failed to fetch match results:", error);
     } finally {
       setIsLoadingResults(false);
     }
-  }, [userBets]);
+  }, [userBets, showTourExampleForStep9]);
+
+  useEffect(() => {
+    if (showTourExampleForStep9) {
+      // Force ReactTour to properly highlight the element and set active tab
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+        setActiveCategory("claimable");
+      }, 100);
+    }
+  }, [showTourExampleForStep9]);
 
   // Fetch match results when user bets change
   useEffect(() => {
     fetchMatchResults();
-  }, [fetchMatchResults, userBets]);
+  }, [fetchMatchResults]);
 
   const handleClaim = async (betId) => {
+    // If in tour mode and at step 9, advance to step 10 and mark as claimed
+    if (showTourExampleForStep9 && betId === "tour-example-bet") {
+      setIsClaiming(true);
+      setCurrentClaimingBet(betId);
+
+      // Simulate claim process during tour
+      setTimeout(() => {
+        setClaimedBets((prev) => ({ ...prev, [betId]: true }));
+        setIsClaiming(false);
+        setCurrentClaimingBet(null);
+        // Advance to step 10
+        setCurrentStep(10);
+      }, 1000);
+
+      return;
+    }
+
+    // Regular claim process for non-tour usage
     setIsClaiming(true);
     setCurrentClaimingBet(betId);
 
@@ -203,13 +225,37 @@ const UserBets = ({ userBets }) => {
     );
   };
 
+  // Create a tour example bet if we're in tour step 9
+  const createTourExampleBet = () => {
+    if (showTourExampleForStep9) {
+      return {
+        betId: "tour-example-bet",
+        match_id: "Team_A-Team_B",
+        team: "Team1",
+        bet_amount: 25000000, // $25.00
+        potential_winnings: 62500000, // $62.50
+        match_state: "Finished",
+        pay_state: null,
+      };
+    }
+    return null;
+  };
+
   // Filter bets into categories with improved handling
   const createBetCategories = () => {
+    // Add tour example bet if in tour step 9
+    const tourExampleBet = createTourExampleBet();
+    const betsToProcess = tourExampleBet
+      ? [...userBets, tourExampleBet]
+      : userBets;
+
     // Claimable bets include both:
     // 1. Won bets that haven't been claimed
     // 2. Error bets eligible for refunds (now merged with claimable)
-    const claimableBets = userBets.filter(
+    const claimableBets = betsToProcess.filter(
       (bet) =>
+        // Tour example bet (when in tour step 9)
+        bet.betId === "tour-example-bet" ||
         // Regular winnings to claim
         (bet.match_state === "Finished" &&
           !bet.pay_state &&
@@ -222,25 +268,28 @@ const UserBets = ({ userBets }) => {
     );
 
     // Pending bets are matches that haven't finished yet
-    const pendingBets = userBets.filter(
-      (bet) => bet.match_state === "Future" || bet.match_state === "Current"
+    const pendingBets = betsToProcess.filter(
+      (bet) =>
+        bet.betId !== "tour-example-bet" &&
+        (bet.match_state === "Future" || bet.match_state === "Current")
     );
 
     // History includes:
     // 1. Lost bets (finished but user didn't win)
     // 2. Successfully claimed bets (won and claimed)
     // 3. Bets marked as paid in contract
-    const historyBets = userBets.filter(
+    const historyBets = betsToProcess.filter(
       (bet) =>
+        bet.betId !== "tour-example-bet" &&
         // Already paid/settled bets
-        bet.pay_state === "Paid" ||
-        bet.pay_state === "RefundPaid" ||
-        // Successfully claimed in current session
-        claimedBets[bet.betId] ||
-        // Lost bets (finished, has results, but user didn't win)
-        (bet.match_state === "Finished" &&
-          matchResults[bet.match_id] &&
-          !didBetWin(bet))
+        (bet.pay_state === "Paid" ||
+          bet.pay_state === "RefundPaid" ||
+          // Successfully claimed in current session
+          claimedBets[bet.betId] ||
+          // Lost bets (finished, has results, but user didn't win)
+          (bet.match_state === "Finished" &&
+            matchResults[bet.match_id] &&
+            !didBetWin(bet)))
     );
 
     return {
@@ -254,11 +303,30 @@ const UserBets = ({ userBets }) => {
 
   // Get the current active bets based on selected category
   const getActiveBets = () => {
+    // During tour step 9, only show the tour example bet if in claimable category
+    if (showTourExampleForStep9 && activeCategory === "claimable") {
+      return betCategories.claimable.filter(
+        (bet) => bet.betId === "tour-example-bet"
+      );
+    }
+
+    // Otherwise, filter out the tour example bet from regular usage
+    if (!showTourExampleForStep9) {
+      return (betCategories[activeCategory] || []).filter(
+        (bet) => bet.betId !== "tour-example-bet"
+      );
+    }
+
     return betCategories[activeCategory] || [];
   };
 
   // Helper function to get the outcome text for a bet in history
   const getBetOutcomeText = (bet) => {
+    // Tour example bet always shows as "Won"
+    if (bet.betId === "tour-example-bet") {
+      return "Won";
+    }
+
     if (bet.pay_state) {
       return bet.pay_state; // "Paid" or "RefundPaid"
     }
@@ -281,6 +349,11 @@ const UserBets = ({ userBets }) => {
 
   // Helper function to get CSS class for bet outcome
   const getBetOutcomeClass = (bet) => {
+    // Tour example bet always has "status-won" class
+    if (bet.betId === "tour-example-bet") {
+      return "status-won";
+    }
+
     if (bet.pay_state === "Paid") {
       return "status-paid"; // New class for paid status
     }
@@ -334,7 +407,6 @@ const UserBets = ({ userBets }) => {
           {betCategories.pending.length > 0 &&
             `(${betCategories.pending.length})`}
         </button>
-        {/* Error tab removed - now merged with claimable */}
         <button
           className={`tab-button ${
             activeCategory === "history" ? "active" : ""
@@ -350,14 +422,29 @@ const UserBets = ({ userBets }) => {
     );
   };
 
+  // For tour only - display a message if not logged in but still showing the example
+  const renderTourNote = () => {
+    if (showTourExampleForStep9 && !accountId) {
+      return (
+        <div className="tour-note">
+          <p>
+            This is a demonstration example. Log in to access your actual bets.
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <section className="active-bets">
       <h2>My Bets</h2>
 
+      {renderTourNote()}
       {renderTabs()}
 
       <div className="bet-container">
-        {isLoadingResults && (
+        {isLoadingResults && !showTourExampleForStep9 && (
           <div className="loading-message">
             <Loader2 className="loader-icon" size={18} /> Loading bet results...
           </div>
@@ -398,10 +485,11 @@ const UserBets = ({ userBets }) => {
 
             return (
               <div
-                key={index}
+                key={betId}
                 className={`bet-item ${
                   activeCategory === "claimable" ? "winning-bet" : ""
-                }`}
+                } ${betId === "tour-example-bet" ? "tour-target-bet" : ""}`}
+                id={betId === "tour-example-bet" ? "tour-claimable-bet" : ""}
               >
                 <div className="bet-status">
                   <div className="bet-status-container">
@@ -436,6 +524,11 @@ const UserBets = ({ userBets }) => {
                         }`}
                         onClick={() => handleClaim(betId)}
                         disabled={isClaiming}
+                        id={
+                          betId === "tour-example-bet"
+                            ? "tour-claim-button"
+                            : ""
+                        }
                       >
                         {isClaiming && currentClaimingBet === betId ? (
                           <>
@@ -504,9 +597,17 @@ const UserBets = ({ userBets }) => {
           })
         ) : (
           <div className="empty-bets-message">
-            <p>No {activeCategory} bets found.</p>
-            {activeCategory === "claimable" && isLoadingResults && (
-              <p className="loading-details">Checking match results...</p>
+            {showTourExampleForStep9 ? (
+              <p>
+                No bets found. This would normally show your claimable bets.
+              </p>
+            ) : (
+              <>
+                <p>No {activeCategory} bets found.</p>
+                {activeCategory === "claimable" && isLoadingResults && (
+                  <p className="loading-details">Checking match results...</p>
+                )}
+              </>
             )}
           </div>
         )}

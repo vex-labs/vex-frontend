@@ -2,10 +2,9 @@ import * as React from "react";
 import { Dialog } from "radix-ui";
 import "./DepositModal.css";
 import "./modal-z-index.css";
-import { useNear } from "@/app/context/NearContext";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useTour } from "@reactour/tour";
 
 const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const { accountId } = useGlobalContext();
@@ -16,6 +15,20 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { currentStep, setCurrentStep } = useTour();
+
+  useEffect(() => {
+    if (currentStep === 4) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+
+    setTimeout(() => {
+      // Force ReactTour to recalculate
+      window.dispatchEvent(new Event("resize"));
+    }, 100);
+  }, [currentStep, setIsOpen]);
 
   // Predefined quick select amounts
   const quickAmounts = [5, 10, 25, 50, 100];
@@ -86,6 +99,26 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   };
 
   const depositFunds = async (inputAmount) => {
+    // If in tour mode, handle as a special case
+    if (currentStep === 4) {
+      setIsLoading(true);
+
+      // Simulate processing for a better user experience
+      setTimeout(() => {
+        setIsLoading(false);
+        setIsSuccess(true);
+
+        // After showing success state briefly, close modal and advance tour
+        setTimeout(() => {
+          setIsOpen(false);
+          setCurrentStep(5);
+        }, 1500);
+      }, 1000);
+
+      return;
+    }
+
+    // Normal deposit flow for regular usage
     try {
       setIsLoading(true);
       setMessage("");
@@ -124,10 +157,22 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
     }
   };
 
+  // Determine if we should render the tour-specific button
+  const shouldShowTourButton = currentStep === 4;
+
   return (
     <Dialog.Root
       open={modalOnly ? modalOpen : isOpen}
-      onOpenChange={modalOnly ? setModalOpen : setIsOpen}
+      onOpenChange={
+        modalOnly
+          ? setModalOpen
+          : (open) => {
+              setIsOpen(open);
+              if (currentStep === 3) {
+                setCurrentStep(4);
+              }
+            }
+      }
     >
       {!modalOnly && (
         <Dialog.Trigger asChild>
@@ -154,7 +199,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       )}
       <Dialog.Portal>
         <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent">
+        <Dialog.Content className="DialogContent" id="deposit-modal">
           {!isSuccess ? (
             <>
               <Dialog.Title className="DialogTitle">Deposit USD</Dialog.Title>
@@ -162,7 +207,10 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                 Add funds to your account to start betting.
               </Dialog.Description>
 
-              <div className="amount-input-container">
+              <div
+                className="amount-input-container"
+                id="deposit-amount-input-container"
+              >
                 <div className="amount-input-wrapper">
                   <div className="currency-indicator">USD</div>
                   <input
@@ -214,23 +262,9 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                     Cancel
                   </button>
                 </Dialog.Close>
-                {!accountId ? (
-                  <button
-                    className="Button confirm-button"
-                    onClick={() => {
-                      // Close deposit modal
-                      modalOnly ? setModalOpen(false) : setIsOpen(false);
-                      
-                      // Trigger login modal to open
-                      setTimeout(() => {
-                        const loginButton = document.querySelector('.login-button');
-                        if (loginButton) loginButton.click();
-                      }, 100);
-                    }}
-                  >
-                    Login to Deposit
-                  </button>
-                ) : (
+
+                {/* For tour step 4, always show Confirm Deposit regardless of login state */}
+                {shouldShowTourButton ? (
                   <button
                     className={`Button confirm-button ${
                       isLoading ? "loading" : ""
@@ -242,6 +276,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                       isNaN(parseFloat(amount))
                     }
                     onClick={() => depositFunds(amount)}
+                    id="tour-deposit-confirm"
                   >
                     {isLoading ? (
                       <>
@@ -252,6 +287,50 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                       "Confirm Deposit"
                     )}
                   </button>
+                ) : (
+                  // Normal flow for non-tour usage
+                  <>
+                    {!accountId ? (
+                      <button
+                        className="Button confirm-button"
+                        onClick={() => {
+                          // Close deposit modal
+                          modalOnly ? setModalOpen(false) : setIsOpen(false);
+
+                          // Trigger login modal to open
+                          setTimeout(() => {
+                            const loginButton =
+                              document.querySelector(".login-button");
+                            if (loginButton) loginButton.click();
+                          }, 100);
+                        }}
+                      >
+                        Login to Deposit
+                      </button>
+                    ) : (
+                      <button
+                        className={`Button confirm-button ${
+                          isLoading ? "loading" : ""
+                        }`}
+                        disabled={
+                          amount > 100 ||
+                          amount < 1 ||
+                          isLoading ||
+                          isNaN(parseFloat(amount))
+                        }
+                        onClick={() => depositFunds(amount)}
+                      >
+                        {isLoading ? (
+                          <>
+                            <span className="deposit-modal-spinner"></span>
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          "Confirm Deposit"
+                        )}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </>
@@ -284,7 +363,16 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                 {amount} USD has been added to your account.
               </p>
               <Dialog.Close asChild>
-                <button className="Button success-close-button">Close</button>
+                <button
+                  className="Button success-close-button"
+                  onClick={() => {
+                    if (currentStep === 4) {
+                      setCurrentStep(5);
+                    }
+                  }}
+                >
+                  Close
+                </button>
               </Dialog.Close>
             </div>
           )}

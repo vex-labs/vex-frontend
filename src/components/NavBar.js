@@ -11,7 +11,9 @@ import UserDropdown from "./UserDropdown";
 import DepositModal from "./DepositModal";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { LogIn } from "lucide-react";
+import { useTour } from "@reactour/tour";
 import MobileNavbar from "./MobileNavigation";
+import { useStartTourFromRoot } from "@/utils/tourUtils";
 
 /**
  * Enhanced NavBar component with integrated authentication
@@ -156,6 +158,17 @@ const NavBar = () => {
     return numBalance.toFixed(2);
   };
 
+  const { setIsOpen, setCurrentStep, currentStep } = useTour();
+  const startTourFromRoot = useStartTourFromRoot(setIsOpen);
+
+  useEffect(() => {
+    if (currentStep === 2) {
+      setIsLoginModalOpen(true);
+    } else {
+      setIsLoginModalOpen(false);
+    }
+  }, [currentStep]);
+
   return (
     <>
       <div className="testnet-banner">
@@ -229,19 +242,16 @@ const NavBar = () => {
 
             <div className="nav-buttons">
               {/* TODO: LEARN */}
-              {/* 
+
               <button
-                className={`nav-link-learn ${isRunning ? "active" : ""}`}
+                className={`nav-link-learn`}
                 onClick={() => {
-                  if (!isRunning && isClientLoaded) {
-                    // Add check for client loaded
-                    startTour();
-                  }
+                  setCurrentStep(0);
+                  startTourFromRoot();
                 }}
-                disabled={isRunning}
               >
-                <span>{isRunning ? "Tour Running..." : "Learn"}</span>
-              </button> */}
+                <span>{"Learn"}</span>
+              </button>
 
               <DepositModal />
 
@@ -274,7 +284,20 @@ const NavBar = () => {
                   </div>
 
                   <div className="login-button">
-                    <UserDropdown onLogout={handleLogout} />
+                    {currentStep === 1 ? (
+                      <button
+                        className="login-button near-login"
+                        onClick={() => {
+                          setIsLoginModalOpen(true);
+                          setCurrentStep(2);
+                        }}
+                      >
+                        <LogIn size={18} />
+                        <span>Login</span>
+                      </button>
+                    ) : (
+                      <UserDropdown onLogout={handleLogout} />
+                    )}
                   </div>
                 </>
               ) : (
@@ -282,7 +305,10 @@ const NavBar = () => {
                   {isClientLoaded && (
                     <button
                       className="login-button near-login"
-                      onClick={() => setIsLoginModalOpen(true)}
+                      onClick={() => {
+                        setIsLoginModalOpen(true);
+                        setCurrentStep(2);
+                      }}
                     >
                       <LogIn size={18} />
                       <span>Login</span>

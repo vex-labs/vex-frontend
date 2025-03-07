@@ -7,6 +7,8 @@ import UpcomingGames from "@/components/UpcomingGames";
 import { Search, X, ArrowUpDown } from "lucide-react";
 import "./search-styles.css";
 import MobileGameSelector from "@/components/MobileGameSelector";
+import { useTour } from "@reactour/tour";
+import { useSearchParams } from "next/navigation";
 
 /**
  * Sort options for the matches
@@ -35,6 +37,18 @@ export default function HomePage() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [sortOption, setSortOption] = useState(SORT_OPTIONS.HOT); // Default to Hot (highest betting volume)
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const params = useSearchParams();
+  const startTourParam = params.get("startTour");
+
+  const { setIsOpen } = useTour();
+
+  // Start the tour if the query parameter is present
+  useEffect(() => {
+    if (startTourParam) {
+      // Start the tour
+      setIsOpen(true);
+    }
+  }, [startTourParam, setIsOpen]);
 
   // Set initial loading to false after a short delay to allow components to render
   useEffect(() => {
@@ -191,12 +205,12 @@ export default function HomePage() {
               </button>
             )}
           </div>
-          
+
           <MobileGameSelector
             selectedGame={selectedGame}
             onSelectGame={handleGameSelection}
           />
-          
+
           {/* Sort selector dropdown - moved to end for right alignment */}
           <div className="sort-selector-container" ref={sortDropdownRef}>
             <button

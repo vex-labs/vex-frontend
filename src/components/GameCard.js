@@ -6,11 +6,11 @@ import { placeBet } from "@/utils/placebet";
 import { BetContractId, NearRpcUrl } from "@/app/config";
 import { AlertCircle, CheckCircle, DollarSign, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import { toast } from "sonner";
 import { games } from "@/data/games";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
+import { useTour } from "@reactour/tour";
 
 /**
  * Enhanced GameCard component with modal betting view
@@ -66,6 +66,7 @@ const GameCard = ({
   const [isCalculatingWinnings, setIsCalculatingWinnings] = useState(false);
   const [isPlacingBet, setIsPlacingBet] = useState(false);
   const [betSuccess, setBetSuccess] = useState(false);
+  const { currentStep, setCurrentStep } = useTour();
 
   // Format team names for display
   const formatTeamName = (name) => {
@@ -197,6 +198,11 @@ const GameCard = ({
     fetchPotentialWinnings(stake);
   }, [selectedBet]);
 
+  const displayBalance =
+    currentStep !== undefined && currentStep !== null && currentStep !== -1
+      ? "100.00" // Show dummy balance during tour
+      : walletBalance || "0"; // Show real balance during normal usage
+
   // Handle stake amount changes
   const handleStakeChange = (e) => {
     const newStake = e.target.value;
@@ -253,6 +259,13 @@ const GameCard = ({
       // If bet was already successful, just close the modal
       setShowBettingModal(false);
       setBetSuccess(false);
+      return;
+    }
+
+    // If in tour mode and at step 7, advance to step 8 and close modal
+    if (currentStep === 7) {
+      setCurrentStep(8);
+      setShowBettingModal(false);
       return;
     }
 
@@ -327,10 +340,29 @@ const GameCard = ({
     fetchMatchDetails();
   }, [fetchMatchDetails]);
 
+  // close the modal if the currentStep is not 7
+
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
     setSelectedBet(bet);
-    setShowBettingModal(true);
+
+    // only show the modal if the currentStep is 7
+    if (currentStep === 6) {
+      setCurrentStep(7);
+      setShowBettingModal(true);
+      setTimeout(() => {
+        // Force ReactTour to recalculate
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+    } else if (
+      currentStep === undefined ||
+      currentStep === null ||
+      currentStep === 0
+    ) {
+      // Regular usage - not in tour mode
+      setShowBettingModal(true);
+    }
+
     setMessage({
       text: "Enter stake amount to see potential payout",
       type: "info",
@@ -605,7 +637,11 @@ const GameCard = ({
                   <div className="balance-display">
                     <span className="balance-label">Your Balance:</span>
                     <span className="balance-amount">
-                      ${parseFloat(walletBalance || 0).toFixed(2)} USD
+                      $
+                      {parseFloat(
+                        currentStep > 0 ? "100.00" : walletBalance || 0
+                      ).toFixed(2)}{" "}
+                      USD
                     </span>
                   </div>
 
@@ -632,7 +668,9 @@ const GameCard = ({
                           !selectedBet ||
                           !stake ||
                           isPlacingBet ||
-                          parseFloat(stake) > parseFloat(walletBalance || "0")
+                          (currentStep !== 7 &&
+                            parseFloat(stake) >
+                              parseFloat(walletBalance || "0"))
                         }
                         className={`place-bet-button ${
                           isPlacingBet ? "loading" : ""

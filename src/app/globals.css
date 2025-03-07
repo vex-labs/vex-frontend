@@ -2398,3 +2398,9 @@ input::placeholder {
     margin-right: 5px;
   }
 }
+
+.reactour__popover {
+  color: black !important;
+  border-radius: 12px;
+  pointer-events: auto !important; /* Make ReactTour elements clickable */
+}
