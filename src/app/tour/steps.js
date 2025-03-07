@@ -2,6 +2,7 @@ export const steps = [
   {
     // selector: "body",
     position: "center",
+    disableActions: false,
     content: (
       <>
         <h2>What is betVEX?</h2>

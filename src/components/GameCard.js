@@ -66,7 +66,7 @@ const GameCard = ({
   const [isCalculatingWinnings, setIsCalculatingWinnings] = useState(false);
   const [isPlacingBet, setIsPlacingBet] = useState(false);
   const [betSuccess, setBetSuccess] = useState(false);
-  const { currentStep, setCurrentStep } = useTour();
+  const { currentStep, setCurrentStep, isOpen } = useTour();
 
   // Format team names for display
   const formatTeamName = (name) => {
@@ -114,17 +114,8 @@ const GameCard = ({
     if (!selectedBet || !stakeAmount) return;
 
     // Get the current values directly to avoid stale state issues
-    const currentBalance = parseFloat(walletBalance || "0");
-
-    // Handle single digit inputs explicitly
-    console.log(
-      "Calculating winnings for stake:",
-      stake,
-      "amount:",
-      stakeAmount,
-      "balance:",
-      currentBalance
-    );
+    const currentBalance =
+      currentStep > 0 ? 100 : parseFloat(walletBalance || "0");
 
     if (isNaN(stakeAmount) || stakeAmount <= 0) {
       setMessage({
@@ -220,7 +211,9 @@ const GameCard = ({
       const newTimeout = setTimeout(() => {
         if (newStake && selectedBet) {
           const stakeAmount = parseFloat(newStake);
-          const currentBalance = parseFloat(walletBalance || "0");
+          const currentBalance =
+            currentStep > 0 ? 100 : parseFloat(walletBalance || "0");
+
           if (!isNaN(stakeAmount)) {
             if (stakeAmount <= 0) {
               setMessage({
@@ -347,6 +340,7 @@ const GameCard = ({
     setSelectedBet(bet);
 
     // only show the modal if the currentStep is 7
+    console.log("currentStep", isOpen);
     if (currentStep === 6) {
       setCurrentStep(7);
       setShowBettingModal(true);
@@ -354,11 +348,8 @@ const GameCard = ({
         // Force ReactTour to recalculate
         window.dispatchEvent(new Event("resize"));
       }, 100);
-    } else if (
-      currentStep === undefined ||
-      currentStep === null ||
-      currentStep === 0
-    ) {
+    } else if (!isOpen) {
+      console.log("not in tour mode");
       // Regular usage - not in tour mode
       setShowBettingModal(true);
     }
@@ -548,7 +539,10 @@ const GameCard = ({
                       // Only calculate if stake is valid and not exceeding balance
                       if (stake) {
                         const stakeAmount = parseFloat(stake);
-                        const currentBalance = parseFloat(walletBalance || "0");
+                        const currentBalance =
+                          currentStep > 0
+                            ? 100
+                            : parseFloat(walletBalance || "0");
                         if (
                           !isNaN(stakeAmount) &&
                           stakeAmount > 0 &&
@@ -668,9 +662,10 @@ const GameCard = ({
                           !selectedBet ||
                           !stake ||
                           isPlacingBet ||
-                          (currentStep !== 7 &&
-                            parseFloat(stake) >
-                              parseFloat(walletBalance || "0"))
+                          parseFloat(stake) >
+                            (currentStep > 0
+                              ? 100
+                              : parseFloat(walletBalance || "0"))
                         }
                         className={`place-bet-button ${
                           isPlacingBet ? "loading" : ""
