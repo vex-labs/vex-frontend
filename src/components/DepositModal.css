@@ -26,7 +26,7 @@
   position: fixed;
   inset: 0;
   animation: overlayShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000; /* Ensure modals appear above navigation */
+  z-index: 100; /* Reduced z-index to allow ReactTour to appear above */
   backdrop-filter: blur(4px);
   pointer-events: auto;
 }
@@ -48,7 +48,7 @@
   max-height: 85vh;
   padding: 28px;
   animation: contentShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1001; /* Ensure modal content appears above overlay */
+  z-index: 101; /* Reduced z-index to allow ReactTour to appear above */
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 /* Fix for Ethereum wallet modal issues */
@@ -56,6 +56,7 @@
   z-index: 1100 !important;
   pointer-events: auto !important;
 }
+
 .DialogContent:focus {
   outline: none;
 }
@@ -234,6 +235,12 @@
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 .success-container {
   display: flex;
@@ -274,6 +281,14 @@
   transform: translateY(-2px);
 }
 @keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .CloseButton {
   position: absolute;
@@ -296,8 +311,22 @@
   transform: rotate(90deg);
 }
 @keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 @keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
 }
 @media (max-width: 480px) {
   .DialogContent {

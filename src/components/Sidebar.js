@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { games } from "@/data/games";
 import { socials } from "@/data/socials";
+import { useTour } from "@reactour/tour";
 
 /**
  * Enhanced Sidebar component
@@ -32,6 +33,7 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
   const [isSocialsExpanded, setIsSocialsExpanded] = useState(true);
   const [hoveredItem, setHoveredItem] = useState(null);
   const [hideCollapseButton, setHideCollapseButton] = useState(false);
+  const { currentStep, setCurrentStep } = useTour();
 
   const pathname = usePathname();
 
@@ -151,9 +153,16 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
           {mainNavItems.map((item) => (
             <li
               key={item.name}
-              className={`nav-item ${pathname === item.path ? "active" : ""}`}
+              className={`nav-item ${pathname === item.path ? "active" : ""} ${
+                item.name
+              }`}
               onMouseEnter={() => setHoveredItem(item.name)}
               onMouseLeave={() => setHoveredItem(null)}
+              onClick={() => {
+                if (item.name === "bets" && currentStep === 8) {
+                  setCurrentStep(9);
+                }
+              }}
             >
               <Link href={item.path} className="nav-link">
                 <span className="nav-icon">{item.icon}</span>
@@ -189,6 +198,11 @@ const Sidebar = ({ onSelectGame, selectedGame }) => {
                 }`}
                 onMouseEnter={() => setHoveredItem(`game-${game.name}`)}
                 onMouseLeave={() => setHoveredItem(null)}
+                onClick={() => {
+                  if (currentStep === 5) {
+                    setCurrentStep(6);
+                  }
+                }}
               >
                 <a
                   href="#"

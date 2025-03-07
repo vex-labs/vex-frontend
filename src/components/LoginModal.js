@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { useNear } from "@/app/context/NearContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import "./LoginModal.css";
+import { useTour } from "@reactour/tour";
 
 export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
   const { wallet } = useNear();
   const { web3auth } = useWeb3Auth();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { currentStep, setCurrentStep } = useTour();
 
   if (!isOpen) return null;
   if (!web3auth) return null;
@@ -15,6 +17,12 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     if (!email) return;
+
+    if (currentStep === 2) {
+      setCurrentStep(3);
+      onClose();
+      return;
+    }
 
     setIsLoading(true);
     try {
