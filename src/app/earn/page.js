@@ -115,7 +115,7 @@ const EarnPage = () => {
               <Staking />
             </div>
 
-            <div className="rewards-section">
+            <div className="earn-card rewards-section">
               <RewardsDistribution />
             </div>
           </div>

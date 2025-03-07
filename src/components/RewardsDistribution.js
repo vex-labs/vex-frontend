@@ -41,6 +41,12 @@ const RewardsDistribution = () => {
 
   // This function fetches the total USDC rewards available to distribute
   const fetchRewardsData = async () => {
+    if (!accountId) {
+      setIsLoading(false);
+      setTotalUSDCRewards(0);
+      return;
+    }
+
     setIsLoading(true);
     try {
       // Call the view function `get_usdc_staking_rewards` on the contract
