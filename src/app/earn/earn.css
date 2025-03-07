@@ -1,11 +1,13 @@
+/* Base section styles */
 .swap-section,
 .stake-section {
   border-radius: 8px;
   height: auto;
 }
 
-/* Updated swap container */
-.swap-container {
+/* Container styles */
+.swap-container,
+.staking-container {
   width: 400px;
   margin: 0 auto;
   padding: 30px;
@@ -15,43 +17,34 @@
   font-family: Arial, sans-serif;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  height: 460px; /* Fixed height for alignment with staking container */
+  height: 460px; /* Fixed height for alignment */
   display: flex;
   flex-direction: column;
   max-width: 100%;
   box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    height: auto;
-    padding: 20px;
-    width: 100%;
-    min-width: 0;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 15px;
-    width: 100%;
-  }
 }
 
-/* New swap header */
-.swap-header {
+/* Header styles */
+.swap-header,
+.staking-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
 
-.swap-heading {
+.swap-heading,
+.staking-heading {
   font-size: 22px;
   margin: 0;
   font-weight: 600;
   color: white;
-  height: 30px; /* Fixed height for alignment with staking heading */
+  height: 30px; /* Fixed height for alignment */
 }
 
-/* New toggle buttons */
-.swap-toggle {
+/* Toggle styles */
+.swap-toggle,
+.action-toggle {
   display: flex;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
@@ -70,9 +63,19 @@
   transition: all 0.2s ease;
 }
 
+.action-toggle .toggle-button {
+  padding: 12px 16px;
+  flex: 1;
+  text-align: center;
+}
+
 .toggle-button.active {
   background-color: rgba(255, 255, 255, 0.1);
   color: white;
+}
+
+.action-toggle .toggle-button.active {
+  font-weight: 600;
 }
 
 .toggle-button:hover:not(.active) {
@@ -80,7 +83,7 @@
   color: white;
 }
 
-/* Updated token box */
+/* Token box styles */
 .token-box {
   display: flex;
   justify-content: space-between;
@@ -121,7 +124,7 @@
   margin: 0;
 }
 
-/* New input wrapper */
+/* Input styles */
 .input-wrapper {
   position: relative;
   display: flex;
@@ -134,7 +137,6 @@
   opacity: 0.8;
 }
 
-/* Input number spinner styles */
 .amount-stepper {
   display: flex;
   flex-direction: column;
@@ -180,9 +182,8 @@
   font-weight: 500;
 }
 
-/* Updated token input */
 .token-input {
-  width: 110px; /* Reduced from 130px to make room for stepper */
+  width: 110px;
   padding: 12px;
   padding-left: 24px;
   background-color: rgba(0, 0, 0, 0.2);
@@ -216,7 +217,7 @@
   color: rgba(255, 255, 255, 0.3);
 }
 
-/* New balance row */
+/* Balance styles */
 .balance-row {
   display: flex;
   justify-content: space-between;
@@ -235,7 +236,6 @@
   font-weight: 500;
 }
 
-/* Updated balance info */
 .balance-info {
   display: flex;
   justify-content: space-between;
@@ -247,7 +247,7 @@
   font-size: 16px;
 }
 
-/* Updated percentage options */
+/* Percentage options */
 .percentage-options,
 .quick-amounts {
   display: flex;
@@ -272,7 +272,7 @@
   color: white;
 }
 
-/* New swap arrow container */
+/* Swap arrow styles */
 .swap-arrow-container {
   display: flex;
   justify-content: center;
@@ -315,7 +315,7 @@
   animation: spin 1s linear infinite;
 }
 
-/* Updated message box */
+/* Message box styles */
 .message-box {
   min-height: 46px;
   padding: 10px 16px;
@@ -343,7 +343,7 @@
   justify-content: center;
 }
 
-/* Message styling classes */
+/* Message types */
 .message-error {
   background-color: rgba(255, 82, 82, 0.1);
   color: #ff5252;
@@ -368,15 +368,14 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Updated swap button */
-.swap-button {
+/* Button styles */
+.swap-button,
+.confirm-button,
+.distribute-rewards-button {
   width: 100%;
-  text-align: center;
   padding: 15px;
-  background-color: #00ffcc;
   border: none;
   border-radius: 10px;
-  color: #000;
   font-size: 16px;
   cursor: pointer;
   font-weight: bold;
@@ -385,27 +384,60 @@
   align-items: center;
   justify-content: center;
   margin-top: auto;
+  transition: all 0.2s ease;
 }
 
-.swap-button:hover:not(:disabled) {
+.swap-button,
+.confirm-button {
+  background-color: #00ffcc;
+  color: #000;
+}
+
+.distribute-rewards-button {
+  width: 300px;
+  max-width: 100%;
+  margin: 0 auto;
+  background: linear-gradient(to right, #3dd68c, #4da6ff);
+  color: white;
+  font-weight: 500;
+  gap: 10px;
+  position: relative;
+  z-index: 2;
+  margin-top: 8px;
+}
+
+.swap-button:hover:not(:disabled),
+.confirm-button:hover:not(:disabled) {
   background-color: #00ffbf;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 230, 179, 0.3);
 }
 
-.swap-button:disabled {
+.distribute-rewards-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.swap-button:disabled,
+.confirm-button:disabled,
+.distribute-rewards-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-.swap-button.loading {
+.swap-button.loading,
+.confirm-button.loading {
   background-color: #00a383;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.swap-button.success {
+.distribute-rewards-button.loading {
+  background: linear-gradient(to right, #3dd68c, #4da6ff);
+}
+
+.swap-button.success,
+.confirm-button.success {
   background-color: #00c896;
 }
 
@@ -627,108 +659,7 @@
   color: var(--green-button) !important;
 }
 
-/* Animation keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Keep original staking styles */
-.staking-container {
-  width: 400px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #000;
-  border-radius: 12px;
-  border: 1px solid #a0a0a0;
-  color: #fff;
-  font-family: Arial, sans-serif;
-}
-
-.staking-header {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.radio_container {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, 1fr);
-  justify-content: space-around;
-  align-items: center;
-  background-color: var(--secondary-color);
-  width: 100%;
-  padding: 0 8px;
-  height: 50px;
-  border-radius: 9999px;
-  box-shadow: inset 0.5px 0.5px 2px 0 rgba(0, 0, 0, 0.15);
-}
-
-.staking-statistics {
-  background-color: #111;
-  border-radius: 10px;
-  padding: 20px;
-  margin-top: 20px;
-  margin-bottom: 15px;
-  text-align: center;
-  color: #777;
-  height: 100px;
-  align-items: center;
-}
-
-.confirm-button {
-  width: 100%;
-  text-align: center;
-  padding: 15px;
-  background-color: #00ffcc;
-  border: none;
-  border-radius: 10px;
-  color: #000;
-  font-size: 16px;
-  cursor: pointer;
-  font-weight: bold;
-  box-sizing: border-box;
-}
-
-.confirm-button.first {
-  margin-bottom: 20px;
-}
-
-.confirm-button.last {
-  margin-top: auto;
-}
-
-.confirm-button:hover {
-  background-color: #00e6b3;
-}
-
-/* Keep original switch styles */
+/* Switch styles */
 .switch {
   position: relative;
   display: inline-block;
@@ -788,147 +719,7 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-/* Keep other original classes */
-.token-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #111;
-  border-radius: 10px;
-}
-
-.token-title {
-  font-size: 16px;
-  color: #ccc;
-}
-
-.token-amount {
-  font-size: 16px;
-  color: #fff;
-  font-weight: bold;
-}
-
-.usdc-amount {
-  font-size: 16px;
-  color: #00ffa3;
-}
-
-/* Media queries for responsive design */
-@media (max-width: 480px) {
-  .swap-container {
-    width: 100%;
-    max-width: 360px;
-    border-radius: 12px;
-  }
-
-  .swap-heading {
-    font-size: 18px;
-  }
-
-  .toggle-button {
-    padding: 6px 12px;
-    font-size: 13px;
-  }
-
-  .token-box {
-    padding: 14px 16px;
-  }
-
-  .token-logo {
-    width: 32px;
-    height: 32px;
-  }
-
-  .token-name {
-    font-size: 14px;
-  }
-
-  .token-input {
-    width: 90px;
-    font-size: 16px;
-    padding: 10px;
-    padding-left: 22px;
-  }
-
-  .currency-symbol {
-    font-size: 14px;
-  }
-
-  .percentage-options button,
-  .quick-amounts button {
-    padding: 3px 6px;
-    font-size: 12px;
-  }
-
-  .swap-button {
-    padding: 12px;
-    font-size: 15px;
-  }
-
-  .message-content {
-    font-size: 13px;
-  }
-
-  .betting-modal-content {
-    max-width: 90%;
-    padding: 15px;
-  }
-
-  .betting-modal-header h3 {
-    font-size: 18px;
-  }
-  
-  .input-wrapper {
-    max-width: 100%;
-  }
-}
-
-/* Enhanced Staking Component Styles */
-.staking-container {
-  width: 400px;
-  margin: 0 auto;
-  padding: 30px;
-  background-color: #141414;
-  border-radius: 16px;
-  color: #fff;
-  font-family: Arial, sans-serif;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.3s ease;
-  height: 460px; /* Matches swap container height for alignment */
-  display: flex;
-  flex-direction: column;
-  max-width: 100%;
-  box-sizing: border-box;
-
-  @media (max-width: 768px) {
-    height: auto;
-    padding: 20px;
-    width: 100%;
-    min-width: 0;
-  }
-  
-  @media (max-width: 480px) {
-    padding: 15px;
-    width: 100%;
-  }
-}
-
-.staking-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.staking-heading {
-  font-size: 22px;
-  margin: 0;
-  font-weight: 600;
-  color: white;
-  height: 30px; /* Match the height of swap-heading for alignment */
-}
-
+/* Stats styles */
 .staking-stats-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -972,127 +763,64 @@ input:checked + .slider:before {
   color: #00ffa3;
 }
 
-.action-toggle {
-  display: flex;
-  background-color: rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  margin-bottom: 20px;
-}
-
-.toggle-button {
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  flex: 1;
-  text-align: center;
-}
-
-.toggle-button.active {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-weight: 600;
-}
-
-.toggle-button:hover:not(.active) {
-  background-color: rgba(255, 255, 255, 0.05);
-  color: white;
-}
-
-.confirm-button {
+/* Rewards distribution container */
+.rewards-distribution-container {
+  max-width: 700px;
   width: 100%;
-  padding: 14px;
-  background-color: var(--green-button);
-  color: #000;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  border-radius: 10px;
-  text-align: center;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
-.confirm-button:hover:not(:disabled) {
-  background-color: #00ffbf;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 230, 179, 0.3);
+.rewards-distribution-header {
+  margin-bottom: 24px;
+  text-align: center;
 }
 
-.confirm-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.rewards-heading {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  color: white;
+  text-align: center;
 }
 
-.confirm-button.loading {
-  background-color: #00a383;
-  color: rgba(255, 255, 255, 0.8);
+.rewards-subtitle {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+  margin-top: 4px;
+  text-align: center;
 }
 
-.confirm-button.success {
-  background-color: #00c896;
-}
-
-.button-content {
+.rewards-stats-container {
   display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
   align-items: center;
-  gap: 8px;
+  height: 40px;
+  padding: 10px 0;
 }
 
-.loading-icon {
-  animation: spin 1s linear infinite;
-}
-
-@media (max-width: 480px) {
-  .staking-container {
-    width: 100%;
-    max-width: 360px;
-    border-radius: 12px;
-  }
-
-  .staking-heading {
-    font-size: 18px;
-  }
-
-  .staking-stats-container {
-    grid-template-columns: repeat(1, 1fr);
-    gap: 8px;
-  }
-
-  .toggle-button {
-    padding: 10px;
-    font-size: 13px;
-  }
-  
-  .action-toggle {
-    width: 100%;
-    overflow-x: auto;
-  }
-}
-
-/* Enhanced Earn Page Styles */
+/* Earn page styles */
 .earn-page {
   background-color: var(--secondary-color);
-  margin-top: 100px; /* Increased from 65px to push content down */
+  margin-top: 100px;
   margin-left: 230px;
-  min-height: calc(100vh - 100px); /* Updated to match new top margin */
+  min-height: calc(100vh - 100px);
   position: relative;
   transition: margin-left 300ms ease-in-out;
-
-  @media (max-width: 768px) {
-    margin-top: 0;
-  }
+  display: flex;
+  color: var(--text-light);
 
   &:has(.app-sidebar.collapsed) {
     margin-left: 50px;
@@ -1107,9 +835,11 @@ input:checked + .slider:before {
   padding: 32px;
   max-width: 1200px;
   margin: 0 auto;
+  flex: 1;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
-/* Page Header */
 .earn-page-header {
   margin-bottom: 32px;
   padding-bottom: 16px;
@@ -1129,7 +859,6 @@ input:checked + .slider:before {
   margin: 0;
 }
 
-/* Stats Cards */
 .earn-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1145,6 +874,9 @@ input:checked + .slider:before {
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s ease;
+  flex: 1;
+  min-width: 200px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .earn-stat-card:hover {
@@ -1182,7 +914,6 @@ input:checked + .slider:before {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Sections */
 .earn-sections {
   margin-bottom: 48px;
 }
@@ -1198,13 +929,14 @@ input:checked + .slider:before {
   margin: 0;
 }
 
-/* Updated for the new layout */
 .earn-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 32px;
-  align-items: flex-start; /* Ensure cards align at the top */
+  align-items: flex-start;
   width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .earn-card {
@@ -1217,6 +949,8 @@ input:checked + .slider:before {
   flex-direction: column;
   width: 100%;
   box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 .rewards-section {
@@ -1228,21 +962,6 @@ input:checked + .slider:before {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-@media (max-width: 600px) {
-  .earn-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .swap-container, 
-  .staking-container,
-  .rewards-distribution-container {
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
 }
 
 .earn-card-header {
@@ -1266,9 +985,9 @@ input:checked + .slider:before {
   color: rgba(255, 255, 255, 0.6);
 }
 
-/* Make our component containers transparent */
-.swap-container,
-.staking-container {
+/* Transparent container overrides */
+.earn-container .swap-container,
+.earn-container .staking-container {
   background-color: transparent;
   border: none;
   box-shadow: none;
@@ -1341,14 +1060,40 @@ input:checked + .slider:before {
   margin-top: 12px;
 }
 
-/* Responsive adjustments */
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Media queries */
 @media (max-width: 1200px) {
   .earn-page-content {
     padding: 24px;
-  }
-
-  .earn-stats {
-    grid-template-columns: repeat(3, 1fr);
   }
 
   .earn-container {
@@ -1367,8 +1112,17 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
+  .swap-container,
+  .staking-container {
+    height: auto;
+    padding: 20px;
+    width: 100%;
+    min-width: 0;
+  }
+
   .earn-page {
     margin-left: 0;
+    margin-top: 0;
   }
 
   .earn-page-content {
@@ -1387,9 +1141,103 @@ input:checked + .slider:before {
   .earn-section-title {
     font-size: 22px;
   }
+
+  .rewards-distribution-container {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 600px) {
+  .earn-container {
+    grid-template-columns: 1fr;
+  }
+
+  .swap-container,
+  .staking-container,
+  .rewards-distribution-container {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
 }
 
 @media (max-width: 480px) {
+  .swap-container,
+  .staking-container {
+    padding: 15px;
+    width: 100%;
+    max-width: 360px;
+    border-radius: 12px;
+  }
+
+  .swap-heading,
+  .staking-heading {
+    font-size: 18px;
+  }
+
+  .toggle-button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .token-box {
+    padding: 14px 16px;
+  }
+
+  .token-logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .token-name {
+    font-size: 14px;
+  }
+
+  .token-input {
+    width: 90px;
+    font-size: 16px;
+    padding: 10px;
+    padding-left: 22px;
+  }
+
+  .currency-symbol {
+    font-size: 14px;
+  }
+
+  .percentage-options button,
+  .quick-amounts button {
+    padding: 3px 6px;
+    font-size: 12px;
+  }
+
+  .swap-button,
+  .confirm-button {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .message-content {
+    font-size: 13px;
+  }
+
+  .betting-modal-content {
+    max-width: 90%;
+    padding: 15px;
+  }
+
+  .betting-modal-header h3 {
+    font-size: 18px;
+  }
+
+  .input-wrapper {
+    max-width: 100%;
+  }
+
   .earn-page-content {
     padding: 16px;
   }
@@ -1405,189 +1253,14 @@ input:checked + .slider:before {
   .earn-page-title {
     font-size: 24px;
   }
-}
 
-.earn-page.sidebar-collapsed {
-  margin-left: 50px;
-
-  @media (max-width: 768px) {
-    margin-left: 0;
-  }
-}
-
-.rewards-distribution-container {
-  max-width: 700px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow-x: hidden;
-  box-sizing: border-box;
-}
-
-.rewards-distribution-header {
-  margin-bottom: 24px;
-  text-align: center;
-}
-
-.rewards-heading {
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-  color: white;
-  text-align: center;
-}
-
-.rewards-subtitle {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 14px;
-  margin-top: 4px;
-  text-align: center;
-}
-
-.rewards-stats-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 24px;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.stat-card {
-  flex: 1;
-  background: rgba(30, 30, 30, 0.7);
-  padding: 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  text-align: center;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 8px;
-}
-
-.stat-value {
-  font-size: 26px;
-  font-weight: 600;
-  color: white;
-}
-
-.usdc-value {
-  color: #2ce6ff;
-}
-
-.token-unit {
-  font-size: 16px;
-  opacity: 0.7;
-  margin-left: 4px;
-}
-
-.message-box {
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin: 0 auto 20px;
-  max-width: 400px;
-  z-index: 5;
-  position: relative;
-}
-
-.message-error {
-  background: rgba(255, 60, 60, 0.1);
-  border-left: 3px solid rgba(255, 60, 60, 0.8);
-}
-
-.message-success {
-  background: rgba(43, 255, 136, 0.1);
-  border-left: 3px solid rgba(43, 255, 136, 0.8);
-}
-
-.message-info {
-  background: rgba(107, 151, 255, 0.1);
-  border-left: 3px solid rgba(107, 151, 255, 0.8);
-}
-
-.message-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  color: white;
-}
-
-.distribute-rewards-button {
-  width: 300px;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 14px;
-  border-radius: 10px;
-  background: linear-gradient(to right, #3dd68c, #4da6ff);
-  color: white;
-  font-weight: 500;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  position: relative;
-  z-index: 2;
-  margin-top: 8px;
-}
-
-.distribute-rewards-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.distribute-rewards-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: linear-gradient(to right, #3dd68c, #4da6ff);
-}
-
-.distribute-rewards-button.loading {
-  background: linear-gradient(to right, #3dd68c, #4da6ff);
-}
-
-.loading-indicator {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 40px;
-  padding: 10px 0;
-}
-
-.loading-icon {
-  animation: spin 1s linear infinite;
-  color: #2ce6ff;
-}
-
-@keyframes spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.button-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-@media (max-width: 768px) {
-  .rewards-distribution-container {
-    padding: 20px;
+  .staking-stats-container {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 8px;
   }
 
-  .stat-value {
-    font-size: 22px;
+  .action-toggle .toggle-button {
+    padding: 10px;
+    font-size: 13px;
   }
 }
