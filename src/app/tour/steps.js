@@ -109,8 +109,8 @@ export const steps = [
       <>
         <h2>How to claim a bet?</h2>
         <p>
-          Navigating to the bets page will show you all the bets you've placed,
-          past and present.
+          Navigating to the bets page will show you all the bets you&apos;ve
+          placed, past and present.
         </p>
       </>
     ),
