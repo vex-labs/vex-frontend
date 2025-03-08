@@ -211,10 +211,10 @@ export const steps = [
             increase your activation anytime.
             <br />
             In rare cases, betting markets may cause losses to activated
-            rewards, though we expect a 5% return per market. When you're done
-            collecting rewards, you can deactivate to stop earning and eliminate
-            loss risk. Note: Deactivation is only possible 1 week after your
-            last activation to ensure activators properly back bets.
+            rewards, though we expect a 5% return per market. When you&apos;re
+            done collecting rewards, you can deactivate to stop earning and
+            eliminate loss risk. Note: Deactivation is only possible 1 week
+            after your last activation to ensure activators properly back bets.
           </p>
         </>
       );
@@ -256,9 +256,9 @@ export const steps = [
           decide the future of betVEX. As a community member, you can make
           proposals to add new features, change how the platform operates, or
           decide how to spend the treasury funds. As a VEX Rewards holder, you
-          can vote on proposals, the proposal's outcome will be decided by the
-          option with the highest VEX Rewards in votes. Example proposal titles
-          may include:
+          can vote on proposals, the proposal&apos;s outcome will be decided by
+          the option with the highest VEX Rewards in votes. Example proposal
+          titles may include:
           <ul>
             <li>Become a sponsor of Fnatic.</li>
             <li>Reduce betting fees to 3%.</li>
@@ -287,11 +287,12 @@ export const steps = [
       <>
         <h2>Leaderboard</h2>
         <p>
-          In betVEX's competitive nature we pit bettors against each other. The
-          leaderboard ranks the all-time highest earners and those who have won
-          the most bets. You can choose to click the friends option where you
-          can add your friend's user names to track who is the best bettor. You
-          can choose to not appear in the leaderboard by going to user settings.
+          In betVEX&apos;s competitive nature we pit bettors against each other.
+          The leaderboard ranks the all-time highest earners and those who have
+          won the most bets. You can choose to click the friends option where
+          you can add your friend&apos;s user names to track who is the best
+          bettor. You can choose to not appear in the leaderboard by going to
+          user settings.
         </p>
         <button
           onClick={() => {
