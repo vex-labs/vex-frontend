@@ -477,7 +477,7 @@ const Staking = () => {
       return (
         <span className="button-content">
           <CheckCircle size={18} />
-          Unstaked Successfully!
+          Deactivated Successfully!
         </span>
       );
     }
@@ -628,7 +628,7 @@ const Staking = () => {
           ) : actionSuccess ? (
             <span className="button-content">
               <CheckCircle size={18} />
-              Staked Successfully!
+              Activated Successfully!
             </span>
           ) : insufficientBalance ? (
             "Insufficient Balance"
