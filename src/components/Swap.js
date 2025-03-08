@@ -39,12 +39,6 @@ const Swap = () => {
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
-  const handleFixedAmountClick = async (amount) => {
-    // Always set VEX amount regardless of direction
-    setVexAmount(amount.toString());
-    await getOutputAmount(amount.toString());
-  };
-
   const getOutputAmount = async (inputAmount) => {
     if (!inputAmount || isNaN(inputAmount) || parseFloat(inputAmount) <= 0) {
       setDisplayUsdcAmount("");

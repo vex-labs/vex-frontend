@@ -355,3 +355,73 @@
     justify-content: center;
   }
 }
+
+/* Add these styles to your DepositModal.css file */
+
+/* Update amount-input-wrapper to match Swap component style */
+.amount-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Match the Swap component's amount-stepper style */
+.amount-stepper {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 12px;
+  height: 100%;
+  margin-left: 5px;
+  top: 5px;
+}
+
+/* Match the Swap component's stepper-btn style */
+.stepper-btn {
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 18px;
+  padding: 0;
+}
+
+.stepper-btn:first-child {
+  margin-bottom: 2px;
+}
+
+.stepper-btn:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Update input padding for stepper buttons */
+.Input.amount-input {
+  padding-right: 45px !important; /* Make room for the stepper buttons */
+}
+
+/* Fix currency indicator position to account for stepper buttons */
+.currency-indicator {
+  right: 45px;
+}
+
+/* Hide default number input spinners in WebKit/Blink browsers (Chrome, Safari, Edge, Opera) */
+.Input.amount-input::-webkit-outer-spin-button,
+.Input.amount-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

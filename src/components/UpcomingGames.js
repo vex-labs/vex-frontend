@@ -153,8 +153,6 @@ const UpcomingGames = ({
 
   // Format match date and time
   const formatMatchDateTime = (timestamp) => {
-    if (!timestamp) return "Date TBD";
-
     const date = new Date(timestamp * 1000);
 
     const dateStr = date.toLocaleDateString("en-GB", {
@@ -162,13 +160,14 @@ const UpcomingGames = ({
       month: "long",
     });
 
-    const timeStr = date.toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
+    // const timeStr = date.toLocaleTimeString("en-GB", {
+    //   hour: "2-digit",
+    //   minute: "2-digit",
+    //   hour12: false,
+    // });
 
-    return `${dateStr} ${timeStr}`;
+    // return `${dateStr} ${timeStr}`;
+    return dateStr;
   };
 
   // Render loading skeleton
