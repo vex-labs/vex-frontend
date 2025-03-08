@@ -201,7 +201,7 @@ const RewardsDistribution = () => {
       <div className="rewards-stats-container">
         <div className="stat-card">
           <div className="stat-title">Available USD Rewards</div>
-          {isLoading && !isTourOpen ? (
+          {accountId && isLoading && !isTourOpen ? (
             <div className="loading-indicator">
               <Loader2 size={24} className="loading-icon" />
             </div>
