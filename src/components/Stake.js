@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
-import { toast } from "sonner";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 /**
@@ -235,18 +234,17 @@ const Staking = () => {
   // This function stakes the user's tokens in the staking contract
   const handleStake = async () => {
     if (!amount) {
-      toast.warning("Please enter an amount to activate");
+      console.error("Please enter an amount to activate");
       return;
     }
 
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      toast.error("Please connect your wallet first");
+      console.error("Please connect your wallet first");
       return;
     }
 
     setIsProcessing(true);
-    toast("Activating VEX...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -257,7 +255,7 @@ const Staking = () => {
 
     try {
       if (parseFloat(amount) < 50) {
-        toast.error(
+        console.error(
           "Minimum of 50 VEX is required to register in the contract"
         );
         setIsProcessing(false);
@@ -297,7 +295,6 @@ const Staking = () => {
           body: JSON.stringify([encodedDelegate]), // Send as array of transactions
         });
 
-        toast.success("Activation successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -315,14 +312,12 @@ const Staking = () => {
         });
 
         if (stakeResult && !stakeResult.error) {
-          toast.success("Activation successful!");
           setActionSuccess(true);
         } else {
-          toast.error("Failed to Activate. Please try again");
+          console.error("Failed to Activate. Please try again");
         }
       }
     } catch (error) {
-      toast.error(`An error occurred: ${error.message || "Please try again"}`);
       console.error("Error during activation process:", error);
     } finally {
       setIsProcessing(false);
@@ -341,13 +336,13 @@ const Staking = () => {
   // This function unstakes the user's tokens and withdraws them from the staking contract
   const handleUnstake = async () => {
     if (!amount) {
-      toast.warning("Please enter an amount to deactivate");
+      console.error("Please enter an amount to deactivate");
       return;
     }
 
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      toast.error("Please connect your wallet first");
+      console.error("Please connect your wallet first");
       return;
     }
 
@@ -355,7 +350,7 @@ const Staking = () => {
     if (unstakeTimestamp) {
       const currentTimeNano = getCurrentTimeInNanoseconds();
       if (currentTimeNano < BigInt(unstakeTimestamp)) {
-        toast.error(
+        console.error(
           "You cannot deactivate until the cooldown period has ended"
         );
         // Force refresh the stake info to get the latest timestamp
@@ -365,7 +360,6 @@ const Staking = () => {
     }
 
     setIsProcessing(true);
-    toast("Deactivating VEX...");
 
     // Convert amount to a fixed number with 2 decimal places, then to BigInt format
     const formattedAmount = BigInt(
@@ -413,8 +407,6 @@ const Staking = () => {
         const { data } = await response.json();
 
         console.log("Relayed transaction:", data);
-
-        toast.success("Deactivation successful");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -428,11 +420,10 @@ const Staking = () => {
         });
 
         if (unstakeResult.error) {
-          toast.error("Deactivation failed. Please try again");
+          console.error("Deactivation failed. Please try again");
           return;
         }
 
-        toast.success("Deactivation successful.");
         setActionSuccess(true);
       }
 
@@ -447,7 +438,6 @@ const Staking = () => {
         setActionSuccess(false);
       }, 3000);
     } catch (error) {
-      toast.error(`An error occurred: ${error.message || "Please try again"}`);
       console.error("Error during unstaking process:", error);
     } finally {
       setIsProcessing(false);

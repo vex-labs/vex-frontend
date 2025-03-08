@@ -6,7 +6,6 @@ import { NearRpcUrl } from "@/app/config";
 import { Loader2, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
-import { toast } from "sonner";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 /**
@@ -83,7 +82,6 @@ const Swap = () => {
       setUsdcAmount(outputUsdcAmount.toFixed(2));
     } catch (error) {
       console.error("Failed to fetch output amount:", error);
-      toast.error("Failed to calculate exchange rate");
     } finally {
       setIsCalculating(false);
     }
@@ -148,7 +146,6 @@ const Swap = () => {
       return true;
     } catch (error) {
       console.error("Registration failed:", error);
-      toast.error(`Registration failed: ${error.message}`);
       return false;
     } finally {
       setIsCheckingRegistration(false);
@@ -191,14 +188,14 @@ const Swap = () => {
   const handleSwap = async () => {
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      toast.error("Please connect your wallet first");
+      console.error("Please connect your wallet first");
       return;
     }
 
     // Always use vexAmount for input
     const tokenAmount = parseFloat(vexAmount || "0");
     if (isNaN(tokenAmount) || tokenAmount <= 0) {
-      toast.error("Invalid swap amount");
+      console.error("Invalid swap amount");
       return;
     }
 
@@ -306,7 +303,6 @@ const Swap = () => {
       }
 
       setSwapSuccess(true);
-      toast.success("Swap successful!");
 
       // Reset form after successful swap
       setTimeout(() => {
@@ -318,7 +314,6 @@ const Swap = () => {
       }, 3000);
     } catch (error) {
       console.error("Swap failed:", error.message || error);
-      toast.error(`Error: ${error.message || "Unknown error"}`);
     } finally {
       setIsSwapping(false);
       toggleRefreshBalances();
