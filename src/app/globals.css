@@ -15,6 +15,7 @@ body {
   background-color: var(--secondary-color);
   color: var(--text-color);
   padding-top: 0px !important;
+  margin: 0;
 }
 
 /* Testnet banner styles */
