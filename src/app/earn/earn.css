@@ -49,6 +49,7 @@
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   overflow: hidden;
+  margin-bottom: 12px;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
