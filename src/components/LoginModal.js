@@ -279,7 +279,7 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                     d="M18 4H6C3.79 4 2 5.79 2 8v8c0 2.21 1.79 4 4 4h12c2.21 0 4-1.79 4-4v-1h-4c-1.1 0-2-.9-2-2v-2c0-1.1.9-2 2-2h4V8c0-2.21-1.79-4-4-4zm0 10h-4v-2h4v2z"
                   />
                 </svg>
-                Connect NEAR Wallet
+                Connect Wallet
               </button>
             </div>
           </div>

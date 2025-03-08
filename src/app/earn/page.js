@@ -152,10 +152,17 @@ const EarnPage = () => {
               className={`earn-faq-item ${activeFaq === 0 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)}
             >
-              <h3 className="earn-faq-question">What is VEX token?</h3>
+              <h3 className="earn-faq-question">What are VEX Rewards?</h3>
               <p className="earn-faq-answer">
-                VEX is the utility token of the BetVEX platform. It can be used
-                for betting, staking, and earning rewards in the ecosystem.
+                VEX Rewards enable the community-powered nature of BetVEX.
+                <br />
+                With VEX Rewards you are able to share in the revenue that the
+                platform generates and decide how the platform changes in the
+                future.
+                <br />
+                70% of the revenue BetVEX generates is distributed to those who
+                have activated their VEX Rewards. The other 30% is sent to the
+                treasury for the community to collectively spend.
               </p>
             </div>
 
@@ -163,11 +170,14 @@ const EarnPage = () => {
               className={`earn-faq-item ${activeFaq === 1 ? "active" : ""}`}
               onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
             >
-              <h3 className="earn-faq-question">How does staking work?</h3>
+              <h3 className="earn-faq-question">
+                What are the value of VEX Rewards?
+              </h3>
               <p className="earn-faq-answer">
-                Staking allows you to lock your VEX tokens in the staking
-                contract to earn USD rewards. The more VEX you activate and the
-                longer you activate it, the more rewards you can earn.
+                The value of VEX Rewards are determined by the market and its
+                price will fluctuate over time depending on market conditions.
+                <br />
+                VEX Rewards are available for trading 24/7.
               </p>
             </div>
 
@@ -176,12 +186,21 @@ const EarnPage = () => {
               onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
             >
               <h3 className="earn-faq-question">
-                Can I deactivate my tokens at any time?
+                What does it mean to Activate VEX Rewards?
               </h3>
               <p className="earn-faq-answer">
-                Yes, you can deactivate your VEX tokens at any time without
-                penalties. Once deactivated, you can withdraw your tokens back
-                to your wallet.
+                70% of the revenue BetVEX generates is distributed to those who
+                have activated their VEX Rewards.
+                <br />
+                By activating VEX Rewards you are providing funds to financially
+                back the bets placed on the platform. The more you activate the
+                more you can earn and you can activate more $VEX rewards
+                whenever you want.
+                <br />
+                In rare cases, a betting market can cause a loss meaning that
+                those who have activated VEX Rewards could lose some of their
+                VEX Rewards, though we expect a 5% return on each betting market
+                and there is a pool of $ to reduce the risk of this happening.
               </p>
             </div>
 
@@ -190,12 +209,15 @@ const EarnPage = () => {
               onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
             >
               <h3 className="earn-faq-question">
-                How do I swap between VEX and USD?
+                What happens when you deactivate your rewards?
               </h3>
               <p className="earn-faq-answer">
-                Use the Token Swap feature to exchange between VEX and USD
-                tokens. The swap is processed through the REF Finance platform,
-                ensuring the best rates and liquidity.
+                If you are finished collecting rewards you can deactivate your
+                VEX Rewards which will stop you from earning further rewards and
+                stop any chances of losing your rewards. Please note that you
+                can only deactivate your rewards 1 week after last activating
+                rewards, this grace period stops people from collecting rewards
+                without backing bets.
               </p>
             </div>
           </div>
