@@ -3,6 +3,7 @@
   padding: 20px;
   margin-left: 230px;
   transition: margin-left 300ms ease-in-out;
+  min-height: calc(100vh - 98px);
   @media (max-width: 768px) {
     margin-left: 0;
   }
@@ -14,6 +15,14 @@
       margin-left: 0;
     }
   }
+
+  &:has(.user-content.not-logged-in) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    height: 100%;
+  }
 }
 .app-sidebar.collapsed + .user-page {
   margin-left: 50px;
@@ -21,7 +30,18 @@
 .user-content {
   max-width: 800px;
   margin: 0 auto;
+  height: 100%;
 }
+
+.user-content.not-logged-in {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+  margin: auto auto;
+}
+
 .account-details,
 .tokens-section,
 .active-bets {
