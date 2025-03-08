@@ -1,5 +1,10 @@
 export const socials = [
   {
+    name: "Mainnet Waitlist",
+    icon: "/icons/socials/mail.png",
+    link: "https://betvex.xyz",
+  },
+  {
     name: "Telegram",
     icon: "/icons/socials/telegram.png",
     link: "https://t.me/+4x6uwCjC7BgzNmRk",
@@ -18,10 +23,5 @@ export const socials = [
     name: "Instagram",
     icon: "/icons/socials/instagram.png",
     link: "https://www.instagram.com/getvexy",
-  },
-  {
-    name: "Email Sign Up",
-    icon: "/icons/socials/mail.png",
-    link: "https://betvex.xyz",
   },
 ];
