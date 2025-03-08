@@ -25,10 +25,13 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       setIsOpen(false);
     }
 
-    setTimeout(() => {
-      // Force ReactTour to recalculate
+    const timeout = setTimeout(() => {
       window.dispatchEvent(new Event("resize"));
     }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [currentStep, setIsOpen]);
 
   // Predefined quick select amounts

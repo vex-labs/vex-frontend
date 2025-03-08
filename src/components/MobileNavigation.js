@@ -146,13 +146,23 @@ const MobileNavbar = ({ isLoggedIn, walletBalance, onLogin, onLogout }) => {
             {/* Action Buttons */}
             <div className="mob-navbar__actions-group">
               {/* TODO: LEARN */}
-              {/* <button
+              <button
                 className="mob-navbar__action-button mob-navbar__learn-button"
-                onClick={() => window.open("https://docs.betvex.io", "_blank")}
+                disabled
+                style={{
+                  cursor: "not-allowed",
+                  opacity: "50%",
+                  display: "flex",
+                  alignItems: "center",
+                  flexDirection: "column",
+                  gap: "4px",
+                }}
               >
-                <Book size={18} />
                 <span>Learn</span>
-              </button> */}
+                <span style={{ fontSize: "10px", opacity: "50%" }}>
+                  Desktop Only
+                </span>
+              </button>
 
               {isLoggedIn && (
                 <button

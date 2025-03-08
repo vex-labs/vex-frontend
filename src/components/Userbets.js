@@ -95,10 +95,13 @@ const UserBets = ({ userBets = [], showTourExampleForStep9 = false }) => {
   useEffect(() => {
     if (showTourExampleForStep9) {
       // Force ReactTour to properly highlight the element and set active tab
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         window.dispatchEvent(new Event("resize"));
-        setActiveCategory("claimable");
       }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }
   }, [showTourExampleForStep9]);
 

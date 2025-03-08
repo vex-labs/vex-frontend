@@ -9,7 +9,9 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
   const { web3auth } = useWeb3Auth();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { currentStep, setCurrentStep } = useTour();
+  const { currentStep, setCurrentStep, isOpen: isLearningOpen } = useTour();
+
+  const isLearningMode = isLearningOpen;
 
   if (!isOpen) return null;
   if (!web3auth) return null;
@@ -43,19 +45,36 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
           <button
             type="button"
             className="vex-close-button"
-            onClick={onClose}
+            onClick={() => {
+              if (isLearningMode) {
+                return;
+              }
+              onClose();
+            }}
             aria-label="Close"
           >
             &times;
           </button>
         </div>
         <div className="vex-modal-body">
-          <div className="vex-login-section">
+          <div
+            className="vex-login-section"
+            onClick={() => {
+              if (isLearningMode) {
+                setCurrentStep(3);
+                return;
+              }
+            }}
+          >
             <h6 className="vex-section-title">Social Login</h6>
             {/* Google Login - Large Button */}
             <button
               className="vex-btn vex-btn-google vex-btn-lg"
               onClick={() => {
+                if (isLearningMode) {
+                  setCurrentStep(3);
+                  return;
+                }
                 onLoginWithProvider("google");
                 onClose();
               }}
@@ -75,6 +94,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-discord"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("discord");
                     onClose();
                   }}
@@ -92,6 +115,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-twitter"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("twitter");
                     onClose();
                   }}
@@ -109,6 +136,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-reddit"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("reddit");
                     onClose();
                   }}
@@ -126,6 +157,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-twitch"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("twitch");
                     onClose();
                   }}
@@ -143,6 +178,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-apple"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("apple");
                     onClose();
                   }}
@@ -160,6 +199,10 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
                 <button
                   className="vex-btn vex-btn-facebook"
                   onClick={() => {
+                    if (isLearningMode) {
+                      setCurrentStep(3);
+                      return;
+                    }
                     onLoginWithProvider("facebook");
                     onClose();
                   }}
@@ -221,6 +264,11 @@ export const LoginModal = ({ isOpen, onClose, onLoginWithProvider }) => {
               <button
                 className="vex-btn vex-btn-wallet vex-btn-lg"
                 onClick={() => {
+                  if (isLearningMode) {
+                    setCurrentStep(3);
+                    return;
+                  }
+
                   wallet?.signIn();
                   onClose();
                 }}
