@@ -9,6 +9,7 @@ import {
 } from "@web3auth/base";
 import { connect, KeyPair, keyStores, utils } from "near-api-js";
 import { getED25519Key } from "@web3auth/base-provider";
+import { NetworkId, NearRpcUrl } from "@/app/config";
 
 // Set up web3 auth stuff
 const Web3AuthContext = createContext({});
@@ -16,7 +17,7 @@ const Web3AuthContext = createContext({});
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.OTHER,
   chainId: "0x4e454153",
-  rpcTarget: "https://test.rpc.fastnear.com",
+  rpcTarget: NearRpcUrl,
   displayName: "Near",
   blockExplorerUrl: "https://testnet.nearblocks.io/",
   ticker: "NEAR",
@@ -87,9 +88,13 @@ export function Web3AuthProvider({ children }) {
   useEffect(() => {
     const initWeb3Auth = async () => {
       try {
+        const web3AuthNetwork =
+          process.env.NEXT_PUBLIC_WEB3AUTH_TYPE === "testnet"
+            ? WEB3AUTH_NETWORK.SAPPHIRE_DEVNET
+            : WEB3AUTH_NETWORK.MAINNET;
         const web3authInstance = new Web3AuthNoModal({
           clientId: WEB3AUTH_CLIENT_ID, // Use hardcoded client ID
-          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_DEVNET,
+          web3AuthNetwork: web3AuthNetwork,
           privateKeyProvider: privateKeyProvider,
         });
 
