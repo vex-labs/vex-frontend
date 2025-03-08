@@ -384,6 +384,10 @@ const GameCard = ({
 
   // Close betting modal
   const handleCloseModal = () => {
+    if (isTourMatch) {
+      return;
+    }
+
     setShowBettingModal(false);
     setSelectedBet(null);
     setStake("");

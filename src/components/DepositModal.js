@@ -16,7 +16,7 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { currentStep, setCurrentStep } = useTour();
+  const { currentStep, setCurrentStep, isOpen: isTourOpen } = useTour();
 
   useEffect(() => {
     if (currentStep === 4) {
@@ -298,7 +298,10 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
 
               <div className="modal-actions">
                 <Dialog.Close asChild>
-                  <button className="Button cancel-button" disabled={isLoading}>
+                  <button
+                    className="Button cancel-button"
+                    disabled={isLoading || isTourOpen}
+                  >
                     Cancel
                   </button>
                 </Dialog.Close>
@@ -418,7 +421,11 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
           )}
 
           <Dialog.Close asChild>
-            <button className="CloseButton" aria-label="Close">
+            <button
+              className="CloseButton"
+              aria-label="Close"
+              disabled={isTourOpen}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"

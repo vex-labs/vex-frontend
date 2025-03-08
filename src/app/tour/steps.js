@@ -358,9 +358,9 @@ export const steps = [
     ),
   },
   {
-    posistion: "left",
-    selector: "#community",
-    mutationObservables: ["#community"],
+    posistion: "center",
+    selector: ".community-content",
+    mutationObservables: [".community-content"],
     content: ({ setIsOpen, setCurrentStep }) => (
       <div className="relative">
         <button
