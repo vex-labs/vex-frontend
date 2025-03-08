@@ -45,7 +45,14 @@ export default function Providers({ children }) {
       <NearProvider>
         <GlobalProvider>
           <QueryClientProvider client={queryClient}>
-            <TourProvider steps={steps}>{children}</TourProvider>
+            <TourProvider
+              steps={steps}
+              disableDotsNavigation={true}
+              showPrevNextButtons={false}
+              showCloseButton={false}
+            >
+              {children}
+            </TourProvider>
           </QueryClientProvider>
         </GlobalProvider>
       </NearProvider>

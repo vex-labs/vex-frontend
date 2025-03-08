@@ -7,6 +7,7 @@ import { useGlobalContext } from "@/app/context/GlobalContext";
 import { NearRpcUrl, VexContract } from "../config";
 import UserBets from "@/components/Userbets";
 import { useTour } from "@reactour/tour";
+import { useRouter } from "next/navigation";
 
 const UserPage = () => {
   const { accountId } = useGlobalContext();
@@ -85,6 +86,14 @@ const UserPage = () => {
 
     fetchMatches();
   }, []);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentStep === 10) {
+      router.push("/earn");
+    }
+  }, [currentStep, router]);
 
   // Important: Show the tour-specific UI even for non-logged in users when on step 9
   if (!accountId && currentStep !== 9) {

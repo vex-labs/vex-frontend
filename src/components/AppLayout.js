@@ -26,7 +26,7 @@ export default function AppLayout({ children }) {
       { name: "USDC", address: "usdc.betvex.testnet" },
       { name: "VEX", address: "token.betvex.testnet" },
     ],
-    [],
+    []
   );
 
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function AppLayout({ children }) {
               });
               const balanceInNear = utils.format.formatNearAmount(
                 accountBalance.amount,
-                2,
+                2
               );
               balances[token.name] = balanceInNear;
             } else {
@@ -57,7 +57,7 @@ export default function AppLayout({ children }) {
                 account_id: token.address,
                 method_name: "ft_balance_of",
                 args_base64: Buffer.from(JSON.stringify(args)).toString(
-                  "base64",
+                  "base64"
                 ),
                 finality: "final",
               });

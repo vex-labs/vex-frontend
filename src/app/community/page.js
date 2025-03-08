@@ -2,8 +2,20 @@
 
 import Sidebar2 from "@/components/Sidebar2";
 import "./community.css";
+import { useTour } from "@reactour/tour";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const CommunityPage = () => {
+  const { currentStep } = useTour();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentStep === 15) {
+      router.push("/leaderboard");
+    }
+  }, [currentStep, router]);
+
   return (
     <div className="mainContent">
       <Sidebar2 />

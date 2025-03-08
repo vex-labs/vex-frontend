@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { swapTokens } from "@/utils/swapTokens";
 import { useGlobalContext } from "../app/context/GlobalContext";
 import { providers } from "near-api-js";
@@ -7,17 +7,23 @@ import { Loader2, CheckCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+import { useTour } from "@reactour/tour";
 
 /**
- * Enhanced Swap component with token registration support
+ * Enhanced Swap component with token registration support and tour functionality
  *
  * This component allows users to swap between VEX and USDC tokens using refswap.
  * It automatically checks and handles token registration for both sender and receiver.
+ * It also includes tour support to guide users through the swapping process.
  *
  * @returns {JSX.Element} The rendered Swap component
  */
 
 const Swap = () => {
+  // Get tour context
+  const { currentStep, setCurrentStep, isOpen } = useTour();
+  const isTourActive = isOpen && currentStep === 11;
+
   // Get authentication contexts
   const {
     web3auth,
@@ -38,6 +44,14 @@ const Swap = () => {
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
+  // Pre-fill with example values if in tour mode
+  useEffect(() => {
+    if (isTourActive) {
+      setVexAmount("100");
+      getOutputAmount("100");
+    }
+  }, [isTourActive]);
+
   const getOutputAmount = async (inputAmount) => {
     if (!inputAmount || isNaN(inputAmount) || parseFloat(inputAmount) <= 0) {
       setDisplayUsdcAmount("");
@@ -47,6 +61,17 @@ const Swap = () => {
     setIsCalculating(true);
 
     try {
+      // For tour mode, use a fixed conversion rate
+      if (isTourActive) {
+        setTimeout(() => {
+          const mockUsdcAmount = (parseFloat(inputAmount) * 1.25).toFixed(2);
+          setDisplayUsdcAmount(mockUsdcAmount);
+          setUsdcAmount(mockUsdcAmount);
+          setIsCalculating(false);
+        }, 500); // Simulate network delay
+        return;
+      }
+
       const provider = new providers.JsonRpcProvider(NearRpcUrl);
       const contractId = "ref-finance-101.testnet";
       const poolId = 2197;
@@ -95,6 +120,11 @@ const Swap = () => {
    * @returns {Promise<boolean>} True if all necessary registrations are complete
    */
   const ensureTokenRegistrations = async (targetTokenId) => {
+    // Skip for tour mode
+    if (isTourActive) {
+      return true;
+    }
+
     setIsCheckingRegistration(true);
 
     const sourceTokenId = swapDirection
@@ -186,6 +216,31 @@ const Swap = () => {
   };
 
   const handleSwap = async () => {
+    // Special handling for tour mode
+    if (isTourActive) {
+      setIsSwapping(true);
+
+      // Simulate swap processing time
+      setTimeout(() => {
+        setIsSwapping(false);
+        setSwapSuccess(true);
+
+        // Move to next tour step
+        setCurrentStep(12);
+
+        // Reset after some time
+        setTimeout(() => {
+          setVexAmount("");
+          setUsdcAmount("");
+          setDisplayUsdcAmount("");
+          setSwapSuccess(false);
+        }, 2000);
+      }, 1500);
+
+      return;
+    }
+
+    // Normal swap flow for non-tour mode
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
       console.error("Please connect your wallet first");
@@ -309,14 +364,15 @@ const Swap = () => {
         setVexAmount("");
         setUsdcAmount("");
         setDisplayUsdcAmount("");
-
         toggleRefreshBalances();
       }, 3000);
     } catch (error) {
       console.error("Swap failed:", error.message || error);
     } finally {
       setIsSwapping(false);
-      toggleRefreshBalances();
+      setTimeout(() => {
+        toggleRefreshBalances();
+      }, 3000);
     }
   };
 
@@ -325,10 +381,19 @@ const Swap = () => {
     getOutputAmount(amount.toString());
   };
 
+  // Use mock balances for tour mode
+  const mockBalances = {
+    VEX: "1000.00",
+    USDC: "1250.00",
+  };
+
+  // Get the correct balances based on tour mode
+  const effectiveBalances = isTourActive ? mockBalances : tokenBalances;
+
   // Check if the user has enough balance for the swap
   const insufficientBalance = swapDirection
-    ? Number(tokenBalances.VEX) < Number(vexAmount) // For selling, check VEX balance
-    : Number(tokenBalances.USDC) < Number(usdcAmount); // For buying, check USDC balance
+    ? Number(effectiveBalances.VEX) < Number(vexAmount) // For selling, check VEX balance
+    : Number(effectiveBalances.USDC) < Number(usdcAmount); // For buying, check USDC balance
 
   // Check if amounts are valid for the swap button to be enabled
   const isSwapDisabled =
@@ -413,7 +478,7 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(tokenBalances.VEX).toFixed(2)}
+            {parseFloat(effectiveBalances.VEX).toFixed(2)}
           </span>
         </span>
         <div className="percentage-options">
@@ -457,7 +522,7 @@ const Swap = () => {
         <span className="balance-label">
           Balance:{" "}
           <span className="balance-amount">
-            {parseFloat(tokenBalances.USDC).toFixed(2)}
+            {parseFloat(effectiveBalances.USDC).toFixed(2)}
           </span>
         </span>
       </div>
