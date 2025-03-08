@@ -154,15 +154,21 @@ const EarnPage = () => {
             >
               <h3 className="earn-faq-question">What are VEX Rewards?</h3>
               <p className="earn-faq-answer">
-                VEX Rewards enable the community-powered nature of BetVEX.
-                <br />
-                With VEX Rewards you are able to share in the revenue that the
-                platform generates and decide how the platform changes in the
-                future.
-                <br />
-                70% of the revenue BetVEX generates is distributed to those who
-                have activated their VEX Rewards. The other 30% is sent to the
-                treasury for the community to collectively spend.
+                <ul>
+                  <li>
+                    VEX Rewards enable the community-powered nature of BetVEX.
+                  </li>
+                  <li>
+                    With VEX Rewards you are able to share in the revenue that
+                    the platform generates and decide how the platform changes
+                    in the future.
+                  </li>
+                  <li>
+                    70% of the revenue BetVEX generates is distributed to those
+                    who have activated their VEX Rewards. The other 30% is sent
+                    to the treasury for the community to collectively spend.
+                  </li>
+                </ul>
               </p>
             </div>
 
@@ -174,10 +180,14 @@ const EarnPage = () => {
                 What are the value of VEX Rewards?
               </h3>
               <p className="earn-faq-answer">
-                The value of VEX Rewards are determined by the market and its
-                price will fluctuate over time depending on market conditions.
-                <br />
-                VEX Rewards are available for trading 24/7.
+                <ul>
+                  <li>
+                    The value of VEX Rewards are determined by the market and
+                    its price will fluctuate over time depending on market
+                    conditions.
+                  </li>
+                  <li>VEX Rewards are available for trading 24/7.</li>
+                </ul>
               </p>
             </div>
 
@@ -189,18 +199,25 @@ const EarnPage = () => {
                 What does it mean to Activate VEX Rewards?
               </h3>
               <p className="earn-faq-answer">
-                70% of the revenue BetVEX generates is distributed to those who
-                have activated their VEX Rewards.
-                <br />
-                By activating VEX Rewards you are providing funds to financially
-                back the bets placed on the platform. The more you activate the
-                more you can earn and you can activate more $VEX rewards
-                whenever you want.
-                <br />
-                In rare cases, a betting market can cause a loss meaning that
-                those who have activated VEX Rewards could lose some of their
-                VEX Rewards, though we expect a 5% return on each betting market
-                and there is a pool of $ to reduce the risk of this happening.
+                <ul>
+                  <li>
+                    70% of the revenue BetVEX generates is distributed to those
+                    who have activated their VEX Rewards.
+                  </li>
+                  <li>
+                    By activating VEX Rewards you are providing funds to
+                    financially back the bets placed on the platform. The more
+                    you activate the more you can earn and you can activate more
+                    $VEX rewards whenever you want.
+                  </li>
+                  <li>
+                    In rare cases, a betting market can cause a loss meaning
+                    that those who have activated VEX Rewards could lose some of
+                    their VEX Rewards, though we expect a 5% return on each
+                    betting market and there is a pool of $ to reduce the risk
+                    of this happening.
+                  </li>
+                </ul>
               </p>
             </div>
 
@@ -212,12 +229,18 @@ const EarnPage = () => {
                 What happens when you deactivate your rewards?
               </h3>
               <p className="earn-faq-answer">
-                If you are finished collecting rewards you can deactivate your
-                VEX Rewards which will stop you from earning further rewards and
-                stop any chances of losing your rewards. Please note that you
-                can only deactivate your rewards 1 week after last activating
-                rewards, this grace period stops people from collecting rewards
-                without backing bets.
+                <ul>
+                  <li>
+                    If you are finished collecting rewards you can deactivate
+                    your VEX Rewards which will stop you from earning further
+                    rewards and stop any chances of losing your rewards.
+                  </li>
+                  <li>
+                    Please note that you can only deactivate your rewards 1 week
+                    after last activating rewards, this grace period stops
+                    people from collecting rewards without backing bets.
+                  </li>
+                </ul>
               </p>
             </div>
           </div>

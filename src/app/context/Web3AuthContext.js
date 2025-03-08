@@ -91,7 +91,7 @@ export function Web3AuthProvider({ children }) {
         const web3AuthNetwork =
           process.env.NEXT_PUBLIC_WEB3AUTH_TYPE === "testnet"
             ? WEB3AUTH_NETWORK.SAPPHIRE_DEVNET
-            : WEB3AUTH_NETWORK.MAINNET;
+            : WEB3AUTH_NETWORK.SAPPHIRE_MAINNET;
         const web3authInstance = new Web3AuthNoModal({
           clientId: WEB3AUTH_CLIENT_ID, // Use hardcoded client ID
           web3AuthNetwork: web3AuthNetwork,
