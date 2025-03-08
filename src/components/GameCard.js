@@ -168,7 +168,7 @@ const GameCard = ({
 
       const trueOdds = (roundedWinnings / stakeAmount).toFixed(2);
       setMessage({
-        text: `Potential payout: $${roundedWinnings} as ${trueOdds} odds.`,
+        text: `Potential payout: $${roundedWinnings} at ${trueOdds} odds.`,
         type: "success",
       });
     } catch (error) {

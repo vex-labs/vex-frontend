@@ -76,9 +76,8 @@ export async function POST(request) {
           );
         }
 
-        const initialDeposit = "20000000000000000000000";
         // Create the NEAR account
-        await account.createAccount(newAccountId, publicKey, initialDeposit);
+        await account.createAccount(newAccountId, publicKey, "0");
 
         // Create the user document
         const userDoc = {
