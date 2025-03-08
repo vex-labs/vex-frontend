@@ -2,7 +2,6 @@ import { X } from "lucide-react";
 
 export const steps = [
   {
-    // selector: "main",
     position: "center",
     disableActions: false,
     content: ({ setIsOpen, setCurrentStep }) => (
@@ -16,11 +15,11 @@ export const steps = [
         >
           <X />
         </button>
-        <h2>What is betVEX?</h2>
+        <h2>What is BetVEX?</h2>
         <p>
-          betVEX is the Community Powered Esports Betting Platform. Bet on your
+          BetVEX is the Community Powered Esports Betting Platform. Bet on your
           favorite esports matches, compete against your friends, share the
-          revenue the platform generates, and decide the future of betVEX.
+          revenue the platform generates, and decide the future of BetVEX.
         </p>
 
         <button
@@ -74,9 +73,9 @@ export const steps = [
         </button>
         <h2>How to sign up/log in?</h2>
         <p>
-          Create a new account with an existing email address, google account,
-          discord account, twitter account, or wallet. When you first sign up
-          you&apos;ll need to select a username
+          Create a new account or log into an existing account via email,
+          google, discord, twitter, wallet and more. When you first sign up
+          you&aspos;ll need to select a username.
         </p>
       </div>
     ),
@@ -96,10 +95,7 @@ export const steps = [
           <X />
         </button>
         <h2>How to deposit funds?</h2>
-        <p>
-          Click the deposit button which will allow you to deposit from your
-          bank or debit card.
-        </p>
+        <p>To get some funds to test with head over to the deposit button.</p>
       </div>
     ),
   },
@@ -119,11 +115,7 @@ export const steps = [
           <X />
         </button>
         <h2>How to deposit funds?</h2>
-        <p>
-          This will convert to digital dollars ($USDC) that are used to bet.
-          Alternatively, you can deposit any cryptocurrency which will be
-          converted to $USDC to place bets
-        </p>
+        <p>Simply select how much you want from the faucet and click confirm</p>
       </div>
     ),
   },
@@ -142,7 +134,7 @@ export const steps = [
           <X />
         </button>
         <h2>How to place a bet?</h2>
-        <p>To place a bet first navigate to your desired game</p>
+        <p>To place a bet first navigate to your desired game.</p>
       </div>
     ),
   },
@@ -162,7 +154,7 @@ export const steps = [
           <X />
         </button>
         <h2>How to place a bet?</h2>
-        <p>Select which match and team you would like to bet on</p>
+        <p>Select which match and team you would like to bet on.</p>
       </div>
     ),
   },
@@ -184,7 +176,7 @@ export const steps = [
         <h2>How to place a bet?</h2>
         <p>
           Enter the amount you would like to bet and click the place bet button.
-          betVEX only charges approximately 5% fees, much lower than other
+          BetVEX only charges approximately 5% fees, much lower than other
           esports betting platforms, with all the fees being sent back to the
           community.
         </p>
@@ -207,8 +199,8 @@ export const steps = [
         </button>
         <h2>How to claim a bet?</h2>
         <p>
-          Navigating to the bets page will show you all the bets you&apos;ve
-          placed, past and present.
+          Navigating to the view bets page will show you all the bets
+          you&apos;ve placed, past and present.
         </p>
       </div>
     ),
@@ -231,7 +223,7 @@ export const steps = [
         <h2>How to claim a bet?</h2>
         <p>
           Any successful bets will be highlighted and you can claim your
-          winnings by just simply clicking claim bet.
+          winnings by simply clicking claim winnings.
         </p>
       </div>
     ),
@@ -251,10 +243,10 @@ export const steps = [
         </button>
         <h2>What are VEX Rewards?</h2>
         <p>
-          VEX Rewards enable the community-powered nature of betVEX. With VEX
+          VEX Rewards enable the community-powered nature of BetVEX. With VEX
           Rewards you are able to share in the revenue that the platform
           generates and decide how the platform changes in the future. 70% of
-          the revenue betVEX generates is distributed to those who have
+          the revenue BetVEX generates is distributed to those who have
           activated their VEX Rewards. The other 30% is sent to the treasury for
           the community to collectively spend.
         </p>
@@ -292,9 +284,8 @@ export const steps = [
             your account. The value of VEX Rewards is determined by the market
             and its price will fluctuate over time depending on market
             conditions. You can sell your VEX Rewards by clicking the sell
-            option. Here you input how much of your $VEX rewards you want to
-            sell and a dollar amount will be displayed at what you can sell it
-            for.
+            option. Here you input how much of your VEX rewards you want to sell
+            and a dollar amount will be displayed at what you can sell it for.
           </p>
         </div>
       );
@@ -317,10 +308,10 @@ export const steps = [
           </button>
           <h2>How to activate VEX Rewards</h2>
           <p>
-            By activating VEX Rewards, you provide funds to back platform bets.
-            70% of all betting revenue is distributed proportionally to VEX
-            Rewards activators—the more you activate, the more you earn. You can
-            increase your activation anytime.
+            By activating VEX Rewards, you provide funds to back bets placed on
+            the platform. 70% of all betting revenue is distributed
+            proportionally to VEX Rewards activators—the more you activate, the
+            more you earn. You can increase your activation anytime.
             <br />
             In rare cases, betting markets may cause losses to activated
             rewards, though we expect a 5% return per market. When you&apos;re
@@ -348,7 +339,7 @@ export const steps = [
         </button>
         <h2>Distributing VEX Rewards</h2>
         <p>
-          You, the community, help betVEX run. When VEX Rewards accumulated from
+          You, the community, help BetVEX run. When VEX Rewards accumulated from
           matches build up above a certain threshold they are ready to be
           distributed to the community. If you ever see the distribute VEX
           Rewards button highlighted, click it to send out the rewards, and you
@@ -375,7 +366,7 @@ export const steps = [
         <h2>Community</h2>
         <p>
           You can not only use VEX Rewards to earn but they are also used to
-          decide the future of betVEX. As a community member, you can make
+          decide the future of BetVEX. As a community member, you can make
           proposals to add new features, change how the platform operates, or
           decide how to spend the treasury funds. As a VEX Rewards holder, you
           can vote on proposals, the proposal&apos;s outcome will be decided by
@@ -385,7 +376,7 @@ export const steps = [
             <li>Become a sponsor of Fnatic.</li>
             <li>Reduce betting fees to 3%.</li>
             <li>
-              Spend one million dollars of the betVEX treasury on building
+              Spend one million dollars of the BetVEX treasury on building
               schools in South Sudan.
             </li>
           </ul>
@@ -417,12 +408,9 @@ export const steps = [
         </button>
         <h2>Leaderboard</h2>
         <p>
-          In betVEX&apos;s competitive nature we pit bettors against each other.
+          In BetVEX&apos;s competitive nature we pit bettors against each other.
           The leaderboard ranks the all-time highest earners and those who have
-          won the most bets. You can choose to click the friends option where
-          you can add your friend&apos;s user names to track who is the best
-          bettor. You can choose to not appear in the leaderboard by going to
-          user settings.
+          won the most bets.
         </p>
         <button
           onClick={() => {
