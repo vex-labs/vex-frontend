@@ -281,17 +281,6 @@ const GameCard = ({
       if (currentStep === 7) {
         setCurrentStep(8);
       }
-
-      // Simulate successful bet for tour matches
-      if (isTourMatch) {
-        setBetSuccess(true);
-        setMessage({
-          text: "Bet placed successfully! You can view your active bets in your profile",
-          type: "success",
-        });
-        return;
-      }
-
       setShowBettingModal(false);
       return;
     }
@@ -375,10 +364,13 @@ const GameCard = ({
     if (currentStep === 6) {
       setCurrentStep(7);
       setShowBettingModal(true);
-      setTimeout(() => {
-        // Force ReactTour to recalculate
+      const timeout = setTimeout(() => {
         window.dispatchEvent(new Event("resize"));
       }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     } else if (!isOpen || isTourMatch) {
       // Regular usage or tour match
       setShowBettingModal(true);

@@ -6,6 +6,7 @@ import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+import { useTour } from "@reactour/tour";
 
 /**
  * Rewards Distribution component
@@ -21,6 +22,9 @@ const RewardsDistribution = () => {
   const [actionSuccess, setActionSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Get tour context
+  const { isOpen: isTourOpen, setCurrentStep } = useTour();
+
   // Get authentication contexts
   const {
     web3auth,
@@ -32,12 +36,16 @@ const RewardsDistribution = () => {
 
   const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
-  // Fetch rewards data on component mount
+  // Fetch rewards data on component mount (but skip in tour mode)
   useEffect(() => {
-    if (accountId) {
+    if (accountId && !isTourOpen) {
       fetchRewardsData();
+    } else if (isTourOpen) {
+      // Set dummy data for tour
+      setIsLoading(false);
+      setTotalUSDCRewards(250.75);
     }
-  }, [accountId]);
+  }, [accountId, isTourOpen]);
 
   // This function fetches the total USDC rewards available to distribute
   const fetchRewardsData = async () => {
@@ -83,6 +91,25 @@ const RewardsDistribution = () => {
 
   // This function distributes rewards to stakers
   const handleDistributeRewards = async () => {
+    // Handle tour mode separately
+    if (isTourOpen) {
+      setIsDistributingRewards(true);
+
+      // Simulate processing for tour
+      setTimeout(() => {
+        setIsDistributingRewards(false);
+        setActionSuccess(true);
+
+        // Reset success state and move to next tour step after a delay
+        setTimeout(() => {
+          setActionSuccess(false);
+          setCurrentStep(14);
+        }, 1500);
+      }, 1000);
+
+      return;
+    }
+
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
       return;
@@ -174,7 +201,7 @@ const RewardsDistribution = () => {
       <div className="rewards-stats-container">
         <div className="stat-card">
           <div className="stat-title">Available USD Rewards</div>
-          {isLoading ? (
+          {isLoading && !isTourOpen ? (
             <div className="loading-indicator">
               <Loader2 size={24} className="loading-icon" />
             </div>
@@ -195,10 +222,9 @@ const RewardsDistribution = () => {
         } ${actionSuccess ? "success" : ""}`}
         onClick={handleDistributeRewards}
         disabled={
-          isLoading ||
+          (isLoading && !isTourOpen) ||
           isDistributingRewards ||
-          !totalUSDCRewards ||
-          totalUSDCRewards <= 0
+          (!isTourOpen && (!totalUSDCRewards || totalUSDCRewards <= 0))
         }
       >
         {isDistributingRewards ? (

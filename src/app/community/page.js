@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 const CommunityPage = () => {
-  const { currentStep } = useTour();
+  const { currentStep, isOpen } = useTour();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,11 +16,24 @@ const CommunityPage = () => {
     }
   }, [currentStep, router]);
 
+  useEffect(() => {
+    if (isOpen) {
+      const timeout = setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [isOpen]);
+
   return (
     <div className="mainContent">
       <Sidebar2 />
       <div className="container community-content">
         <h2
+          id="community"
           style={{
             fontSize: "2rem",
             fontWeight: "bold",

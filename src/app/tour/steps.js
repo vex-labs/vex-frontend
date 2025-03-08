@@ -25,6 +25,10 @@ export const steps = [
 
         <button
           onClick={() => {
+            if (window.innerWidth < 1200) {
+              alert("Please use a larger screen to start the tour.");
+              return;
+            }
             setCurrentStep(1);
           }}
           className="start-tour-button"
@@ -38,82 +42,145 @@ export const steps = [
     selector: ".login-button",
     position: "bottom",
     disableActions: true,
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to sign up/log in?</h2>
         <p>To sign up or log in click the login button.</p>
-      </>
+      </div>
     ),
   },
   {
-    selector: ".vex-email-form",
-    position: "top",
-    content: (
-      <>
+    selector: ".vex-modal-content",
+    position: "left",
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to sign up/log in?</h2>
         <p>
           Create a new account with an existing email address, google account,
           discord account, twitter account, or wallet. When you first sign up
           you&apos;ll need to select a username
         </p>
-      </>
+      </div>
     ),
   },
   {
     selector: ".nav-link-deposit",
     position: "bottom",
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to deposit funds?</h2>
         <p>
           Click the deposit button which will allow you to deposit from your
           bank or debit card.
         </p>
-      </>
+      </div>
     ),
   },
   {
     selector: "#deposit-modal",
     position: "left",
     mutationObservables: ["#deposit-modal"],
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to deposit funds?</h2>
         <p>
           This will convert to digital dollars ($USDC) that are used to bet.
           Alternatively, you can deposit any cryptocurrency which will be
           converted to $USDC to place bets
         </p>
-      </>
+      </div>
     ),
   },
   {
     selector: "#sidebar-game-list",
     position: "right",
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to place a bet?</h2>
         <p>To place a bet first navigate to your desired game</p>
-      </>
+      </div>
     ),
   },
   {
     selector: "#tour-match",
     mutationObservables: [".featured-grid-container"],
     position: "right",
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to place a bet?</h2>
         <p>Select which match and team you would like to bet on</p>
-      </>
+      </div>
     ),
   },
   {
     selector: ".betting-modal-content",
     position: "left",
     mutationObservables: [".betting-modal"],
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to place a bet?</h2>
         <p>
           Enter the amount you would like to bet and click the place bet button.
@@ -121,40 +188,67 @@ export const steps = [
           esports betting platforms, with all the fees being sent back to the
           community.
         </p>
-      </>
+      </div>
     ),
   },
   {
     selector: ".nav-item.bets",
     position: "right",
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to claim a bet?</h2>
         <p>
           Navigating to the bets page will show you all the bets you&apos;ve
           placed, past and present.
         </p>
-      </>
+      </div>
     ),
   },
   {
     selector: ".winning-bet",
     position: "left",
     mutationObservables: [".winning-bet"],
-    content: (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>How to claim a bet?</h2>
         <p>
           Any successful bets will be highlighted and you can claim your
           winnings by just simply clicking claim bet.
         </p>
-      </>
+      </div>
     ),
   },
   {
     position: "center",
-    content: ({ setCurrentStep }) => (
+    content: ({ setIsOpen, setCurrentStep }) => (
       <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>What are VEX Rewards?</h2>
         <p>
           VEX Rewards enable the community-powered nature of betVEX. With VEX
@@ -179,9 +273,18 @@ export const steps = [
     selector: ".swap-container",
     position: "right",
     mutationObservables: [".swap-container"],
-    content: () => {
+    content: ({ setIsOpen, setCurrentStep }) => {
       return (
-        <>
+        <div className="relative">
+          <button
+            className="close-tour-button"
+            onClick={() => {
+              setCurrentStep(0);
+              setIsOpen(false);
+            }}
+          >
+            <X />
+          </button>
           <h2>How to buy/sell VEX Rewards</h2>
           <p>
             To buy VEX Rewards, enter how much you would like to buy, this will
@@ -193,16 +296,25 @@ export const steps = [
             sell and a dollar amount will be displayed at what you can sell it
             for.
           </p>
-        </>
+        </div>
       );
     },
   },
   {
     selector: ".staking-container",
     position: "left",
-    content: () => {
+    content: ({ setIsOpen, setCurrentStep }) => {
       return (
-        <>
+        <div className="relative">
+          <button
+            className="close-tour-button"
+            onClick={() => {
+              setCurrentStep(0);
+              setIsOpen(false);
+            }}
+          >
+            <X />
+          </button>
           <h2>How to activate VEX Rewards</h2>
           <p>
             By activating VEX Rewards, you provide funds to back platform bets.
@@ -216,15 +328,24 @@ export const steps = [
             eliminate loss risk. Note: Deactivation is only possible 1 week
             after your last activation to ensure activators properly back bets.
           </p>
-        </>
+        </div>
       );
     },
   },
   {
     selector: ".rewards-distribution-container",
     position: "left",
-    content: ({ setCurrentStep }) => (
-      <>
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>Distributing VEX Rewards</h2>
         <p>
           You, the community, help betVEX run. When VEX Rewards accumulated from
@@ -233,23 +354,24 @@ export const steps = [
           Rewards button highlighted, click it to send out the rewards, and you
           will receive 1% of the total rewards just for clicking the button!
         </p>
-        <button
-          onClick={() => {
-            setCurrentStep(14);
-          }}
-          className="start-tour-button"
-        >
-          Next Step
-        </button>
-      </>
+      </div>
     ),
   },
   {
-    posistion: "center",
-    selector: "community-content",
-    mutationObservables: [".community-content"],
-    content: ({ setCurrentStep }) => (
-      <>
+    posistion: "left",
+    selector: "#community",
+    mutationObservables: ["#community"],
+    content: ({ setIsOpen, setCurrentStep }) => (
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>Community</h2>
         <p>
           You can not only use VEX Rewards to earn but they are also used to
@@ -276,15 +398,23 @@ export const steps = [
         >
           Next Step
         </button>
-      </>
+      </div>
     ),
   },
   {
     posistion: "center",
-    selector: ".leaderboard-content",
-    mutationObservables: [".leaderboard-content"],
+    selector: ".leaderboard-header",
     content: ({ setCurrentStep, setIsOpen }) => (
-      <>
+      <div className="relative">
+        <button
+          className="close-tour-button"
+          onClick={() => {
+            setCurrentStep(0);
+            setIsOpen(false);
+          }}
+        >
+          <X />
+        </button>
         <h2>Leaderboard</h2>
         <p>
           In betVEX&apos;s competitive nature we pit bettors against each other.
@@ -303,7 +433,7 @@ export const steps = [
         >
           Finish Tour
         </button>
-      </>
+      </div>
     ),
   },
 ];

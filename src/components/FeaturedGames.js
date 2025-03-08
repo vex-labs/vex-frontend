@@ -29,6 +29,9 @@ const FeaturedGames = ({
   onUpdateAvailableGames,
   sortOption = "hot", // Default to Hot if not provided
 }) => {
+  const { isOpen, currentStep } = useTour();
+  const showDummyGame = isOpen;
+
   // Build the GraphQL query with game filter if provided
   const buildQuery = () => {
     let whereClause = "{ match_state: Future }";
@@ -79,6 +82,8 @@ const FeaturedGames = ({
 
       return data;
     },
+    // Skip the query if showDummyGame is true
+    enabled: !showDummyGame,
   });
 
   // Filter matches by search term if one is provided
@@ -114,6 +119,9 @@ const FeaturedGames = ({
 
   // Apply search filter and then sort the matches
   const filteredAndSortedMatches = React.useMemo(() => {
+    // If in tour mode, return empty array as we'll show the dummy game
+    if (showDummyGame) return [];
+
     const filteredMatches = filterMatchesBySearch(data?.matches);
 
     if (!filteredMatches) return [];
@@ -146,7 +154,7 @@ const FeaturedGames = ({
     });
 
     return sortedMatches.slice(0, 3); // Take only the top 3
-  }, [data?.matches, filterMatchesBySearch, sortOption]);
+  }, [data?.matches, filterMatchesBySearch, sortOption, showDummyGame]);
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
@@ -162,18 +170,11 @@ const FeaturedGames = ({
       month: "long",
     });
 
-    // const timeStr = date.toLocaleTimeString("en-GB", {
-    //   hour: "2-digit",
-    //   minute: "2-digit",
-    //   hour12: false,
-    // });
-
-    // return `${dateStr} ${timeStr}`;
     return dateStr;
   };
 
   useEffect(() => {
-    if (data?.matches) {
+    if (data?.matches && !showDummyGame) {
       const gamesSet = new Set();
       data.matches.forEach((match) => {
         if (match.game) gamesSet.add(match.game);
@@ -183,7 +184,7 @@ const FeaturedGames = ({
         onUpdateAvailableGames(Array.from(gamesSet));
       }
     }
-  }, [data?.matches, onUpdateAvailableGames]);
+  }, [data?.matches, onUpdateAvailableGames, showDummyGame]);
 
   // Render loading skeleton
   const renderSkeleton = () => (
@@ -236,15 +237,18 @@ const FeaturedGames = ({
     </div>
   );
 
-  const { currentStep } = useTour();
-
+  // Effect to dispatch resize event when in tour mode
   useEffect(() => {
-    if (currentStep === 6) {
-      setTimeout(() => {
+    if (showDummyGame) {
+      const timeout = setTimeout(() => {
         window.dispatchEvent(new Event("resize"));
       }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
     }
-  }, [currentStep]);
+  }, [showDummyGame, currentStep]);
 
   return (
     <section className="featured-games-section">
@@ -252,32 +256,34 @@ const FeaturedGames = ({
         <h1>Featured Games</h1>
       </div>
 
-      {isLoading || parentIsLoading ? (
+      {showDummyGame ? (
+        // When in tour mode, just show the dummy game without any loading/error states
+        <div className="featured-grid-container">
+          <GameCard
+            key={"tour-match"}
+            className="featured-card featured-card-4-col"
+            tournamentIcon={"/icons/events/vct_china.png"}
+            tournamentName={"Example Match"}
+            matchTime={"2022-12-31"}
+            team1TotalBets={100}
+            team2TotalBets={200}
+            team1Logo={"/icons/teams/Sen.png"}
+            team1Name={"Team 1"}
+            matchId={"test-match"}
+            team2Logo={"/icons/teams/ssg.png"}
+            team2Name={"Team 2"}
+            walletBalance={100}
+            isTourMatch
+          />
+        </div>
+      ) : isLoading || parentIsLoading ? (
         renderSkeleton()
       ) : isError ? (
         renderError()
-      ) : filteredAndSortedMatches?.length === 0 && currentStep !== 6 ? (
+      ) : filteredAndSortedMatches.length === 0 ? (
         renderEmpty()
       ) : (
         <div className="featured-grid-container">
-          {(currentStep === 6 || currentStep === 7) && (
-            <GameCard
-              key={"tour-match"}
-              className="featured-card featured-card-4-col"
-              tournamentIcon={"/icons/events/vct_china.png"}
-              tournamentName={"Example Match"}
-              matchTime={"2022-12-31"}
-              team1TotalBets={100}
-              team2TotalBets={200}
-              team1Logo={"/icons/teams/Sen.png"}
-              team1Name={"Team 1"}
-              matchId={"test-match"}
-              team2Logo={"/icons/teams/ssg.png"}
-              team2Name={"Team 2"}
-              walletBalance={100}
-              isTourMatch
-            />
-          )}
           {filteredAndSortedMatches.map((match, index) => (
             <GameCard
               key={match.id || index}

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar2 from "@/components/Sidebar2";
 import "./leaderboard.css";
 import { useQuery } from "@tanstack/react-query";
 import { gql } from "graphql-request";
+import { useTour } from "@reactour/tour";
 
 const LeaderboardPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,6 +14,20 @@ const LeaderboardPage = () => {
     key: "total_winnings",
     direction: "desc",
   });
+  const { isOpen } = useTour();
+
+  useEffect(() => {
+    if (isOpen) {
+      const timeout = setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [isOpen]);
+
   const itemsPerPage = 10;
 
   const gql_query = gql`

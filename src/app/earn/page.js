@@ -52,8 +52,20 @@ const EarnPage = () => {
     }
   }, [accountId, tokenBalances]);
 
-  const { currentStep } = useTour();
+  const { currentStep, isOpen } = useTour();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isOpen) {
+      const timeout = setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (currentStep === 14) {
