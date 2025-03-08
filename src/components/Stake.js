@@ -12,18 +12,24 @@ import {
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+import { useTour } from "@reactour/tour";
 
 /**
- * Enhanced Staking component
+ * Enhanced Staking component with tour functionality
  *
  * This component allows users to stake and unstake their tokens.
  * It displays the user's balance, staked balance, and total USDC rewards.
  * Users can select between staking and unstaking options, enter an amount, and submit transactions.
+ * It also supports tour mode, advancing from step 12 to 13 when a staking action is performed.
  *
  * @returns {JSX.Element} The rendered Staking component
  */
 
 const Staking = () => {
+  // Get tour context
+  const { currentStep, setCurrentStep, isOpen } = useTour();
+  const isTourActive = isOpen && currentStep === 12;
+
   // Get authentication contexts
   const {
     web3auth,
@@ -50,22 +56,49 @@ const Staking = () => {
 
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
+  // Use mock balances for tour mode
+  const mockBalances = {
+    VEX: "1000.00",
+    stakedVEX: "500.00",
+    USDC: "1250.00",
+  };
+
+  // Set up mock values for tour mode
   useEffect(() => {
-    setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
-  }, [tokenBalances]);
+    if (isTourActive) {
+      setAmount("100");
+      setSelectedOption("stake");
+      setBalance(parseFloat(mockBalances.VEX));
+      setStakedBalance(parseFloat(mockBalances.stakedVEX));
+    } else {
+      setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
+    }
+  }, [isTourActive, tokenBalances]);
 
   // Fetch staked balance and rewards on component mount or as needed
   useEffect(() => {
+    // Skip API calls during tour mode
+    if (isTourActive) return;
+
     console.log("fetching staked balance");
     if (accountId) {
       fetchStakedBalance(accountId);
       rewards_ready_to_swap(stakingContractId);
       fetchUserStakeInfo(accountId);
     }
-  }, [accountId, refreshBalances, tokenBalances, refreshCooldown]);
+  }, [
+    accountId,
+    refreshBalances,
+    tokenBalances,
+    refreshCooldown,
+    isTourActive,
+  ]);
 
   // Set up a timer to check for cooldown expiration
   useEffect(() => {
+    // Skip during tour mode
+    if (isTourActive) return;
+
     // Refresh the cooldown status every 10 seconds
     const intervalId = setInterval(() => {
       if (unstakeTimestamp && isNearCooldownEnd()) {
@@ -74,7 +107,7 @@ const Staking = () => {
     }, 10000);
 
     return () => clearInterval(intervalId);
-  }, [unstakeTimestamp]);
+  }, [unstakeTimestamp, isTourActive]);
 
   // Check if we're near the end of the cooldown period
   const isNearCooldownEnd = () => {
@@ -238,6 +271,35 @@ const Staking = () => {
       return;
     }
 
+    // Special handling for tour mode
+    if (isTourActive) {
+      setIsProcessing(true);
+
+      // Simulate processing time
+      setTimeout(() => {
+        setIsProcessing(false);
+        setActionSuccess(true);
+
+        // Move to next tour step
+        setCurrentStep(13);
+
+        // Reset after some time
+        setTimeout(() => {
+          setAmount("");
+          setActionSuccess(false);
+
+          // Update mock balances for tour mode
+          if (selectedOption === "stake") {
+            setBalance((prev) => prev - parseFloat(amount));
+            setStakedBalance((prev) => prev + parseFloat(amount));
+          }
+        }, 2000);
+      }, 1500);
+
+      return;
+    }
+
+    // Regular flow for non-tour mode
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
       console.error("Please connect your wallet first");
@@ -340,6 +402,35 @@ const Staking = () => {
       return;
     }
 
+    // Special handling for tour mode
+    if (isTourActive) {
+      setIsProcessing(true);
+
+      // Simulate processing time
+      setTimeout(() => {
+        setIsProcessing(false);
+        setActionSuccess(true);
+
+        // Move to next tour step
+        setCurrentStep(13);
+
+        // Reset after some time
+        setTimeout(() => {
+          setAmount("");
+          setActionSuccess(false);
+
+          // Update mock balances for tour mode
+          if (selectedOption === "unstake") {
+            setStakedBalance((prev) => prev - parseFloat(amount));
+            setBalance((prev) => prev + parseFloat(amount));
+          }
+        }, 2000);
+      }, 1500);
+
+      return;
+    }
+
+    // Regular flow for non-tour mode
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
       console.error("Please connect your wallet first");
@@ -444,19 +535,24 @@ const Staking = () => {
     }
   };
 
+  // Get effective balances based on whether we're in tour mode
+  const effectiveBalance = isTourActive ? balance : tokenBalances.VEX;
+  const effectiveStakedBalance = isTourActive ? stakedBalance : stakedBalance;
+
   // Check if the user has enough balance for the action
   const insufficientBalance =
     selectedOption === "stake"
-      ? Number(balance) < Number(amount)
-      : Number(stakedBalance) < Number(amount);
+      ? Number(effectiveBalance) < Number(amount)
+      : Number(effectiveStakedBalance) < Number(amount);
 
-  // Check if unstaking is currently allowed (cooldown period ended)
+  // Check if unstaking is currently allowed (cooldown period ended or in tour mode)
   const canUnstake = useMemo(() => {
+    if (isTourActive) return true; // Always allow unstaking in tour mode
     if (!unstakeTimestamp) return true;
 
     const currentTimeNano = getCurrentTimeInNanoseconds();
     return currentTimeNano >= BigInt(unstakeTimestamp);
-  }, [unstakeTimestamp, refreshCooldown]);
+  }, [unstakeTimestamp, refreshCooldown, isTourActive]);
 
   // Unstaking is disabled if it's in cooldown period or if there's insufficient balance
   const unstakeDisabled =
@@ -515,7 +611,7 @@ const Staking = () => {
         <div className="stat-card">
           <div className="stat-title">Your Balance</div>
           <div className="stat-value">
-            {parseFloat(balance).toFixed(2)}{" "}
+            {parseFloat(effectiveBalance).toFixed(2)}{" "}
             <span className="token-unit">VEX</span>
           </div>
         </div>
@@ -523,7 +619,7 @@ const Staking = () => {
         <div className="stat-card">
           <div className="stat-title">Your Activated Balance</div>
           <div className="stat-value">
-            {parseFloat(stakedBalance).toFixed(2)}{" "}
+            {parseFloat(effectiveStakedBalance).toFixed(2)}{" "}
             <span className="token-unit">VEX</span>
           </div>
         </div>
@@ -592,7 +688,9 @@ const Staking = () => {
           Balance:{" "}
           <span className="balance-amount">
             {parseFloat(
-              selectedOption === "stake" ? balance : stakedBalance
+              selectedOption === "stake"
+                ? effectiveBalance
+                : effectiveStakedBalance
             ).toFixed(2)}{" "}
             VEX
           </span>

@@ -9,6 +9,8 @@ import { useGlobalContext } from "../context/GlobalContext";
 import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import { VexContract, NearRpcUrl } from "@/app/config";
+import { useRouter } from "next/navigation";
+import { useTour } from "@reactour/tour";
 
 const EarnPage = () => {
   const { accountId } = useGlobalContext();
@@ -49,6 +51,15 @@ const EarnPage = () => {
       fetchStakedBalance(accountId);
     }
   }, [accountId, tokenBalances]);
+
+  const { currentStep } = useTour();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (currentStep === 14) {
+      router.push("/community");
+    }
+  }, [currentStep, router]);
 
   return (
     <div className={`earn-page`}>

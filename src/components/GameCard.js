@@ -29,6 +29,7 @@ import { useTour } from "@reactour/tour";
  * @param {string} props.team2Name - Name of the second team
  * @param {string} props.matchId - ID of the match
  * @param {number} props.walletBalance - User's wallet balance
+ * @param {boolean} props.isTourMatch - Whether this is a tour match
  *
  * @returns {JSX.Element} The rendered GameCard component
  */
@@ -43,6 +44,7 @@ const GameCard = ({
   team2Name,
   matchId,
   walletBalance = "0",
+  isTourMatch = false,
 }) => {
   // Get authentication contexts
   const {
@@ -77,6 +79,14 @@ const GameCard = ({
 
   // Fetch match details and odds from the blockchain
   const fetchMatchDetails = useCallback(async () => {
+    // Skip fetching match details for tour matches
+    if (isTourMatch) {
+      setUpdatedOdds1("2.10");
+      setUpdatedOdds2("1.80");
+      setIsLoadingOdds(false);
+      return;
+    }
+
     setIsLoadingOdds(true);
     try {
       const contractId = BetContractId;
@@ -107,15 +117,14 @@ const GameCard = ({
     } finally {
       setIsLoadingOdds(false);
     }
-  }, [matchId]);
+  }, [matchId, isTourMatch]);
 
   // Calculate potential winnings based on stake and odds
   const fetchPotentialWinnings = async (stakeAmount) => {
     if (!selectedBet || !stakeAmount) return;
 
     // Get the current values directly to avoid stale state issues
-    const currentBalance =
-      currentStep > 0 ? 100 : parseFloat(walletBalance || "0");
+    const currentBalance = isTourMatch ? 100 : parseFloat(walletBalance || "0");
 
     if (isNaN(stakeAmount) || stakeAmount <= 0) {
       setMessage({
@@ -130,6 +139,20 @@ const GameCard = ({
       setMessage({
         text: "Insufficient funds in your wallet",
         type: "error",
+      });
+      return;
+    }
+
+    // For tour matches, calculate winnings based on fixed odds
+    if (isTourMatch) {
+      const selectedOdds =
+        selectedBet === team1Name ? updatedOdds1 : updatedOdds2;
+      const winningsUSDC = stakeAmount * parseFloat(selectedOdds);
+      const roundedWinnings = winningsUSDC.toFixed(2);
+
+      setMessage({
+        text: `Potential payout: $${roundedWinnings} at ${selectedOdds} odds.`,
+        type: "success",
       });
       return;
     }
@@ -189,10 +212,7 @@ const GameCard = ({
     fetchPotentialWinnings(stake);
   }, [selectedBet]);
 
-  const displayBalance =
-    currentStep !== undefined && currentStep !== null && currentStep !== -1
-      ? "100.00" // Show dummy balance during tour
-      : walletBalance || "0"; // Show real balance during normal usage
+  const displayBalance = isTourMatch ? "100.00" : walletBalance || "0";
 
   // Handle stake amount changes
   const handleStakeChange = (e) => {
@@ -211,8 +231,9 @@ const GameCard = ({
       const newTimeout = setTimeout(() => {
         if (newStake && selectedBet) {
           const stakeAmount = parseFloat(newStake);
-          const currentBalance =
-            currentStep > 0 ? 100 : parseFloat(walletBalance || "0");
+          const currentBalance = isTourMatch
+            ? 100
+            : parseFloat(walletBalance || "0");
 
           if (!isNaN(stakeAmount)) {
             if (stakeAmount <= 0) {
@@ -256,8 +277,21 @@ const GameCard = ({
     }
 
     // If in tour mode and at step 7, advance to step 8 and close modal
-    if (currentStep === 7) {
-      setCurrentStep(8);
+    if (currentStep === 7 || isTourMatch) {
+      if (currentStep === 7) {
+        setCurrentStep(8);
+      }
+
+      // Simulate successful bet for tour matches
+      if (isTourMatch) {
+        setBetSuccess(true);
+        setMessage({
+          text: "Bet placed successfully! You can view your active bets in your profile",
+          type: "success",
+        });
+        return;
+      }
+
       setShowBettingModal(false);
       return;
     }
@@ -333,14 +367,11 @@ const GameCard = ({
     fetchMatchDetails();
   }, [fetchMatchDetails]);
 
-  // close the modal if the currentStep is not 7
-
   // Handle team selection for betting
   const handleOddsClick = (bet) => {
     setSelectedBet(bet);
 
-    // only show the modal if the currentStep is 7
-    console.log("currentStep", isOpen);
+    // Check if in tour mode
     if (currentStep === 6) {
       setCurrentStep(7);
       setShowBettingModal(true);
@@ -348,9 +379,8 @@ const GameCard = ({
         // Force ReactTour to recalculate
         window.dispatchEvent(new Event("resize"));
       }, 100);
-    } else if (!isOpen) {
-      console.log("not in tour mode");
-      // Regular usage - not in tour mode
+    } else if (!isOpen || isTourMatch) {
+      // Regular usage or tour match
       setShowBettingModal(true);
     }
 
@@ -388,7 +418,10 @@ const GameCard = ({
 
   return (
     <>
-      <div className={`${className} game-card`}>
+      <div
+        className={`${className} game-card`}
+        id={isTourMatch ? "tour-match" : ""}
+      >
         {/* Match View Card */}
         <div className="match-header">
           <div className="match-info">
@@ -539,10 +572,9 @@ const GameCard = ({
                       // Only calculate if stake is valid and not exceeding balance
                       if (stake) {
                         const stakeAmount = parseFloat(stake);
-                        const currentBalance =
-                          currentStep > 0
-                            ? 100
-                            : parseFloat(walletBalance || "0");
+                        const currentBalance = isTourMatch
+                          ? 100
+                          : parseFloat(walletBalance || "0");
                         if (
                           !isNaN(stakeAmount) &&
                           stakeAmount > 0 &&
@@ -587,7 +619,9 @@ const GameCard = ({
                       // Only calculate if stake is valid and not exceeding balance
                       if (stake) {
                         const stakeAmount = parseFloat(stake);
-                        const currentBalance = parseFloat(walletBalance || "0");
+                        const currentBalance = isTourMatch
+                          ? 100
+                          : parseFloat(walletBalance || "0");
                         if (
                           !isNaN(stakeAmount) &&
                           stakeAmount > 0 &&
@@ -633,7 +667,7 @@ const GameCard = ({
                     <span className="balance-amount">
                       $
                       {parseFloat(
-                        currentStep > 0 ? "100.00" : walletBalance || 0
+                        isTourMatch ? "100.00" : walletBalance || 0
                       ).toFixed(2)}{" "}
                       USD
                     </span>
@@ -663,7 +697,7 @@ const GameCard = ({
                           !stake ||
                           isPlacingBet ||
                           parseFloat(stake) >
-                            (currentStep > 0
+                            (isTourMatch
                               ? 100
                               : parseFloat(walletBalance || "0"))
                         }

@@ -2399,8 +2399,235 @@ input::placeholder {
   }
 }
 
+/* Tour Component Styles */
+
+/* Container styling */
 .reactour__popover {
-  color: black !important;
-  border-radius: 12px;
-  pointer-events: auto !important; /* Make ReactTour elements clickable */
+  padding: 24px !important;
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 30, 30, 0.95),
+    rgba(15, 15, 15, 0.95)
+  ) !important;
+  border-radius: 16px !important;
+  color: white !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Close button styling */
+.close-tour-button {
+  position: absolute;
+  /* top: 12px; */
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.close-tour-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: rotate(90deg);
+}
+
+/* Heading styling */
+.reactour__popover h2 {
+  font-size: 22px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  margin: 0 0 16px 0 !important;
+}
+
+/* Paragraph styling */
+.reactour__popover p {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  margin: 0 0 24px 0 !important;
+}
+
+/* Start tour button styling */
+.start-tour-button {
+  background: #00ffcc;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.start-tour-button:hover {
+  background-color: #00ffbf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 230, 179, 0.3);
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 480px) {
+  .reactour__popover {
+    padding: 20px !important;
+    max-width: 90vw !important;
+  }
+
+  .reactour__popover h2 {
+    font-size: 20px !important;
+  }
+
+  .reactour__popover p {
+    font-size: 14px !important;
+  }
+
+  .start-tour-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+}
+
+/* Additional fixes for ReactTour */
+
+/* Fix the mask overlay */
+.reactour__mask {
+  color: rgb(0, 0, 0) !important;
+  opacity: 0.7 !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* Fix close button alignment in tour */
+.reactour__popover .relative {
+  position: relative !important;
+}
+
+/* Fix for arrow placement */
+.reactour__arrow {
+  color: rgba(30, 30, 30, 0.95) !important;
+}
+
+/* Fix badge counter */
+.reactour__badge {
+  background-color: #00ffcc !important;
+  color: #000 !important;
+}
+
+/* Prevent unwanted transitions */
+.reactour__popover * {
+  transition: none !important;
+}
+.reactour__popover .close-tour-button,
+.reactour__popover .start-tour-button {
+  transition: all 0.2s ease !important;
+}
+
+/* Tour List Styles */
+
+/* Base styles for lists inside the tour component */
+.reactour__popover ul {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  list-style-type: none;
+  color: #374151;
+}
+
+/* Individual list items styling */
+.reactour__popover li {
+  position: relative;
+  padding: 0.375rem 0;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+  font-size: 0.9375rem;
+  color: white;
+}
+
+/* Custom bullet points for list items */
+.reactour__popover li::before {
+  content: "";
+  position: absolute;
+  left: -1.25rem;
+  top: 0.625rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #6366f1; /* Indigo color for bullet points */
+  border-radius: 50%;
+}
+
+/* Nested lists styling */
+.reactour__popover ul ul {
+  margin: 0.5rem 0 0.25rem 0;
+}
+
+.reactour__popover ul ul li {
+  margin-bottom: 0.375rem;
+}
+
+/* Nested list bullet points should be different */
+.reactour__popover ul ul li::before {
+  width: 0.375rem;
+  height: 0.375rem;
+  background-color: #a5b4fc; /* Lighter indigo for nested bullets */
+}
+
+/* Ordered lists inside tour */
+.reactour__popover ol {
+  margin: 0.75rem 0;
+  padding-left: 1.5rem;
+  counter-reset: tour-counter;
+}
+
+.reactour__popover ol li {
+  position: relative;
+  padding: 0.375rem 0;
+  margin-bottom: 0.5rem;
+  counter-increment: tour-counter;
+  line-height: 1.5;
+  font-size: 0.9375rem;
+}
+
+.reactour__popover ol li::before {
+  content: counter(tour-counter) ".";
+  position: absolute;
+  left: -1.5rem;
+  font-weight: 600;
+  color: #6366f1;
+}
+
+/* Highlight important items */
+.reactour__popover li.important {
+  font-weight: 500;
+}
+
+.reactour__popover li.important::before {
+  background-color: #ef4444; /* Red for important items */
+}
+
+/* Styles for when the tour is in dark mode */
+.reactour__popover.dark-theme ul,
+.reactour__popover.dark-theme ol {
+  color: #e5e7eb;
+}
+
+.reactour__popover.dark-theme li::before {
+  background-color: #818cf8;
+}
+
+.reactour__popover.dark-theme ul ul li::before {
+  background-color: #c7d2fe;
+}
+
+.reactour__popover.dark-theme ol li::before {
+  color: #818cf8;
 }

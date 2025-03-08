@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { TEAM_ICON_MAP } from "@/data/team-icons";
+import { useTour } from "@reactour/tour";
 
 /**
  * Enhanced FeaturedGames component
@@ -235,6 +236,16 @@ const FeaturedGames = ({
     </div>
   );
 
+  const { currentStep } = useTour();
+
+  useEffect(() => {
+    if (currentStep === 6) {
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+      }, 100);
+    }
+  }, [currentStep]);
+
   return (
     <section className="featured-games-section">
       <div className="section-header">
@@ -245,10 +256,28 @@ const FeaturedGames = ({
         renderSkeleton()
       ) : isError ? (
         renderError()
-      ) : filteredAndSortedMatches?.length === 0 ? (
+      ) : filteredAndSortedMatches?.length === 0 && currentStep !== 6 ? (
         renderEmpty()
       ) : (
         <div className="featured-grid-container">
+          {(currentStep === 6 || currentStep === 7) && (
+            <GameCard
+              key={"tour-match"}
+              className="featured-card featured-card-4-col"
+              tournamentIcon={"/icons/events/vct_china.png"}
+              tournamentName={"Example Match"}
+              matchTime={"2022-12-31"}
+              team1TotalBets={100}
+              team2TotalBets={200}
+              team1Logo={"/icons/teams/Sen.png"}
+              team1Name={"Team 1"}
+              matchId={"test-match"}
+              team2Logo={"/icons/teams/ssg.png"}
+              team2Name={"Team 2"}
+              walletBalance={100}
+              isTourMatch
+            />
+          )}
           {filteredAndSortedMatches.map((match, index) => (
             <GameCard
               key={match.id || index}
