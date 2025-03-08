@@ -5,6 +5,7 @@ import "./modal-z-index.css";
 import { useState, useEffect } from "react";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { useTour } from "@reactour/tour";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
   const { accountId } = useGlobalContext();
@@ -62,6 +63,26 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
     } else {
       setAmount("");
     }
+  };
+
+  // Step amount handlers for up/down steppers
+  const handleAmountStep = (direction) => {
+    const currentAmount = parseFloat(amount || 0);
+
+    // Define step size
+    const stepSize = 1;
+
+    // Calculate new amount based on direction
+    let newAmount = currentAmount;
+    if (direction === "up") {
+      newAmount = currentAmount + stepSize;
+    } else if (direction === "down") {
+      newAmount = Math.max(1, currentAmount - stepSize);
+    }
+
+    // Format and update the amount
+    newAmount = Math.min(100, newAmount); // Ensure it doesn't exceed max
+    setAmount(newAmount);
   };
 
   const callNearFunction = async (accountId, args) => {
@@ -225,6 +246,22 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
                     value={amount}
                     disabled={isLoading}
                   />
+                  <div className="amount-stepper">
+                    <button
+                      className="stepper-btn"
+                      onClick={() => handleAmountStep("up")}
+                      disabled={isLoading || amount >= 100}
+                    >
+                      <ChevronUp size={12} />
+                    </button>
+                    <button
+                      className="stepper-btn"
+                      onClick={() => handleAmountStep("down")}
+                      disabled={isLoading || parseFloat(amount || 0) <= 1}
+                    >
+                      <ChevronDown size={12} />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="quick-amounts">

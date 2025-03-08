@@ -5,6 +5,7 @@ import { Loader2, CheckCircle, CoinsIcon } from "lucide-react";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 import { toast } from "sonner";
 
 /**
