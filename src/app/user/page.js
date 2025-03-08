@@ -3,8 +3,6 @@ import { useEffect, useState } from "react";
 import { providers } from "near-api-js";
 import "./user.css";
 import Sidebar2 from "@/components/Sidebar2";
-import { useNear } from "@/app/context/NearContext";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { NearRpcUrl, VexContract } from "../config";
 import UserBets from "@/components/Userbets";
@@ -12,15 +10,10 @@ import { useTour } from "@reactour/tour";
 
 const UserPage = () => {
   const { accountId } = useGlobalContext();
-  const { wallet } = useNear();
-  const { web3auth, nearConnection } = useWeb3Auth();
   const { currentStep } = useTour();
 
   const [userBets, setUserBets] = useState([]);
   const [matchStates, setMatchStates] = useState({});
-  const [withdrawToken, setWithdrawToken] = useState("usdc.betvex.testnet");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
-  const [recipientAddress, setRecipientAddress] = useState("");
 
   useEffect(() => {
     const fetchUserBets = async () => {
@@ -98,12 +91,13 @@ const UserPage = () => {
     return (
       <div className="user-page">
         <Sidebar2 />
-        <div className="user-content">
+        <div className="user-content not-logged-in">
           <h2
             style={{
+              fontSize: "2rem",
+              fontWeight: "bold",
+              color: "#fff", // Or any color you prefer
               textAlign: "center",
-              color: "var(--primary-color)",
-              marginTop: "20%",
             }}
           >
             Please Login to access the user page
