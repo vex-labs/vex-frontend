@@ -7,7 +7,6 @@ import {
 import { Web3AuthProvider } from "@/app/context/Web3AuthContext";
 import { NearProvider } from "./context/NearContext";
 import { GlobalProvider } from "./context/GlobalContext";
-import { Toaster } from "sonner";
 import { TourProvider } from "@reactour/tour";
 import { steps } from "./tour/steps";
 
@@ -46,7 +45,6 @@ export default function Providers({ children }) {
       <NearProvider>
         <GlobalProvider>
           <QueryClientProvider client={queryClient}>
-            <Toaster />
             <TourProvider steps={steps}>{children}</TourProvider>
           </QueryClientProvider>
         </GlobalProvider>

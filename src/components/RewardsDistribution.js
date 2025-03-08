@@ -6,7 +6,6 @@ import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useNear } from "@/app/context/NearContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
-import { toast } from "sonner";
 
 /**
  * Rewards Distribution component
@@ -86,12 +85,10 @@ const RewardsDistribution = () => {
   const handleDistributeRewards = async () => {
     // Check if user is logged in with either web3auth or NEAR wallet
     if (!web3auth?.connected && !signedAccountId) {
-      toast.error("Please connect your wallet first");
       return;
     }
 
     setIsDistributingRewards(true);
-    toast("Distributing rewards...");
 
     const contractId = VexContract;
     const gas = "300000000000000"; // 300 TGas
@@ -135,8 +132,6 @@ const RewardsDistribution = () => {
         const { data } = await response.json();
 
         console.log("Relayed transaction:", data);
-
-        toast.success("Rewards distributed successfully");
         setActionSuccess(true);
       }
       // If using NEAR Wallet
@@ -150,10 +145,9 @@ const RewardsDistribution = () => {
         });
 
         console.log("Stake swap successful!", outcome);
-        toast.success("Rewards distributed successfully!");
         setActionSuccess(true);
       } else {
-        toast.error("Failed to distribute rewards. Please try again.");
+        console.error("Failed to distribute rewards. Please try again.");
       }
 
       // Refresh rewards data
@@ -163,7 +157,6 @@ const RewardsDistribution = () => {
       }, 3000);
     } catch (error) {
       console.error("Failed to perform stake swap:", error.message || error);
-      toast.error("Failed to distribute rewards");
     } finally {
       setIsDistributingRewards(false);
     }
