@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unescaped-entities */
+
 import { X } from "lucide-react";
 
 export const steps = [
@@ -199,8 +201,8 @@ export const steps = [
         </button>
         <h2>How to claim a bet?</h2>
         <p>
-          Navigating to the view bets page will show you all the bets
-          you&apos;ve placed, past and present.
+          Navigating to the view bets page will show you all the bets you've
+          placed, past and present.
         </p>
       </div>
     ),
@@ -314,10 +316,10 @@ export const steps = [
             more you earn. You can increase your activation anytime.
             <br />
             In rare cases, betting markets may cause losses to activated
-            rewards, though we expect a 5% return per market. When you&apos;re
-            done collecting rewards, you can deactivate to stop earning and
-            eliminate loss risk. Note: Deactivation is only possible 1 week
-            after your last activation to ensure activators properly back bets.
+            rewards, though we expect a 5% return per market. When you're done
+            collecting rewards, you can deactivate to stop earning and eliminate
+            loss risk. Note: Deactivation is only possible 1 week after your
+            last activation to ensure activators properly back bets.
           </p>
         </div>
       );
@@ -369,9 +371,9 @@ export const steps = [
           decide the future of BetVEX. As a community member, you can make
           proposals to add new features, change how the platform operates, or
           decide how to spend the treasury funds. As a VEX Rewards holder, you
-          can vote on proposals, the proposal&apos;s outcome will be decided by
-          the option with the highest VEX Rewards in votes. Example proposal
-          titles may include:
+          can vote on proposals, the proposal's outcome will be decided by the
+          option with the highest VEX Rewards in votes. Example proposal titles
+          may include:
           <ul>
             <li>Become a sponsor of Fnatic.</li>
             <li>Reduce betting fees to 3%.</li>
@@ -408,9 +410,9 @@ export const steps = [
         </button>
         <h2>Leaderboard</h2>
         <p>
-          In BetVEX&apos;s competitive nature we pit bettors against each other.
-          The leaderboard ranks the all-time highest earners and those who have
-          won the most bets.
+          In BetVEX's competitive nature we pit bettors against each other. The
+          leaderboard ranks the all-time highest earners and those who have won
+          the most bets.
         </p>
         <button
           onClick={() => {

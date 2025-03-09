@@ -35,7 +35,7 @@ export default function HomePage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [sortOption, setSortOption] = useState(SORT_OPTIONS.HOT); // Default to Hot (highest betting volume)
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS.UPCOMING); // Default to Upcoming
   const [showSortDropdown, setShowSortDropdown] = useState(false);
   const params = useSearchParams();
   const startTourParam = params.get("startTour");
