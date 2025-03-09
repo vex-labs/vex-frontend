@@ -77,7 +77,7 @@ export const steps = [
         <p>
           Create a new account or log into an existing account via email,
           google, discord, twitter, wallet and more. When you first sign up
-          you&aspos;ll need to select a username.
+          you'll need to select a username.
         </p>
       </div>
     ),

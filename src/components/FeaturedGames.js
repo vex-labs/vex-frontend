@@ -263,14 +263,14 @@ const FeaturedGames = ({
             className="featured-card featured-card-4-col"
             tournamentIcon={"/icons/events/vct_china.png"}
             tournamentName={"Example Match"}
-            matchTime={"2022-12-31"}
+            matchTime={"01 April"}
             team1TotalBets={100}
             team2TotalBets={200}
-            team1Logo={"/icons/teams/Sen.png"}
-            team1Name={"Team 1"}
+            team1Logo={"/icons/teams/Bad_News_Eagles.png"}
+            team1Name={"Bad_News_Eagles"}
             matchId={"test-match"}
-            team2Logo={"/icons/teams/ssg.png"}
-            team2Name={"Team 2"}
+            team2Logo={"/icons/teams/Fluffy_Gangsters.png"}
+            team2Name={"Fluffy_Gangsters"}
             walletBalance={100}
             isTourMatch
           />
