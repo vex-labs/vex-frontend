@@ -1,27 +1,33 @@
-import { handleTransaction } from "@/utils/accountHandler";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 /**
  * Places a bet on a specified match.
- * RETRIVE PASSWORD NEEDS TO BE CHECKED
- * 
+ *
  * This function prepares and sends a transaction to place a bet on a specific match
- * using either a VEX account or a NEAR wallet.
- * 
+ * using either Web3Auth or a NEAR wallet.
+ *
  * @param {string} matchId - The ID of the match to bet on
  * @param {string} team - The team to bet on
  * @param {string} betAmount - The amount to bet
  * @param {string} contractId - The ID of the contract to interact with
  * @param {string} tokenContractId - The ID of the token contract for the bet
- * @param {Object} wallet - The wallet instance to use for the transaction
- * @param {string} vexAccountId - The VEX account ID, if available
- * @param {string} password - The password for the VEX account, if saved
- * 
+ * @param {Object} wallet - The NEAR wallet instance to use for the transaction
+ * @param {string} web3authAccountId - The Web3Auth account ID, if available
+ * @param {Object} nearConnection - The NEAR connection for Web3Auth transactions
+ *
  * @returns {Promise<Object>} A promise that resolves to the transaction outcome
  */
-export async function placeBet(matchId, team, betAmount, contractId, tokenContractId, wallet, vexAccountId, password) {
+export async function placeBet(
+  matchId,
+  team,
+  betAmount,
+  contractId,
+  tokenContractId,
+  wallet,
+  web3authAccountId,
+  nearConnection
+) {
   try {
-    // Retrieve password from local storage, if saved
-
     // Prepare the message for the bet
     const msg = JSON.stringify({
       Bet: {
@@ -33,9 +39,13 @@ export async function placeBet(matchId, team, betAmount, contractId, tokenContra
     const gas = "100000000000000"; // 100 Tgas
     const deposit = "1"; // 1 yoctoNEAR
 
-    if (vexAccountId) {
-      const outcome = await handleTransaction(
-        tokenContractId, // token contract
+    // If using Web3Auth
+    if (web3authAccountId && nearConnection) {
+      const account = await nearConnection.account(web3authAccountId);
+
+      console.log("relayed transaction");
+
+      const action = actionCreators.functionCall(
         "ft_transfer_call",
         {
           receiver_id: contractId,
@@ -43,14 +53,40 @@ export async function placeBet(matchId, team, betAmount, contractId, tokenContra
           msg: msg,
         },
         gas,
-        deposit,
-        null, // No wallet object
-        password 
+        deposit
       );
-      console.log("Bet placed successfully using relayer with VEX account!", outcome);
-      return outcome;
-    } else if (wallet && wallet.selector) {
-      // Use wallet directly if no vexAccountId is provided
+
+      const signedDelegate = await account.signedDelegate({
+        actions: [action],
+        blockHeightTtl: 120,
+        receiverId: tokenContractId,
+      });
+
+      const encodedDelegate = Array.from(encodeSignedDelegate(signedDelegate));
+
+      // Send the signed delegate to our relay API
+      const response = await fetch("/api/transactions/relay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to relay transaction");
+      }
+
+      const { data } = await response.json();
+
+      console.log("Relayed transaction:", data);
+
+      console.log("Bet placed successfully using Web3Auth!", data[0]);
+      return data[0];
+    }
+    // If using NEAR Wallet
+    else if (wallet) {
       const outcome = await wallet.callMethod({
         contractId: tokenContractId,
         method: "ft_transfer_call",
@@ -62,10 +98,12 @@ export async function placeBet(matchId, team, betAmount, contractId, tokenContra
         gas: gas,
         deposit: deposit,
       });
-      console.log("Bet placed successfully using wallet!", outcome);
+      console.log("Bet placed successfully using NEAR wallet!", outcome);
       return outcome;
     } else {
-      throw new Error("No valid wallet or VEX account ID available for placing a bet.");
+      throw new Error(
+        "No valid wallet or Web3Auth account available for placing a bet."
+      );
     }
   } catch (error) {
     console.error("Failed to place bet:", error.message || error);

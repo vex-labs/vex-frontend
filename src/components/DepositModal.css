@@ -1,0 +1,425 @@
+@import "@radix-ui/colors/black-alpha.css";
+@import "@radix-ui/colors/green.css";
+@import "@radix-ui/colors/mauve.css";
+.nav-link-deposit {
+  background: var(--accent-color);
+  border-radius: 10px;
+  padding: 8px 16px;
+  color: white;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.nav-link-deposit:hover {
+  background: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(255, 51, 88, 0.3);
+}
+.DialogOverlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: fixed;
+  inset: 0;
+  animation: overlayShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100; /* Reduced z-index to allow ReactTour to appear above */
+  backdrop-filter: blur(4px);
+  pointer-events: auto;
+}
+.DialogContent {
+  background: linear-gradient(
+    to bottom,
+    rgba(30, 30, 30, 0.95),
+    rgba(15, 15, 15, 0.95)
+  );
+  color: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90vw;
+  max-width: 450px;
+  max-height: 85vh;
+  padding: 28px;
+  animation: contentShow 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 101; /* Reduced z-index to allow ReactTour to appear above */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  /* Update amount-input-wrapper to match Swap component style */
+  .amount-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Match the Swap component's amount-stepper style */
+  .amount-stepper {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 12px;
+    height: 100%;
+    margin-left: 5px;
+    top: 5px;
+  }
+
+  /* Match the Swap component's stepper-btn style */
+  .stepper-btn {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 18px;
+    padding: 0;
+  }
+
+  .stepper-btn:first-child {
+    margin-bottom: 2px;
+  }
+
+  .stepper-btn:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .stepper-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* Update input padding for stepper buttons */
+  .Input.amount-input {
+    padding-right: 45px !important; /* Make room for the stepper buttons */
+  }
+
+  /* Fix currency indicator position to account for stepper buttons */
+  .currency-indicator {
+    right: 45px;
+  }
+
+  /* Hide default number input spinners in WebKit/Blink browsers (Chrome, Safari, Edge, Opera) */
+  .Input.amount-input::-webkit-outer-spin-button,
+  .Input.amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+/* Fix for Ethereum wallet modal issues */
+:global(.ethereum-wallet-modal-content) {
+  z-index: 1100 !important;
+  pointer-events: auto !important;
+}
+
+.DialogContent:focus {
+  outline: none;
+}
+.DialogTitle {
+  margin: 0 0 10px 0;
+  font-weight: 600;
+  color: white;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.DialogDescription {
+  margin: 0 0 25px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.amount-input-container {
+  margin-bottom: 25px;
+}
+.amount-input-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+.currency-indicator {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+}
+.amount-input {
+  width: 100%;
+  padding: 14px 60px 14px 16px !important;
+  height: auto !important;
+  font-size: 20px !important;
+  font-weight: 500;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px !important;
+  transition: all 0.2s ease;
+}
+.amount-input:focus {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.quick-amounts {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.quick-amount-button {
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.quick-amount-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.quick-amount-button.active {
+  background: var(--accent-color);
+  color: white;
+}
+.message-container {
+  margin-bottom: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+.message {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.4;
+  width: 100%;
+}
+
+.error-message {
+  background: rgba(255, 51, 88, 0.1);
+  color: var(--primary-color);
+  border-left: 3px solid var(--primary-color);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.deposit-info {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 25px;
+}
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.info-item:last-child {
+  margin-bottom: 0;
+}
+.info-label {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+.info-value {
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
+}
+.account-id {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.Button {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: auto;
+}
+.cancel-button {
+  background: rgba(255, 255, 255, 0.07);
+  color: white;
+}
+.cancel-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.Button.confirm-button {
+  background: #113b29;
+  color: #3dd68c;
+  position: relative;
+}
+.Button.confirm-button:hover:not(:disabled) {
+  background: #174933;
+  transform: translateY(-2px);
+}
+.Button.confirm-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.deposit-modal-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #3dd68c;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 0;
+}
+.success-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.success-title {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 0 0 10px 0;
+  color: white;
+}
+.success-message {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+  margin: 0 0 25px 0;
+}
+.success-close-button {
+  background: #113b29;
+  color: #3dd68c;
+  padding: 10px 30px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.success-close-button:hover {
+  background: #174933;
+  transform: translateY(-2px);
+}
+@keyframes scaleIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.CloseButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.CloseButton:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  transform: rotate(90deg);
+}
+@keyframes overlayShow {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes contentShow {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+@media (max-width: 480px) {
+  .DialogContent {
+    padding: 20px;
+    width: 94vw;
+  }
+  .DialogTitle {
+    font-size: 20px;
+  }
+  .amount-input {
+    font-size: 18px !important;
+  }
+  .info-item {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .info-value {
+    font-size: 14px;
+  }
+  .modal-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  .Button {
+    width: 100%;
+    justify-content: center;
+  }
+}

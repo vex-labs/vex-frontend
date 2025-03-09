@@ -3,7 +3,7 @@ import { useState } from "react";
 
 /**
  * FAQ component
- * 
+ *
  * This component renders a list of frequently asked questions (FAQs).
  * Users can click on a question to toggle the visibility of the answer.
  * Note: This FAQ sections can have multiple answers open at the same time.
@@ -15,7 +15,7 @@ const FAQ = () => {
 
   /**
    * Toggles the visibility of an FAQ answer.
-   * 
+   *
    * @param {number} index - The index of the FAQ to toggle
    */
   const toggleFAQ = (index) => {
@@ -32,16 +32,19 @@ const FAQ = () => {
   const faqData = [
     {
       question: "What is Next.js?",
-      answer: "Next.js is a React framework that enables server-side rendering and static website generation for React applications."
+      answer:
+        "Next.js is a React framework that enables server-side rendering and static website generation for React applications.",
     },
     {
       question: "How do I deploy a Next.js app?",
-      answer: "You can deploy Next.js apps on platforms like Vercel, Netlify, or any server that supports Node.js."
+      answer:
+        "You can deploy Next.js apps on platforms like Vercel, Netlify, or any server that supports Node.js.",
     },
     {
       question: "What is server-side rendering (SSR)?",
-      answer: "SSR is a method where a webpage is generated on the server and sent to the client, providing faster initial load times."
-    }
+      answer:
+        "SSR is a method where a webpage is generated on the server and sent to the client, providing faster initial load times.",
+    },
   ];
 
   return (
@@ -54,7 +57,9 @@ const FAQ = () => {
               {openFAQs.includes(index) ? "-" : "+"}
             </span>
           </div>
-          <div className={`faq-answer ${openFAQs.includes(index) ? "show" : ""}`}>
+          <div
+            className={`faq-answer ${openFAQs.includes(index) ? "show" : ""}`}
+          >
             {faq.answer}
           </div>
         </div>
