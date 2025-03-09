@@ -161,8 +161,14 @@ const FeaturedGames = ({
   };
 
   // Format match date and time
-  const formatMatchDateTime = (timestamp) => {
-    const date = new Date(timestamp * 1000);
+  const formatMatchDateTime = (date_string) => {
+    // Handle DD/MM/YYYY format by parsing each component
+    const [day, month, year] = date_string
+      .split("/")
+      .map((num) => parseInt(num, 10));
+
+    // Create date with correct components (months are 0-indexed in JavaScript)
+    const date = new Date(year, month - 1, day);
 
     const dateStr = date.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -293,7 +299,7 @@ const FeaturedGames = ({
               tournamentName={
                 match.tournament_name || match.game || "Unknown Tournament"
               }
-              matchTime={formatMatchDateTime(match.date_timestamp)}
+              matchTime={formatMatchDateTime(match.date_string)}
               team1TotalBets={match.team_1_total_bets}
               team2TotalBets={match.team_2_total_bets}
               team1Logo={getTeamLogo(match.team_1)}
