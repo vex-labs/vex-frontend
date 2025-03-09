@@ -1,136 +1,351 @@
-'use client';
+"use client";
 
-import Sidebar from '@/components/Sidebar';
-import FeaturedGames from '@/components/FeaturedGames';
-import UpcomingGames from '@/components/UpcomingGames';
-import { useEffect, useState } from 'react';
-import { providers } from 'near-api-js';
-import { fetchMatchesByIDs } from '@/utils/fetchMatches';
-import { useNear } from "@/app/context/NearContext"; 
+import React, { useEffect, useState, useCallback } from "react";
+import Sidebar from "@/components/Sidebar";
+import FeaturedGames from "@/components/FeaturedGames";
+import UpcomingGames from "@/components/UpcomingGames";
+import { Search, X, ArrowUpDown } from "lucide-react";
+import "./search-styles.css";
+import MobileGameSelector from "@/components/MobileGameSelector";
+import { useTour } from "@reactour/tour";
+import { useSearchParams } from "next/navigation";
 
 /**
- * HomePage component
- * 
+ * Sort options for the matches
+ */
+export const SORT_OPTIONS = {
+  UPCOMING: "upcoming", // Closest in time (default)
+  DISTANT: "distant", // Furthest in the future
+  HOT: "hot", // Highest betting volume
+  NEW: "new", // Most recently added
+  FOR_ME: "for_me", // Personalized (to be implemented)
+};
+
+/**
+ * Enhanced HomePage component
+ *
  * This component serves as the main page for displaying featured and upcoming games.
- * It fetches match data from the blockchain and additional match data from the backend.
- * It also manages the state for selected games and user account information.
- * 
- * @param {Object} props - The component props
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
- * @param {Object} props.vexKeyPair - The VEX key pair for the user
- * 
+ * Data fetching is delegated to the FeaturedGames and UpcomingGames components.
+ *
  * @returns {JSX.Element} The rendered HomePage component
  */
-export default function HomePage({ isVexLogin, vexKeyPair }) {
-  const nearContext = useNear(); 
-  const [matches, setMatches] = useState([]);
-  const [additionalMatchData, setAdditionalMatchData] = useState([]);
+export default function HomePage() {
   const [selectedGame, setSelectedGame] = useState(null);
-  const [vexAccountId, setVexAccountId] = useState(null);
+  const [availableGames, setAvailableGames] = useState([]);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [sortOption, setSortOption] = useState(SORT_OPTIONS.UPCOMING); // Default to Upcoming
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const params = useSearchParams();
+  const startTourParam = params.get("startTour");
 
-  const signedAccountId = isVexLogin ? null : nearContext?.signedAccountId || null;
+  const { setIsOpen } = useTour();
 
+  // Start the tour if the query parameter is present
   useEffect(() => {
-    // Fetch vexAccountId from localStorage on component mount
-    const storedVexAccountId = localStorage.getItem("vexAccountId");
-    console.log("vexAccountId from local storage:", storedVexAccountId);
-    setVexAccountId(storedVexAccountId); 
+    if (startTourParam) {
+      // Start the tour
+      setIsOpen(true);
+    }
+  }, [startTourParam, setIsOpen]);
+
+  // Set initial loading to false after a short delay to allow components to render
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 500);
+
+    return () => clearTimeout(timer);
   }, []);
 
   /**
    * Handles the selection of a game from the sidebar
-   * 
-   * @param {string} game - The selected game
    */
-  const handleGameSelection = (game) => {
+  const handleGameSelection = useCallback((game) => {
     setSelectedGame(game);
-  };
+    // Save the selected game to sessionStorage to persist across page refreshes
+    sessionStorage.setItem("selectedGame", game);
+    // Clear search when selecting a game category
+    setSearchTerm("");
+  }, []);
 
   /**
-   * Resets the selected game to null
+   * Resets the game selection filter
    */
-  const resetGameSelection = () => {
+  const resetGameSelection = useCallback(() => {
     setSelectedGame(null);
-  };
+    sessionStorage.removeItem("selectedGame");
+  }, []);
 
-  // Fetch matches from the blockchain (NEAR)
+  /**
+   * Handles search input changes
+   */
+  const handleSearchChange = useCallback((e) => {
+    setSearchTerm(e.target.value);
+  }, []);
+
+  /**
+   * Clears the search term
+   */
+  const clearSearch = useCallback(() => {
+    setSearchTerm("");
+  }, []);
+
+  /**
+   * Handles changing the sort option
+   */
+  const handleSortChange = useCallback((option) => {
+    setSortOption(option);
+    setShowSortDropdown(false);
+    sessionStorage.setItem("sortOption", option);
+  }, []);
+
+  /**
+   * Toggles the sort dropdown visibility
+   */
+  const toggleSortDropdown = useCallback(() => {
+    setShowSortDropdown((prev) => !prev);
+  }, []);
+
+  /**
+   * Reference for the sort dropdown
+   */
+  const sortDropdownRef = React.useRef(null);
+
+  /**
+   * Handle clicks outside the sort dropdown to close it
+   */
   useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
-        const matches = await provider.query({
-          request_type: "call_function",
-          account_id: "sexyvexycontract.testnet",
-          method_name: "get_matches",
-          args_base64: btoa(JSON.stringify({ from_index: null, limit: null })),
-          finality: "final"
-        });
-        const decodedResult = JSON.parse(Buffer.from(matches.result).toString());
-
-        console.log("Matches:", decodedResult);
-        setMatches(decodedResult);
-
-        localStorage.setItem("matches", JSON.stringify(decodedResult));
-      } catch (error) {
-        console.error("Failed to fetch matches:", error);
+    const handleClickOutside = (event) => {
+      if (
+        sortDropdownRef.current &&
+        !sortDropdownRef.current.contains(event.target)
+      ) {
+        setShowSortDropdown(false);
       }
     };
 
-    fetchMatches();
+    // Add event listener when dropdown is open
+    if (showSortDropdown) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showSortDropdown]);
+
+  // Restore previously selected game and sort option from sessionStorage
+  useEffect(() => {
+    const savedGame = sessionStorage.getItem("selectedGame");
+    if (savedGame) {
+      setSelectedGame(savedGame);
+    }
+
+    const savedSortOption = sessionStorage.getItem("sortOption");
+    if (
+      savedSortOption &&
+      Object.values(SORT_OPTIONS).includes(savedSortOption)
+    ) {
+      setSortOption(savedSortOption);
+    }
   }, []);
 
-  // Fetch additional match data from the backend
-  useEffect(() => {
-    const fetchAdditionalMatchData = async () => {
-      if (matches.length === 0) return;
-
-      const matchIDs = matches.map(match => match.match_id).filter(Boolean);
-
-      if (matchIDs.length === 0) return;
-
-      const backendResponse = await fetchMatchesByIDs(matchIDs);
-      console.log("Matches from backend:", backendResponse);
-
-      setAdditionalMatchData(backendResponse);
-
-      localStorage.setItem("additionalMatchData", JSON.stringify(backendResponse));
-    };
-
-    fetchAdditionalMatchData();
-  }, [matches]);
-
-  const filteredMatches = selectedGame 
-    ? matches.filter((match) => match.game === selectedGame) 
-    : matches;
-
-  const filteredAdditionalData = additionalMatchData.filter((additionalMatch) => 
-    filteredMatches.some((match) => match.match_id === additionalMatch.match_id)
-  );
+  // Method for child components to update available games
+  const updateAvailableGames = useCallback((games) => {
+    setAvailableGames(games);
+  }, []);
 
   return (
     <div className="container">
-      <Sidebar onSelectGame={handleGameSelection} />
+      <Sidebar
+        onSelectGame={handleGameSelection}
+        selectedGame={selectedGame}
+        availableGames={availableGames}
+      />
+
       <div className="mainContent">
+        {/* Hero Banner */}
         <div className="hero-section">
           <div className="hero-background">
-            <img src="/icons/newBannerHD.svg" alt="Hero Banner" className="hero-banner" />
+            <img
+              src="/icons/newBannerHD.svg"
+              alt="Hero Banner"
+              className="hero-banner"
+            />
           </div>
         </div>
-        <div className="content-wrapper">
-          <FeaturedGames matches={matches} additionalMatchData={additionalMatchData} />
-          <div className="header-container">
-            <h1 style={{ color: 'white' }}>Upcoming Games</h1>
-            {selectedGame && (
-              <button onClick={resetGameSelection} className="remove-filters-button">
-                Remove Filters
+
+        <div className="search-and-filter-container">
+          <div
+            className={`search-container ${isSearchFocused ? "focused" : ""}`}
+          >
+            <div className="search-icon">
+              <Search size={18} />
+            </div>
+            <input
+              type="text"
+              placeholder="Search games, teams, tournaments..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="game-search-input"
+              onFocus={() => setIsSearchFocused(true)}
+              onBlur={() => setIsSearchFocused(false)}
+              aria-label="Search games"
+            />
+            {searchTerm && (
+              <button
+                className="clear-search-button"
+                onClick={clearSearch}
+                aria-label="Clear search"
+              >
+                <X size={18} />
               </button>
             )}
           </div>
-          <UpcomingGames 
-            matches={filteredMatches} 
-            additionalMatchData={filteredAdditionalData}
-            vexAccountId={vexAccountId} 
+
+          <MobileGameSelector
+            selectedGame={selectedGame}
+            onSelectGame={handleGameSelection}
           />
+
+          {/* Sort selector dropdown - moved to end for right alignment */}
+          <div className="sort-selector-container" ref={sortDropdownRef}>
+            <button
+              className="sort-selector-button"
+              onClick={toggleSortDropdown}
+              aria-haspopup="true"
+              aria-expanded={showSortDropdown}
+            >
+              <ArrowUpDown size={16} />
+              <span>
+                Sort:{" "}
+                {sortOption === SORT_OPTIONS.UPCOMING
+                  ? "Upcoming"
+                  : sortOption === SORT_OPTIONS.DISTANT
+                  ? "Distant"
+                  : sortOption === SORT_OPTIONS.HOT
+                  ? "Hot"
+                  : sortOption === SORT_OPTIONS.NEW
+                  ? "New"
+                  : sortOption === SORT_OPTIONS.FOR_ME
+                  ? "For Me"
+                  : "Sort"}
+              </span>
+            </button>
+
+            {showSortDropdown && (
+              <div className="sort-dropdown">
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.UPCOMING ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.UPCOMING)}
+                >
+                  Upcoming (Soonest)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.DISTANT ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.DISTANT)}
+                >
+                  Distant (Furthest)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.HOT ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.HOT)}
+                >
+                  Hot (Highest Volume)
+                </button>
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.NEW ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.NEW)}
+                >
+                  New (Recently Added)
+                </button>
+                {/* For Me option - to be implemented */}
+                <button
+                  className={`sort-option ${
+                    sortOption === SORT_OPTIONS.FOR_ME ? "active" : ""
+                  }`}
+                  onClick={() => handleSortChange(SORT_OPTIONS.FOR_ME)}
+                  disabled
+                >
+                  For Me (Coming Soon)
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="content-wrapper">
+          {/* Active filters display */}
+          {(selectedGame || searchTerm) && (
+            <div className="active-filters">
+              <div className="active-filters-heading">Active Filters:</div>
+              <div className="filters-container">
+                {selectedGame && (
+                  <div className="filter-tag">
+                    <span>Game: {selectedGame}</span>
+                    <button
+                      onClick={resetGameSelection}
+                      aria-label="Remove game filter"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+                {searchTerm && (
+                  <div className="filter-tag">
+                    <span>Search: {searchTerm}</span>
+                    <button onClick={clearSearch} aria-label="Clear search">
+                      <X size={14} />
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={() => {
+                    resetGameSelection();
+                    clearSearch();
+                  }}
+                  className="clear-all-filters"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Featured Games Section */}
+          <section className="featured-section">
+            <FeaturedGames
+              selectedGame={selectedGame}
+              searchTerm={searchTerm}
+              onUpdateAvailableGames={updateAvailableGames}
+              sortOption={sortOption}
+            />
+          </section>
+
+          {/* Upcoming Games Section */}
+          <section className="upcoming-section">
+            <div className="section-header">
+              <h1>Upcoming Games</h1>
+            </div>
+
+            <UpcomingGames
+              selectedGame={selectedGame}
+              searchTerm={searchTerm}
+              isLoading={isInitialLoading}
+              sortOption={sortOption}
+            />
+          </section>
         </div>
       </div>
     </div>

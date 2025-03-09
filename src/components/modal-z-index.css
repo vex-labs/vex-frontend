@@ -1,0 +1,35 @@
+/* Z-index hierarchy for the application 
+ * This file defines the z-index values for various components to ensure proper layering
+ * The higher the z-index value, the more "on top" the element will appear
+ */
+
+:root {
+  /* Base layers */
+  --z-background: 1;
+  --z-content: 10;
+  
+  /* Navigation bars */
+  --z-desktop-nav: 50;
+  --z-mobile-nav: 500;
+  --z-testnet-banner: 500;
+  
+  /* Dropdown menus and toggleable UI */
+  --z-dropdown: 600;
+  --z-user-dropdown: 600;
+  --z-game-selector: 600;
+  
+  /* Modals - must appear above everything else */
+  --z-modal-overlay: 1000;
+  --z-modal-content: 1001;
+  --z-ethereum-wallet-modal: 1100;
+}
+
+/* Ethereum wallet modal fix */
+.ethereum-wallet-modal-content {
+  z-index: var(--z-ethereum-wallet-modal) !important;
+  pointer-events: auto !important;
+}
+
+.ethereum-wallet-modal-content * {
+  pointer-events: auto !important;
+}

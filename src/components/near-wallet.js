@@ -6,9 +6,9 @@ import { distinctUntilChanged, map } from "rxjs";
 import "@near-wallet-selector/modal-ui/styles.css";
 import { setupModal } from "@near-wallet-selector/modal-ui";
 import { setupWalletSelector } from "@near-wallet-selector/core";
-import { setupHereWallet } from "@near-wallet-selector/here-wallet";
-import { setupMyNearWallet } from "@near-wallet-selector/my-near-wallet";
-
+import { setupMeteorWallet } from "@near-wallet-selector/meteor-wallet";
+import { wagmiConfig, web3Modal } from "@/app/wallet/web3modal";
+import { setupEthereumWallets } from "@near-wallet-selector/ethereum-wallets";
 const THIRTY_TGAS = "30000000000000";
 const NO_DEPOSIT = "0";
 
@@ -25,7 +25,6 @@ export class Wallet {
   constructor({ networkId = "testnet", createAccessKeyFor = undefined }) {
     this.createAccessKeyFor = createAccessKeyFor;
     this.networkId = networkId;
-    this.selector = null // added this recently
   }
 
   /**
@@ -34,82 +33,58 @@ export class Wallet {
    * @returns {Promise<string>} - the accountId of the signed-in user
    */
   startUp = async (accountChangeHook) => {
-    try {
-      // Initialize the wallet selector
-      this.selector = await setupWalletSelector({
-        network: this.networkId,
-        modules: [setupMyNearWallet(), setupHereWallet()],
+    this.selector = setupWalletSelector({
+      network: this.networkId,
+      modules: [
+        setupMeteorWallet(),
+        setupEthereumWallets({
+          wagmiConfig,
+          web3Modal,
+          alwaysOnboardDuringSignIn: true,
+        }),
+      ],
+    });
+
+    const walletSelector = await this.selector;
+    const isSignedIn = walletSelector.isSignedIn();
+    const accountId = isSignedIn
+      ? walletSelector.store.getState().accounts[0].accountId
+      : "";
+
+    walletSelector.store.observable
+      .pipe(
+        map((state) => state.accounts),
+        distinctUntilChanged()
+      )
+      .subscribe((accounts) => {
+        const signedAccount = accounts.find(
+          (account) => account.active
+        )?.accountId;
+        accountChangeHook(signedAccount);
       });
-  
-      const walletSelector = await this.selector;
-      const isSignedIn = walletSelector.isSignedIn();
-  
-      if (isSignedIn) {
-        const accountId = walletSelector.store.getState().accounts[0].accountId;
-        console.log("Account Signed In:", accountId);
-  
-        // Call the account change hook to update the signedAccountId
-        accountChangeHook(accountId);
-      }
-  
-      // Subscribe to account changes
-      walletSelector.store.observable
-        .pipe(
-          map((state) => state.accounts),
-          distinctUntilChanged(),
-        )
-        .subscribe((accounts) => {
-          const signedAccount = accounts.find(
-            (account) => account.active,
-          )?.accountId;
-  
-          console.log("Active Account Changed:", signedAccount);
-          accountChangeHook(signedAccount);
-        });
-  
-    } catch (error) {
-      console.error("Error during wallet startup:", error);
-    }
+
+    return accountId;
   };
-  
-  
 
   /**
    * Displays a modal to login the user
    */
   signIn = async () => {
-    try {
-      // Ensure that selector is properly initialized
-      if (!this.selector) {
-        this.selector = await setupWalletSelector({
-          network: this.networkId,
-          modules: [setupMyNearWallet(), setupHereWallet()],
-        });
-      }
-  
-      // Ensure the selector is ready before proceeding
-      if (this.selector) {
-        const modal = setupModal(this.selector, {
-          contractId: this.createAccessKeyFor,
-        });
-        modal.show();
-      } else {
-        console.error("Wallet selector is not initialized.");
-      }
-    } catch (error) {
-      console.error("Error during signIn:", error);
-    }
+    const modal = setupModal(await this.selector, {
+      contractId: this.createAccessKeyFor,
+      modalContainerClassName: "ethereum-wallet-modal-content",
+    });
+    modal.show();
   };
-  
-  
+
   /**
    * Logout the user
    */
-  signOut = async (accountChangeHook) => {
+  signOut = async () => {
     const selectedWallet = await (await this.selector).wallet();
     selectedWallet.signOut();
-  
   };
+
   /**
    * Makes a read-only call to a contract
    * @param {Object} options - the options for the call
@@ -170,7 +145,7 @@ export class Wallet {
   };
 
   /**
-   * Retrieves transaction result from the network
+   * Fetches transaction result from the network
    * @param {string} txhash - the transaction hash
    * @returns {Promise<JSON.value>} - the result of the transaction
    */
@@ -179,6 +154,7 @@ export class Wallet {
     const { network } = walletSelector.options;
     const provider = new providers.JsonRpcProvider({ url: network.nodeUrl });
 
+    // Retrieve transaction result from the network
     const transaction = await provider.txStatus(txhash, "unnused");
     return providers.getTransactionLastResult(transaction);
   };

@@ -1,0 +1,135 @@
+.user-dropdown-container {
+  position: relative;
+  display: inline-block;
+}
+
+.user-dropdown-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.7);
+  transition: all 0.2s ease;
+}
+
+.user-avatar img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.avatar-ring {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  border: 2px solid #4da6ff;
+  pointer-events: none;
+}
+
+.user-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 100;
+  margin-top: 8px;
+  min-width: 240px;
+  background: rgba(35, 35, 35, 1);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.user-profile-header {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar-large {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 30, 30, 0.7);
+}
+
+.user-avatar-large img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-account-id {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+}
+
+.user-wallet-type {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.dropdown-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+
+.dropdown-menu-item {
+  padding: 12px 16px;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-menu-item:hover,
+.dropdown-menu-item.active {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-menu-item.danger-item {
+  color: #ff4f4f;
+}
+
+.menu-item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menu-item-icon {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.menu-item-label {
+  font-size: 14px;
+  font-weight: 500;
+}

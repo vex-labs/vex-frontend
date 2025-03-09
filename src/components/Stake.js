@@ -1,89 +1,218 @@
-import React, { useState, useEffect } from 'react';
-import { providers } from 'near-api-js';
-import { handleTransaction } from "@/utils/accountHandler";
-import { useGlobalContext } from '@/app/context/GlobalContext';
+import React, { useState, useEffect, useMemo } from "react";
+import { providers } from "near-api-js";
+import { useGlobalContext } from "@/app/context/GlobalContext";
+import { NearRpcUrl, VexContract } from "@/app/config";
+import {
+  Loader2,
+  CheckCircle,
+  ChevronUp,
+  ChevronDown,
+  Clock,
+} from "lucide-react";
+import { useWeb3Auth } from "@/app/context/Web3AuthContext";
+import { useNear } from "@/app/context/NearContext";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
+import { useTour } from "@reactour/tour";
 
 /**
- * Staking component
- * 
+ * Enhanced Staking component with tour functionality
+ *
  * This component allows users to stake and unstake their tokens.
  * It displays the user's balance, staked balance, and total USDC rewards.
  * Users can select between staking and unstaking options, enter an amount, and submit transactions.
- * 
- * @param {Object} props - The component props
- * @param {Object} props.wallet - Wallet object for handling transactions
- * @param {string} props.signedAccountId - The signed-in user's account ID
- * @param {boolean} props.isVexLogin - Indicates if the user is logged in with VEX
- * 
+ * It also supports tour mode, advancing from step 12 to 13 when a staking action is performed.
+ *
  * @returns {JSX.Element} The rendered Staking component
  */
 
-const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
-  const [selectedOption, setSelectedOption] = useState('stake');
-  const [amount, setAmount] = useState('');
+const Staking = () => {
+  // Get tour context
+  const { currentStep, setCurrentStep, isOpen } = useTour();
+  const isTourActive = isOpen && currentStep === 12;
+
+  // Get authentication contexts
+  const {
+    web3auth,
+    nearConnection,
+    accountId: web3authAccountId,
+  } = useWeb3Auth();
+  const { wallet, signedAccountId } = useNear();
+  const { accountId } = useGlobalContext();
+  const [selectedOption, setSelectedOption] = useState("stake");
+  const [amount, setAmount] = useState("");
   const [balance, setBalance] = useState(0);
   const [stakedBalance, setStakedBalance] = useState(0);
   const [totalUSDCRewards, setTotalUSDCRewards] = useState(null);
-  const [vexAccountId, setVexAccountId] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [message, setMessage] = useState('');
   const [refreshBalances, setRefreshBalances] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [actionSuccess, setActionSuccess] = useState(false);
+  const [unstakeTimestamp, setUnstakeTimestamp] = useState(null);
+  // Add a refresh interval to periodically check if cooldown ended
+  const [refreshCooldown, setRefreshCooldown] = useState(0);
 
   const tokenContractId = "token.betvex.testnet";
-  const stakingContractId = "sexyvexycontract.testnet";
-  const provider = new providers.JsonRpcProvider("https://rpc.testnet.near.org");
+  const stakingContractId = VexContract;
+  const provider = new providers.JsonRpcProvider(NearRpcUrl);
 
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
-  useEffect(() => {
-    setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
-  }, [tokenBalances]);
+  // Use mock balances for tour mode
+  const mockBalances = {
+    VEX: "1000.00",
+    stakedVEX: "500.00",
+    USDC: "1250.00",
+  };
 
-  // Load saved password from local storage
+  // Set up mock values for tour mode
   useEffect(() => {
-    const savedPassword = localStorage.getItem("vexPassword");
-    if (savedPassword) {
-      setPassword(savedPassword);
-    }
-  }, []);
-
-// Load saved VEX account ID from local storage
-  useEffect(() => {
-    if (isVexLogin) {
-      const storedVexAccountId = localStorage.getItem("vexAccountId");
-      if (storedVexAccountId) {
-        setVexAccountId(storedVexAccountId);
-        console.log("vexAccountId set from localStorage:", storedVexAccountId); // Log for confirmation
-      } else {
-        console.log("vexAccountId not found in localStorage.");
-      }
-    }
-  }, [isVexLogin]);
-  
-// Fetch staked balance and rewards on component mount or as needed
-  useEffect(() => {
-
-    const accountId = signedAccountId || vexAccountId;
-    
-    if (accountId) {
-      fetchStakedBalance(accountId)
-      rewards_ready_to_swap(stakingContractId)
+    if (isTourActive) {
+      setAmount("100");
+      setSelectedOption("stake");
+      setBalance(parseFloat(mockBalances.VEX));
+      setStakedBalance(parseFloat(mockBalances.stakedVEX));
     } else {
-      console.log("Account ID is null; fetch functions not called.");
+      setBalance(tokenBalances.VEX); // Update balance from context if tokenBalances changes
     }
-  }, [signedAccountId, vexAccountId, refreshBalances]);
+  }, [isTourActive, tokenBalances]);
+
+  // Fetch staked balance and rewards on component mount or as needed
+  useEffect(() => {
+    // Skip API calls during tour mode
+    if (isTourActive) return;
+
+    console.log("fetching staked balance");
+    if (accountId) {
+      fetchStakedBalance(accountId);
+      rewards_ready_to_swap(stakingContractId);
+      fetchUserStakeInfo(accountId);
+    }
+  }, [
+    accountId,
+    refreshBalances,
+    tokenBalances,
+    refreshCooldown,
+    isTourActive,
+  ]);
+
+  // Set up a timer to check for cooldown expiration
+  useEffect(() => {
+    // Skip during tour mode
+    if (isTourActive) return;
+
+    // Refresh the cooldown status every 10 seconds
+    const intervalId = setInterval(() => {
+      if (unstakeTimestamp && isNearCooldownEnd()) {
+        setRefreshCooldown((prev) => prev + 1);
+      }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+  }, [unstakeTimestamp, isTourActive]);
+
+  // Check if we're near the end of the cooldown period
+  const isNearCooldownEnd = () => {
+    if (!unstakeTimestamp) return false;
+
+    const currentTimeNano = getCurrentTimeInNanoseconds();
+    const timestampNano = BigInt(unstakeTimestamp);
+
+    // If less than 1 minute remains, or cooldown has passed
+    return (
+      currentTimeNano >= timestampNano ||
+      timestampNano - currentTimeNano < BigInt(60 * 1000000000)
+    );
+  };
+
+  // Format timestamp to readable date and time
+  const formatUnstakeTime = (timestamp) => {
+    if (!timestamp) return "";
+
+    // Convert from nanoseconds to milliseconds (divide by 1,000,000)
+    const milliseconds = Math.floor(Number(timestamp) / 1000000);
+
+    const date = new Date(milliseconds);
+
+    const dateStr = date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "long",
+    });
+
+    const timeStr = date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return `${dateStr} ${timeStr}`;
+  };
+
+  // Get current time in nanoseconds
+  const getCurrentTimeInNanoseconds = () => {
+    return BigInt(Date.now()) * BigInt(1000000);
+  };
+
+  // Fetch user's stake info including unstake timestamp
+  const fetchUserStakeInfo = async (accountId) => {
+    try {
+      const args = { account_id: accountId };
+      const encodedArgs = Buffer.from(JSON.stringify(args)).toString("base64");
+      const result = await provider.query({
+        request_type: "call_function",
+        account_id: stakingContractId,
+        method_name: "get_user_stake_info",
+        args_base64: encodedArgs,
+        finality: "final",
+      });
+
+      const resultString = Buffer.from(result.result).toString();
+      const stakeInfo = JSON.parse(resultString);
+
+      if (stakeInfo && stakeInfo.unstake_timestamp) {
+        setUnstakeTimestamp(stakeInfo.unstake_timestamp);
+      } else {
+        setUnstakeTimestamp(null);
+      }
+    } catch (error) {
+      console.error("Error fetching stake info:", error);
+      setUnstakeTimestamp(null);
+    }
+  };
 
   const handlePercentageClick = (percentage) => {
-    const currentBalance = selectedOption === 'stake' ? balance : stakedBalance;
+    const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
+
+    if (percentage === 1) {
+      setAmount(currentBalance);
+      return;
+    }
+
     setAmount((currentBalance * percentage).toFixed(2));
   };
-  
+
+  // Handle stepping amount up or down
+  const handleAmountStep = (direction) => {
+    const currentAmount = parseFloat(amount || 0);
+    // Define step size based on balance to make it more useful
+    const currentBalance = selectedOption === "stake" ? balance : stakedBalance;
+    const stepSize = Math.max(10, Math.floor(currentBalance * 0.05)); // 5% of balance or minimum 10 VEX
+
+    // Calculate new amount based on direction
+    let newAmount = currentAmount;
+    if (direction === "up") {
+      newAmount = currentAmount + stepSize;
+    } else if (direction === "down") {
+      newAmount = Math.max(0, currentAmount - stepSize);
+    }
+
+    // Format and update the amount
+    setAmount(newAmount.toFixed(2));
+  };
+
   // This function fetches the staked balance for the user
   const fetchStakedBalance = async (accountId) => {
     try {
       const args = { account_id: accountId };
-      const encodedArgs = Buffer.from(JSON.stringify(args)).toString('base64');
+      const encodedArgs = Buffer.from(JSON.stringify(args)).toString("base64");
       const result = await provider.query({
         request_type: "call_function",
         account_id: stakingContractId,
@@ -91,14 +220,17 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
         args_base64: encodedArgs,
         finality: "final",
       });
-  
+
       const resultString = Buffer.from(result.result).toString();
       // Parse as JSON to access U128 structure
       const parsedResult = JSON.parse(resultString);
       const stakedBalanceRaw = parseFloat(parsedResult) / 1e18;
-      
-  
-      setStakedBalance(isNaN(stakedBalanceRaw) ? 0 : stakedBalanceRaw);
+
+      // Round to 2 decimal places
+      const roundedBalance = isNaN(stakedBalanceRaw)
+        ? 0
+        : parseFloat(stakedBalanceRaw.toFixed(2));
+      setStakedBalance(roundedBalance);
     } catch (error) {
       console.error("Error fetching staked balance:", error);
     }
@@ -110,7 +242,7 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       // Call the view function `get_usdc_staking_rewards` on the contract
       const result = await provider.query({
         request_type: "call_function",
-        account_id: "sexyvexycontract.testnet",
+        account_id: VexContract,
         method_name: "get_usdc_staking_rewards",
         args_base64: "", // No arguments are required
         finality: "final",
@@ -120,366 +252,493 @@ const Staking = ({ wallet, signedAccountId, isVexLogin }) => {
       const parsedResult = JSON.parse(Buffer.from(result.result).toString());
       const totalUSDCRewardsToSwap = parseFloat(parsedResult) / 1e6;
 
+      // Round to 2 decimal places
       if (totalUSDCRewardsToSwap > 0) {
-        setTotalUSDCRewards(totalUSDCRewardsToSwap);
-      } 
+        setTotalUSDCRewards(parseFloat(totalUSDCRewardsToSwap.toFixed(2)));
+      } else {
+        setTotalUSDCRewards(0);
+      }
     } catch (error) {
       console.error("Failed to retrieve USDC rewards to swap:", error);
-      setTotalUSDCRewards(0); // Set to 0 or null if retrieval fails
+      setTotalUSDCRewards(0);
     }
-  };
-
-  // Fetch rewards on component mount or as needed
-  useEffect(() => {
-    rewards_ready_to_swap();
-  }, []);
-  
-  const handlePasswordSubmit = (enteredPassword) => {
-    setPassword(enteredPassword);
-    localStorage.setItem("vexPassword", enteredPassword);
-    setShowPasswordModal(false);
-
-    // Trigger function based on selected option
-    if (selectedOption === 'stake') {
-      handleStake();
-    } else if (selectedOption === 'unstake') {
-      handleUnstake();
-    } else if (selectedOption === 'stakeSwap') {
-      handleStakeSwap(); // Call stake swap after password is submitted
-    }
-
-    localStorage.removeItem('vexPassword');
-    setPassword(null);
   };
 
   // This function stakes the user's tokens in the staking contract
-  // This function makes two transactions: one to deposit the tokens and another to stake them
-  // This function is dynamically called based on the login type and password availability
   const handleStake = async () => {
     if (!amount) {
-        setMessage("Please enter an amount to stake.");
-        return;
+      console.error("Please enter an amount to activate");
+      return;
     }
 
-    if (isVexLogin && !password) {
-        setShowPasswordModal(true);
-        return;
+    // Special handling for tour mode
+    if (isTourActive) {
+      setIsProcessing(true);
+
+      // Simulate processing time
+      setTimeout(() => {
+        setIsProcessing(false);
+        setActionSuccess(true);
+
+        // Move to next tour step
+        setCurrentStep(13);
+
+        // Reset after some time
+        setTimeout(() => {
+          setAmount("");
+          setActionSuccess(false);
+
+          // Update mock balances for tour mode
+          if (selectedOption === "stake") {
+            setBalance((prev) => prev - parseFloat(amount));
+            setStakedBalance((prev) => prev + parseFloat(amount));
+          }
+        }, 2000);
+      }, 1500);
+
+      return;
     }
 
-    const formattedAmount = (BigInt(parseFloat(amount) * 1e18)).toString();
+    // Regular flow for non-tour mode
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      console.error("Please connect your wallet first");
+      return;
+    }
+
+    setIsProcessing(true);
+
+    // Convert amount to a fixed number with 2 decimal places, then to BigInt format
+    const formattedAmount = BigInt(
+      parseFloat(parseFloat(amount).toFixed(2)) * 1e18
+    ).toString();
     const msg = JSON.stringify("Stake");
     const gas = "100000000000000";
-    const deposit = "0";
-    const deposit1 = "1";
 
     try {
-        if (parseFloat(amount) < 50) {
-            setMessage("Minimum of 50 VEX is required to register in the contract.");
-            return;
-        }
-
-        if (isVexLogin) {
-            const depositResult = await handleTransaction(
-                tokenContractId,
-                "ft_transfer_call",
-                { receiver_id: stakingContractId, amount: formattedAmount, msg },
-                gas,
-                deposit1,
-                null,
-                password
-            );
-
-            if (depositResult && !depositResult.error) {
-                console.log("Deposit successful. Proceeding to stake.");
-                const stakeResult = await handleTransaction(
-                    stakingContractId,
-                    "stake",
-                    { amount: formattedAmount },
-                    gas,
-                    deposit,
-                    null,
-                    password
-                );
-
-                if (stakeResult && !stakeResult.error) {
-                    setMessage("Stake transaction successful.");
-                    setRefreshBalances((prev) => !prev); // Trigger balance refresh
-                    toggleRefreshBalances();
-                } else {
-                    setMessage("Failed to stake. Please try again.");
-                    console.error("Stake transaction failed:", stakeResult.error);
-                }
-            } else {
-                setMessage("Failed to deposit. Please try again.");
-                console.error("Deposit transaction failed:", depositResult.error);
-            }
-        } else {
-            const depositResult = await wallet.callMethod({
-                contractId: tokenContractId,
-                method: "ft_transfer_call",
-                args: { receiver_id: stakingContractId, amount: formattedAmount, msg: "Deposit" },
-                gas,
-                deposit1,
-            });
-
-            if (depositResult && !depositResult.error) {
-                console.log("Deposit successful. Proceeding to stake.");
-
-                const stakeResult = await wallet.callMethod({
-                    contractId: stakingContractId,
-                    method: "stake",
-                    args: { amount: formattedAmount },
-                    gas,
-                    deposit,
-                });
-
-                if (stakeResult && !stakeResult.error) {
-                    setMessage("Stake successful!");
-                    setRefreshBalances((prev) => !prev); // Trigger balance refresh
-                    toggleRefreshBalances();
-                } else {
-                    setMessage("Failed to stake. Please try again.");
-                    console.error("Stake transaction failed:", stakeResult.error);
-                }
-            } else {
-                setMessage("Failed to deposit. Please try again.");
-                console.error("Deposit transaction failed:", depositResult.error);
-            }
-        }
-    } catch (error) {
-        setMessage("An error occurred during the staking process.");
-        console.error("Error during deposit and stake process:", error);
-    }
-};
-
-// This function unstakes the user's tokens and withdraws them from the staking contract
-// This function makes two transactions: one to unstake the tokens and another to withdraw them
-// This function is dynamically called based on the login type and password availability
-const handleUnstake = async () => {
-  if (!amount) {
-      setMessage("Please enter an amount to unstake.");
-      return;
-  }
-
-  if (isVexLogin && !password) {
-      setShowPasswordModal(true);
-      return;
-  }
-
-  const formattedAmount = (BigInt(parseFloat(amount) * 1e18)).toString();
-  const gas = "100000000000000";
-  const deposit = "0";
-
-  try {
-      if (isVexLogin) {
-          const unstakeResult = await handleTransaction(
-              stakingContractId,
-              "unstake",
-              { amount: formattedAmount },
-              gas,
-              deposit,
-              null,
-              password
-          );
-
-          if (unstakeResult && !unstakeResult.error) {
-              setMessage("Unstake transaction successful. Proceeding to withdraw.");
-
-              const withdrawResult = await handleTransaction(
-                  stakingContractId,
-                  "withdraw_all",
-                  {},
-                  gas,
-                  deposit,
-                  null,
-                  password
-              );
-
-              if (withdrawResult && !withdrawResult.error) {
-                  setMessage("Withdraw transaction successful.");
-                  setRefreshBalances((prev) => !prev); // Trigger balance refresh
-                  toggleRefreshBalances();
-                } else {
-                  setMessage("Withdraw transaction failed. Please try again.");
-                  console.error("Withdraw transaction failed:", withdrawResult.error);
-              }
-          } else {
-              setMessage("Failed to unstake. Please try again.");
-              console.error("Unstake transaction failed:", unstakeResult.error);
-          }
-      } else {
-          const unstakeResult = await wallet.callMethod({
-              contractId: stakingContractId,
-              method: "unstake",
-              args: { amount: formattedAmount },
-              gas,
-              deposit,
-          });
-
-          if (unstakeResult && !unstakeResult.error) {
-              setMessage("Unstake transaction successful. Proceeding to withdraw.");
-
-              const withdrawResult = await wallet.callMethod({
-                  contractId: stakingContractId,
-                  method: "withdraw_all",
-                  args: {},
-                  gas,
-                  deposit,
-              });
-
-              if (withdrawResult && !withdrawResult.error) {
-                  setMessage("Withdraw successful!");
-                  setRefreshBalances((prev) => !prev); // Trigger balance refresh
-                  toggleRefreshBalances();
-                } else {
-                  setMessage("Withdraw failed. Please try again.");
-                  console.error("Failed to withdraw:", withdrawResult.error);
-              }
-          } else {
-              setMessage("Failed to unstake. Please try again.");
-              console.error("Unstake transaction failed:", unstakeResult.error);
-          }
+      if (parseFloat(amount) < 50) {
+        console.error(
+          "Minimum of 50 VEX is required to register in the contract"
+        );
+        setIsProcessing(false);
+        return;
       }
-  } catch (error) {
-      setMessage("An error occurred during the unstaking process.");
-      console.error("Error during unstaking process:", error);
-  }
-};
 
-// This functions swaps the rewards from the staking contract to USDC and distributes them to the users
-// This function is used for the "Distribute Rewards" button
-const handleStakeSwap = async () => {
-  if (isVexLogin && !password) {
-    setSelectedOption('stakeSwap'); // Set option to track purpose
-    setShowPasswordModal(true); // Show password modal if password is missing
-    return;
-  }
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+        const action = actionCreators.functionCall(
+          "ft_transfer_call",
+          {
+            receiver_id: stakingContractId,
+            amount: formattedAmount,
+            msg: msg,
+          },
+          gas,
+          "1"
+        );
 
-  const contractId = "sexyvexycontract.testnet";
-  const gas = "300000000000000"; // 300 TGas
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: tokenContractId,
+        });
 
-  try {
-    if (isVexLogin) {
-      const outcome = await handleTransaction(
-        contractId,
-        "perform_stake_swap",
-        {}, // No arguments required
-        gas,
-        "0", // Minimal deposit in yoctoNEAR
-        null,
-        password
-      );
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
 
-      console.log("Stake swap successful!", outcome);
-      setMessage("Rewards distributed successfully");
-    } else if (wallet && wallet.selector) {
-      const outcome = await wallet.callMethod({
-        contractId: contractId,
-        method: "perform_stake_swap",
-        args: {},
-        gas,
-        deposit: "1", // Minimal deposit in yoctoNEAR
-      });
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+        });
 
-      console.log("Stake swap successful!", outcome);
-      setMessage("Rewards distributed successfully!");
-    } else {
-      setMessage("Failed to distribute rewards. Please try again.");
+        setActionSuccess(true);
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
+        const stakeResult = await wallet.callMethod({
+          contractId: tokenContractId,
+          method: "ft_transfer_call",
+          args: {
+            amount: formattedAmount,
+            receiver_id: stakingContractId,
+            msg: JSON.stringify("Stake"),
+          },
+          gas,
+          deposit: "1",
+        });
+
+        if (stakeResult && !stakeResult.error) {
+          setActionSuccess(true);
+        } else {
+          console.error("Failed to Activate. Please try again");
+        }
+      }
+    } catch (error) {
+      console.error("Error during activation process:", error);
+    } finally {
+      setIsProcessing(false);
+
+      // Reset form after successful transaction
+      setTimeout(() => {
+        setAmount("");
+        setActionSuccess(false);
+        setRefreshBalances((prev) => !prev);
+        toggleRefreshBalances();
+        fetchUserStakeInfo(accountId);
+      }, 3000);
     }
-  } catch (error) {
-    console.error("Failed to perform stake swap:", error.message || error);
-    setMessage("Failed to distribute rewars, please try again.");
-  }
-};
+  };
 
+  // This function unstakes the user's tokens and withdraws them from the staking contract
+  const handleUnstake = async () => {
+    if (!amount) {
+      console.error("Please enter an amount to deactivate");
+      return;
+    }
 
-return (
+    // Special handling for tour mode
+    if (isTourActive) {
+      setIsProcessing(true);
+
+      // Simulate processing time
+      setTimeout(() => {
+        setIsProcessing(false);
+        setActionSuccess(true);
+
+        // Move to next tour step
+        setCurrentStep(13);
+
+        // Reset after some time
+        setTimeout(() => {
+          setAmount("");
+          setActionSuccess(false);
+
+          // Update mock balances for tour mode
+          if (selectedOption === "unstake") {
+            setStakedBalance((prev) => prev - parseFloat(amount));
+            setBalance((prev) => prev + parseFloat(amount));
+          }
+        }, 2000);
+      }, 1500);
+
+      return;
+    }
+
+    // Regular flow for non-tour mode
+    // Check if user is logged in with either web3auth or NEAR wallet
+    if (!web3auth?.connected && !signedAccountId) {
+      console.error("Please connect your wallet first");
+      return;
+    }
+
+    // Double-check if unstaking is allowed before proceeding
+    if (unstakeTimestamp) {
+      const currentTimeNano = getCurrentTimeInNanoseconds();
+      if (currentTimeNano < BigInt(unstakeTimestamp)) {
+        console.error(
+          "You cannot deactivate until the cooldown period has ended"
+        );
+        // Force refresh the stake info to get the latest timestamp
+        fetchUserStakeInfo(accountId);
+        return;
+      }
+    }
+
+    setIsProcessing(true);
+
+    // Convert amount to a fixed number with 2 decimal places, then to BigInt format
+    const formattedAmount = BigInt(
+      parseFloat(parseFloat(amount).toFixed(2)) * 1e18
+    ).toString();
+    const gas = "100000000000000";
+    const deposit = "0";
+
+    try {
+      // If using Web3Auth
+      if (web3auth?.connected) {
+        const account = await nearConnection.account(web3authAccountId);
+
+        const action = actionCreators.functionCall(
+          "unstake",
+          { amount: formattedAmount },
+          gas,
+          deposit
+        );
+
+        const signedDelegate = await account.signedDelegate({
+          actions: [action],
+          blockHeightTtl: 120,
+          receiverId: stakingContractId,
+        });
+
+        const encodedDelegate = Array.from(
+          encodeSignedDelegate(signedDelegate)
+        );
+
+        // Send the signed delegate to our relay API
+        const response = await fetch("/api/transactions/relay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || "Failed to relay transaction");
+        }
+
+        const { data } = await response.json();
+
+        console.log("Relayed transaction:", data);
+        setActionSuccess(true);
+      }
+      // If using NEAR Wallet
+      else if (signedAccountId && wallet) {
+        const unstakeResult = await wallet.callMethod({
+          contractId: stakingContractId,
+          method: "unstake",
+          args: { amount: formattedAmount },
+          gas,
+          deposit,
+        });
+
+        if (unstakeResult.error) {
+          console.error("Deactivation failed. Please try again");
+          return;
+        }
+
+        setActionSuccess(true);
+      }
+
+      // Refresh balances and reset form
+      setRefreshBalances((prev) => !prev);
+      toggleRefreshBalances();
+      fetchUserStakeInfo(accountId);
+
+      // Reset form after successful transaction
+      setTimeout(() => {
+        setAmount("");
+        setActionSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error during unstaking process:", error);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Get effective balances based on whether we're in tour mode
+  const effectiveBalance = isTourActive ? balance : tokenBalances.VEX;
+  const effectiveStakedBalance = isTourActive ? stakedBalance : stakedBalance;
+
+  // Check if the user has enough balance for the action
+  const insufficientBalance =
+    selectedOption === "stake"
+      ? Number(effectiveBalance) < Number(amount)
+      : Number(effectiveStakedBalance) < Number(amount);
+
+  // Check if unstaking is currently allowed (cooldown period ended or in tour mode)
+  const canUnstake = useMemo(() => {
+    if (isTourActive) return true; // Always allow unstaking in tour mode
+    if (!unstakeTimestamp) return true;
+
+    const currentTimeNano = getCurrentTimeInNanoseconds();
+    return currentTimeNano >= BigInt(unstakeTimestamp);
+  }, [unstakeTimestamp, refreshCooldown, isTourActive]);
+
+  // Unstaking is disabled if it's in cooldown period or if there's insufficient balance
+  const unstakeDisabled =
+    !canUnstake || insufficientBalance || !amount || isProcessing;
+
+  // Get button text for unstake button
+  const getUnstakeButtonText = () => {
+    if (isProcessing) {
+      return (
+        <span className="button-content">
+          <Loader2 size={18} className="loading-icon" />
+          Processing...
+        </span>
+      );
+    }
+
+    if (actionSuccess && selectedOption === "unstake") {
+      return (
+        <span className="button-content">
+          <CheckCircle size={18} />
+          Deactivated Successfully!
+        </span>
+      );
+    }
+
+    if (insufficientBalance) {
+      return "Insufficient Balance";
+    }
+
+    if (selectedOption === "unstake" && !canUnstake) {
+      return (
+        <span className="button-content">
+          <Clock size={16} className="mr-2" />
+          Available {formatUnstakeTime(unstakeTimestamp)}
+        </span>
+      );
+    }
+
+    return "Deactivate VEX";
+  };
+
+  return (
     <div className="staking-container">
-      <div className="staking-header">
-    <div className="radio_container">
-        <input
-            type="radio"
-            id="stake"
-            value="stake"
-            checked={selectedOption === 'stake'}
-            onChange={() => setSelectedOption('stake')}
-        />
-        <label htmlFor="stake">Stake</label>
+      <div className="staking-header-row">
+        <div className="earn-card-header">
+          <h2 className="staking-heading">
+            {selectedOption === "stake" ? "Activate" : "Deactivate"} VEX Rewards
+          </h2>
+          <div className="earn-card-subtitle">
+            Activate your VEX Rewards to earn
+          </div>
+        </div>
+      </div>
 
-        <input
-            type="radio"
-            id="unstake"
-            value="unstake"
-            checked={selectedOption === 'unstake'}
-            onChange={() => setSelectedOption('unstake')}
-        />
-        <label htmlFor="unstake">Unstake</label>
-    </div>
-</div>
+      <div className="staking-stats-container">
+        <div className="stat-card">
+          <div className="stat-title">Your Balance</div>
+          <div className="stat-value">
+            {parseFloat(effectiveBalance).toFixed(2)}{" "}
+            <span className="token-unit">VEX</span>
+          </div>
+        </div>
 
-<button className="confirm-button" onClick={handleStakeSwap}>
-      Distribute Rewards
-    </button>
+        <div className="stat-card">
+          <div className="stat-title">Your Activated Balance</div>
+          <div className="stat-value">
+            {parseFloat(effectiveStakedBalance).toFixed(2)}{" "}
+            <span className="token-unit">VEX</span>
+          </div>
+        </div>
+      </div>
 
-      <div className="staking-statistics">
-        <p>Your Balance: {balance} VEX</p>
-        <p>Your Staked Balance: {stakedBalance} VEX</p>
-        <p> USDC rewards: {totalUSDCRewards} USDC</p>
+      <div className="action-toggle">
+        <button
+          className={`toggle-button ${
+            selectedOption === "stake" ? "active" : ""
+          }`}
+          onClick={() => setSelectedOption("stake")}
+        >
+          Activate
+        </button>
+        <button
+          className={`toggle-button ${
+            selectedOption === "unstake" ? "active" : ""
+          }`}
+          onClick={() => setSelectedOption("unstake")}
+        >
+          Deactivate
+        </button>
       </div>
 
       <div className="token-box">
         <div className="token-info">
-          <img src={"/icons/g12.svg"} alt={"VEX Token Logo"} className="token-logo" />
+          <img
+            src={"/icons/g12.svg"}
+            alt={"VEX Token Logo"}
+            className="token-logo"
+          />
           <div>
             <p className="token-name">VEX</p>
           </div>
         </div>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          className="token-input"
-        />
-      </div>
-
-      <div className="balance-info">
-        <span className="balance">Balance: {selectedOption === 'stake' ? balance : stakedBalance} VEX</span>
-        <div className="percentage-options">
-          <span onClick={() => handlePercentageClick(0.25)}>25%</span>
-          <span onClick={() => handlePercentageClick(0.5)}>50%</span>
-          <span onClick={() => handlePercentageClick(0.75)}>75%</span>
-          <span onClick={() => handlePercentageClick(1)}>100%</span>
-        </div>
-      </div>
-
-      <div className="message-box">{message}</div>
-
-      <button className="confirm-button" onClick={selectedOption === 'stake' ? handleStake : handleUnstake}>
-        Confirm {selectedOption}
-      </button>
-
-
-      {showPasswordModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Enter Password</h3>
-            <input
-              type="password"
-              value={password || ''}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder=""
-            />
-            <div className="modal-buttons">
-              <button onClick={() => setShowPasswordModal(false)}>Cancel</button>
-              <button onClick={handlePasswordSubmit}>Submit</button>
-            </div>
+        <div className="input-wrapper">
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            className="token-input"
+            disabled={isProcessing}
+          />
+          <div className="amount-stepper">
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("up")}
+              disabled={isProcessing}
+            >
+              <ChevronUp size={14} />
+            </button>
+            <button
+              className="stepper-btn"
+              onClick={() => handleAmountStep("down")}
+              disabled={isProcessing || parseFloat(amount || 0) <= 0}
+            >
+              <ChevronDown size={14} />
+            </button>
           </div>
         </div>
-      )}
+      </div>
+
+      <div className="balance-row">
+        <span className="balance-label">
+          Balance:{" "}
+          <span className="balance-amount">
+            {parseFloat(
+              selectedOption === "stake"
+                ? effectiveBalance
+                : effectiveStakedBalance
+            ).toFixed(2)}{" "}
+            VEX
+          </span>
+        </span>
+        <div className="percentage-options">
+          <button onClick={() => handlePercentageClick(0.25)}>25%</button>
+          <button onClick={() => handlePercentageClick(0.5)}>50%</button>
+          <button onClick={() => handlePercentageClick(0.75)}>75%</button>
+          <button onClick={() => handlePercentageClick(1)}>100%</button>
+        </div>
+      </div>
+
+      <button
+        className={`confirm-button last ${isProcessing ? "loading" : ""} ${
+          actionSuccess &&
+          (selectedOption === "stake" || selectedOption === "unstake")
+            ? "success"
+            : ""
+        } ${selectedOption === "unstake" && !canUnstake ? "cooldown" : ""}`}
+        onClick={selectedOption === "stake" ? handleStake : handleUnstake}
+        disabled={
+          selectedOption === "stake"
+            ? isProcessing || !amount || insufficientBalance
+            : unstakeDisabled
+        }
+      >
+        {selectedOption === "stake" ? (
+          isProcessing ? (
+            <span className="button-content">
+              <Loader2 size={18} className="loading-icon" />
+              Processing...
+            </span>
+          ) : actionSuccess ? (
+            <span className="button-content">
+              <CheckCircle size={18} />
+              Activated Successfully!
+            </span>
+          ) : insufficientBalance ? (
+            "Insufficient Balance"
+          ) : (
+            "Activate VEX"
+          )
+        ) : (
+          getUnstakeButtonText()
+        )}
+      </button>
     </div>
   );
 };
-
 
 export default Staking;

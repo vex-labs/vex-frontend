@@ -1,112 +1,255 @@
-import React, { useEffect, useState } from 'react';
-import GameCard from './GameCard';
-import { useNear } from "@/app/context/NearContext";
+import React, { useCallback } from "react";
+import GameCard from "./GameCard";
+import { useGlobalContext } from "@/app/context/GlobalContext";
+import { RefreshCw, AlertCircle } from "lucide-react";
+import { gql } from "graphql-request";
+import { useQuery } from "@tanstack/react-query";
 
 /**
- * UpcomingGames component
- * 
- * This component displays a list of upcoming game matches fetched from the smartcontract.
- * It combines match data with additional match data, filters future matches, and sorts them by match time.
- * 
+ * Enhanced UpcomingGames component using GraphQL
+ *
+ * This component fetches and displays a list of upcoming game matches using GraphQL,
+ * with improved UI/UX, loading states, error handling, and sorting options.
+ *
  * @param {Object} props - The component props
- * @param {Array} props.matches - Array of match objects
- * @param {Array} props.additionalMatchData - Array of additional match data objects
- * @param {string} props.vexAccountId - User's VEX account ID
- * 
- * @returns {JSX.Element} The rendered UpcomingGames component which consists of multiple GameCard components
+ * @param {boolean} props.isLoading - Global loading state from parent
+ * @param {string} props.selectedGame - Currently selected game filter
+ * @param {string} props.searchTerm - Search term for filtering matches
+ * @param {string} props.sortOption - The current sort option (upcoming, distant, hot, new, for_me)
+ *
+ * @returns {JSX.Element} The rendered UpcomingGames component
  */
+const UpcomingGames = ({
+  isLoading: parentIsLoading,
+  selectedGame,
+  searchTerm,
+  sortOption = "upcoming", // Default to Upcoming if not provided
+}) => {
+  // Build the GraphQL query with game filter if provided
+  const buildQuery = () => {
+    let whereClause = "{ match_state: Future }";
 
-const UpcomingGames = ({ matches, additionalMatchData, vexAccountId }) => {
-  const nearContext = useNear(); // Always call useNear at the top
-  const wallet = nearContext?.wallet || null;
-  const [sortedMatches, setSortedMatches] = useState([]);
+    if (selectedGame) {
+      whereClause = `{ match_state: Future, game: "${selectedGame}" }`;
+    }
 
-  useEffect(() => {
-    console.log("vexAccountId in UpcomingGames:", vexAccountId);
-  }, [vexAccountId]);
+    // The GraphQL query includes a default server-side sort
+    // but we're overriding it with our client-side sort based on the sort option
+    // We need to make sure all required fields are fetched for all sort types
+    return gql`
+      {
+        matches(
+          first: 12
+          where: ${whereClause}
+          orderBy: date_timestamp
+          orderDirection: asc
+        ) {
+          id
+          game
+          date_timestamp
+          date_string
+          team_1
+          team_2
+          team_1_total_bets
+          team_2_total_bets
+          match_state
+          created_at
+        }
+      }
+    `;
+  };
 
-  useEffect(() => {
-    // Combine matches and additional data based on sanitized match_id
-    const combinedMatches = matches.map(match => {
-      const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');
-      const additionalData = additionalMatchData.find(additionalMatch =>
-        additionalMatch.match_id === sanitizedMatchId
-      );
+  const { tokenBalances } = useGlobalContext();
 
-      return {
-        ...match,
-        ...additionalData
-      };
+  // Fetch upcoming games with React Query
+  const { data, isLoading, isError, error, refetch } = useQuery({
+    queryKey: ["upcomingGames", selectedGame],
+    queryFn: async () => {
+      const res = await fetch("/api/gql", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gql: buildQuery(),
+        }),
+      });
+
+      const data = await res.json();
+
+      return data;
+    },
+  });
+
+  // Filter matches by search term if one is provided
+  const filterMatchesBySearch = useCallback(
+    (matches) => {
+      if (!searchTerm || !matches) return matches;
+
+      const lowercasedSearch = searchTerm.toLowerCase();
+
+      return matches.filter((match) => {
+        // Search in team names
+        const team1NameMatch = match.team_1
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
+        const team2NameMatch = match.team_2
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
+
+        // Search in game name
+        const gameMatch = match.game?.toLowerCase().includes(lowercasedSearch);
+
+        // Search in date string
+        const dateMatch = match.date_string
+          ?.toLowerCase()
+          .includes(lowercasedSearch);
+
+        // Return true if any field matches the search term
+        return team1NameMatch || team2NameMatch || gameMatch || dateMatch;
+      });
+    },
+    [searchTerm]
+  );
+
+  // Apply search filter and then sort the matches
+  const filteredAndSortedMatches = React.useMemo(() => {
+    const filteredMatches = filterMatchesBySearch(data?.matches);
+
+    if (!filteredMatches) return [];
+
+    // Sort based on the selected sort option
+    return [...filteredMatches].sort((a, b) => {
+      if (sortOption === "upcoming") {
+        // Sort by closest date first
+        return a.date_timestamp - b.date_timestamp;
+      } else if (sortOption === "distant") {
+        // Sort by furthest date first
+        return b.date_timestamp - a.date_timestamp;
+      } else if (sortOption === "hot") {
+        // Sort by highest bet volume
+        const maxBetsA = Math.max(a.team_1_total_bets, a.team_2_total_bets);
+        const maxBetsB = Math.max(b.team_1_total_bets, b.team_2_total_bets);
+        return maxBetsB - maxBetsA;
+      } else if (sortOption === "new") {
+        // Sort by most recently added (created_at)
+        // Convert string timestamps to numbers for comparison
+        const createdAtA = new Date(a.created_at).getTime();
+        const createdAtB = new Date(b.created_at).getTime();
+        return createdAtB - createdAtA;
+      } else {
+        // Default sort - by time
+        return a.date_timestamp - b.date_timestamp;
+      }
+    });
+  }, [data?.matches, filterMatchesBySearch, sortOption]);
+
+  // Get team logo with fallback
+  const getTeamLogo = (teamName) => {
+    return `/icons/teams/${teamName}.png`;
+  };
+
+  // Format match date and time
+  const formatMatchDateTime = (date_string) => {
+    // Handle DD/MM/YYYY format by parsing each component
+    const [day, month, year] = date_string
+      .split("/")
+      .map((num) => parseInt(num, 10));
+
+    // Create date with correct components (months are 0-indexed in JavaScript)
+    const date = new Date(year, month - 1, day);
+
+    const dateStr = date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
     });
 
-    // Filter only future matches and sort them by match_time
-    const futureMatches = combinedMatches
-      .filter(match => match.match_state === 'Future' && match.match_time)
-      .sort((a, b) => a.match_time - b.match_time);
+    return dateStr;
+  };
 
-    setSortedMatches(futureMatches);
-  }, [matches, additionalMatchData]);
+  // Render loading skeleton
+  const renderSkeleton = () => (
+    <div className="upcoming-grid-container">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((skeleton) => (
+        <div
+          key={skeleton}
+          className="upcoming-card upcoming-card-4-col skeleton-card"
+        >
+          <div className="skeleton-header"></div>
+          <div className="skeleton-body">
+            <div className="skeleton-team"></div>
+            <div className="skeleton-vs"></div>
+            <div className="skeleton-team"></div>
+          </div>
+          <div className="skeleton-odds"></div>
+        </div>
+      ))}
+    </div>
+  );
+
+  // Render error state
+  const renderError = () => (
+    <div className="upcoming-error-container">
+      <AlertCircle size={32} className="error-icon" />
+      <h3>Failed to load upcoming games</h3>
+      <p>{error?.message || "Please try again later"}</p>
+      <button onClick={() => refetch()} className="retry-button">
+        <RefreshCw size={16} />
+        <span>Retry</span>
+      </button>
+    </div>
+  );
+
+  // Render empty state
+  const renderEmpty = () => (
+    <div className="featured-empty-container">
+      <h3>
+        {searchTerm
+          ? `No upcoming matches available for your search "${searchTerm}"`
+          : selectedGame
+          ? `No upcoming matches available for ${selectedGame}`
+          : "No upcoming matches available at this time."}
+      </h3>
+      <p>
+        {searchTerm
+          ? "Try a different search term or remove some filters"
+          : "Check back later for upcoming matches."}
+      </p>
+    </div>
+  );
 
   return (
-    <div>
-      <div className="upcoming-grid-container">
-        {sortedMatches.map((match, index) => {
-          const sanitizedMatchId = match.match_id.replace(/\s+/g, '-');
-          const additionalData = additionalMatchData.find(
-            additionalMatch => additionalMatch.match_id === sanitizedMatchId
-          );
-
-          const roundedOdds1 = parseFloat(match.team_1_odds || "1.00").toFixed(2);
-          const roundedOdds2 = parseFloat(match.team_2_odds || "1.00").toFixed(2);
-
-          return (
+    <section className="upcoming-games-section">
+      {isLoading || parentIsLoading ? (
+        renderSkeleton()
+      ) : isError ? (
+        renderError()
+      ) : filteredAndSortedMatches?.length === 0 ? (
+        renderEmpty()
+      ) : (
+        <div className="upcoming-grid-container">
+          {filteredAndSortedMatches.map((match, index) => (
             <GameCard
-              key={match.match_id || index}
+              key={match.id || index}
               className="upcoming-card upcoming-card-4-col"
               tournamentIcon={
-                additionalData
-                  ? additionalData.tournament_icon
-                  : "/icons/events/vct_amer.png"
+                match.tournament_icon || "/icons/events/vct_china.png"
               }
-              tournamentName={
-                additionalData
-                  ? additionalData.tournament_name
-                  : match.game || "Unknown Tournament"
-              }
-              matchTime={
-                additionalData
-                  ? `${new Date(additionalData.match_time * 1000).toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: 'long'
-                    })} ${new Date(additionalData.match_time * 1000).toLocaleTimeString('en-GB', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                      hour12: false
-                    })}`
-                  : "Monday, 01:00"
-              }
-              team1Logo={
-                additionalData
-                  ? additionalData.team_1_icon
-                  : "/icons/teams/sen.png"
-              }
+              tournamentName={match.game || "Unknown Tournament"}
+              matchTime={formatMatchDateTime(match.date_string)}
+              team1TotalBets={match.team_1_total_bets}
+              team2TotalBets={match.team_2_total_bets}
+              team1Logo={getTeamLogo(match.team_1)}
               team1Name={match.team_1 || "Team 1"}
-              team2Logo={
-                additionalData
-                  ? additionalData.team_2_icon
-                  : "/icons/teams/g2.png"
-              }
+              team2Logo={getTeamLogo(match.team_2)}
               team2Name={match.team_2 || "Team 2"}
-              odds1={roundedOdds1}
-              odds2={roundedOdds2}
-              matchId={match.match_id}
-              wallet={wallet}
-              vexAccountId={vexAccountId}
+              matchId={match.id}
+              walletBalance={tokenBalances.USDC}
             />
-          );
-        })}
-      </div>
-    </div>
+          ))}
+        </div>
+      )}
+    </section>
   );
 };
 

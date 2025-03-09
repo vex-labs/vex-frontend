@@ -3,13 +3,13 @@ import Image from "next/image";
 
 /**
  * FaucetSection component
- * 
+ *
  * This component renders a section where users can request USDC from a faucet.
  * It includes an image background, an input field for the amount, and a button to request USDC.
- * 
+ *
  * This component was previously used as the Hero section in the main page.
  * This will be implemented in the userpage or in the navbar
- * 
+ *
  * @returns {JSX.Element} The rendered FaucetSection component
  */
 
@@ -43,7 +43,7 @@ const FaucetSection = () => {
     <div className="faucet-container">
       <div className="image-wrapper">
         <Image
-          src="/icons/Vex_Background.png" 
+          src="/icons/Vex_Background.png"
           alt="Faucet section image"
           layout="fill"
           objectFit="cover"

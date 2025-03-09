@@ -1,95 +1,205 @@
-import Link from 'next/link';
-import { useState } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
+import {
+  Home,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  Coins,
+} from "lucide-react";
+import { socials } from "@/data/socials";
 
 /**
- * Sidebar component
- * Sidebar can toggle between collapsed and expanded states.
- * This sidebar is not dynamic and is used in the user page and earn page
- * Sidebar.js is used in the main page
- * 
- * @param {Object} props - The component props
- * @param {Function} props.onSelectGame - Function to handle game selection
- * @param {string} props.selectedGame - The currently selected game
- * 
- * @returns {JSX.Element} The rendered Sidebar component
+ * Sidebar2 component
+ * Enhanced version with improved UI/UX
+ * Used in the user page and earn page
+ *
+ * @returns {JSX.Element} The rendered Sidebar2 component
  */
 
-const Sidebar2 = ({ }) => {
+const Sidebar2 = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isSocialsExpanded, setIsSocialsExpanded] = useState(true);
+  const [hoveredItem, setHoveredItem] = useState(null);
+  const [hideCollapseButton, setHideCollapseButton] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setIsCollapsed(!isCollapsed);
-      setIsTransitioning(false);
-    }, 300);
-  };
+  const pathname = usePathname();
 
+  // Check if sidebar should be collapsed on small screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setHideCollapseButton(true);
+        setIsCollapsed(true);
+      } else {
+        setHideCollapseButton(false);
+      }
+    };
 
-  const socials = [
-    { name: 'Telegram', icon: '/icons/socials/telegram.png', link: 'https://t.me/+4x6uwCjC7BgzNmRk' },
-    { name: 'x', icon: '/icons/socials/x.png', link: 'https://x.com/betvex' },
-    { name: 'TikTok', icon: '/icons/socials/tiktok.png', link: 'https://www.tiktok.com/@betvex' },
-    { name: 'Instagram', icon: '/icons/socials/instagram.png', link: 'https://www.instagram.com/getvexy?igsh=Nzl4cDIzbGZwNDR2&utm_source=qr' },
+    // Initial check
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Main navigation items
+  const mainNavItems = [
+    {
+      name: "home",
+      label: "Betting",
+      path: "/",
+      icon: <Home size={20} strokeWidth={1.5} />,
+    },
+    {
+      name: "earn",
+      label: "Earn",
+      path: "/earn",
+      icon: (
+        <img src="/icons/staking.png" alt="earn" className="app-sidebar-icon" />
+      ),
+    },
+    {
+      name: "community",
+      label: "Community",
+      path: "/community",
+      icon: (
+        <img
+          src="/icons/governance.png"
+          alt="Governance"
+          className="app-sidebar-icon"
+        />
+      ),
+    },
+    {
+      name: "leaderboard",
+      label: "Leaderboard",
+      path: "/leaderboard",
+      icon: <BarChart3 size={20} strokeWidth={1.5} />,
+    },
+    {
+      name: "bets",
+      label: "View Bets",
+      path: "/user",
+      icon: <Coins size={20} strokeWidth={1.5} />,
+    },
   ];
 
-  return (
-    <div className={`app-sidebar ${isCollapsed ? 'collapsed' : ''} ${isTransitioning ? 'transitioning' : ''}`}>
-      <ul>
-        <li>
-          <button className="toggle-button" onClick={toggleSidebar}>
-            {isCollapsed ? '→' : '←'}
-          </button>
-        </li>
-        <li>
-          <Link href="/" legacyBehavior>
-            <a>
-              <img src="/icons/home.png" alt="Home" style={{ width: '17px', height: '17px' }} />
-              {!isCollapsed && <span>Home</span>}
-            </a>
-          </Link>
-        </li>
-        <li>
-          <Link href="/earn" legacyBehavior>
-            <a>
-              <img src="/icons/staking.png" alt="earn" style={{ width: '17px', height: '17px' }} />
-              {!isCollapsed && <span>Earn</span>}
-            </a>
-          </Link>
-        </li>
-        <li>
-          <Link href="/governance" legacyBehavior>
-            <a>
-              <img src="/icons/governance.png" alt="Governance" style={{ width: '17px', height: '17px' }} />
-              {!isCollapsed && <span>Governance</span>}
-            </a>
-          </Link>
-        </li>
-      </ul>
-      <div className={`section-title`}>Socials</div>
-      <ul>
-        {socials.map((social) => (
-          <li key={social.name}>
-            <a href={social.link} target="_blank" rel="noopener noreferrer">
-              <img src={social.icon} alt={social.name} />
-              {!isCollapsed && <span>{social.name}</span>}
-            </a>
-          </li>
-        ))}
-      </ul>
-      <div className={`section-title`}>User Area</div>
-      <ul>
-        <li>
-          <Link href="/user" legacyBehavior>
-            <a>
-              <img src="/icons/user.png" alt="User Area" />
-              {!isCollapsed && <span>User Area</span>}
-            </a>
-          </Link>
-        </li>
-      </ul>
+  // Toggle sidebar expansion
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  // Render a section header with expandable toggle
+  const renderSectionHeader = (title, section, isExpanded, toggleFn) => (
+    <div
+      className={`app-sidebar-section-header ${isCollapsed ? "collapsed" : ""}`}
+      onClick={() => !isCollapsed && toggleFn()}
+      onMouseEnter={() => setHoveredItem(`section-${section}`)}
+      onMouseLeave={() => setHoveredItem(null)}
+    >
+      <span className="section-title">{title}</span>
+      {!isCollapsed && (
+        <button
+          className="section-toggle-button"
+          aria-label={isExpanded ? `Collapse ${title}` : `Expand ${title}`}
+        >
+          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+        </button>
+      )}
     </div>
+  );
+
+  return (
+    <aside className={`app-sidebar ${isCollapsed ? "collapsed" : ""}`}>
+      {/* Collapse Toggle Button */}
+      <button
+        className="app-sidebar-toggle"
+        onClick={toggleSidebar}
+        style={{
+          display: hideCollapseButton ? "none" : "",
+        }}
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+      </button>
+
+      {/* Main Navigation */}
+      <nav className="app-sidebar-nav">
+        <ul className="nav-list main-nav">
+          {mainNavItems.map((item) => (
+            <li
+              key={item.name}
+              className={`nav-item ${pathname === item.path ? "active" : ""}`}
+              onMouseEnter={() => setHoveredItem(item.name)}
+              onMouseLeave={() => setHoveredItem(null)}
+            >
+              <Link href={item.path} className="nav-link">
+                <span className="nav-icon">{item.icon}</span>
+                {(!isCollapsed || hoveredItem === item.name) && (
+                  <span className={`nav-label ${isCollapsed ? "tooltip" : ""}`}>
+                    {item.label}
+                  </span>
+                )}
+                {pathname === item.path && (
+                  <span className="active-indicator" />
+                )}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Social Links Section */}
+      <div className="app-sidebar-section">
+        {renderSectionHeader("Socials", "socials", isSocialsExpanded, () =>
+          setIsSocialsExpanded(!isSocialsExpanded)
+        )}
+
+        {(isSocialsExpanded || isCollapsed) && (
+          <ul
+            className={`nav-list socials-list ${
+              !isSocialsExpanded && !isCollapsed ? "hidden" : ""
+            }`}
+          >
+            {socials.map((social) => (
+              <li
+                key={social.name}
+                className="nav-item social-item"
+                onMouseEnter={() => setHoveredItem(`social-${social.name}`)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <a
+                  href={social.link}
+                  className="nav-link"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span className="nav-icon">
+                    <img
+                      src={social.icon}
+                      alt={social.name}
+                      className="social-icon"
+                    />
+                  </span>
+                  {(!isCollapsed ||
+                    hoveredItem === `social-${social.name}`) && (
+                    <span
+                      className={`nav-label ${isCollapsed ? "tooltip" : ""}`}
+                    >
+                      <span>{social.name}</span>
+                    </span>
+                  )}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </aside>
   );
 };
 
