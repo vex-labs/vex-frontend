@@ -1,7 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
 import GiftModal from "./GiftModal";
 import { LogOut, Gift, Settings, Coins } from "lucide-react";
@@ -34,30 +33,30 @@ const UserDropdown = ({ onLogout }) => {
         ).slice(-8)}`
       : formatAccountId(accountId)
     : "";
-    
+
   // Handle global click events to close the dropdown
   useEffect(() => {
     function handleClickAway(event) {
       // If the dropdown is open and the click is outside dropdown and button
       if (
-        open && 
-        dropdownRef.current && 
-        buttonRef.current && 
-        !dropdownRef.current.contains(event.target) && 
+        open &&
+        dropdownRef.current &&
+        buttonRef.current &&
+        !dropdownRef.current.contains(event.target) &&
         !buttonRef.current.contains(event.target)
       ) {
         setOpen(false);
       }
     }
-    
+
     // Add event listeners
-    document.addEventListener('mousedown', handleClickAway);
-    document.addEventListener('touchend', handleClickAway);
-    
+    document.addEventListener("mousedown", handleClickAway);
+    document.addEventListener("touchend", handleClickAway);
+
     // Clean up
     return () => {
-      document.removeEventListener('mousedown', handleClickAway);
-      document.removeEventListener('touchend', handleClickAway);
+      document.removeEventListener("mousedown", handleClickAway);
+      document.removeEventListener("touchend", handleClickAway);
     };
   }, [open]);
 
@@ -83,7 +82,7 @@ const UserDropdown = ({ onLogout }) => {
     },
     {
       id: "gift",
-      label: "Gift USDC/VEX",
+      label: "Gift USD/VEX",
       icon: Gift,
       action: () => {
         setGiftModalOpen(true);
@@ -117,9 +116,9 @@ const UserDropdown = ({ onLogout }) => {
             {open && <div className="avatar-ring"></div>}
           </div>
         </button>
-        
+
         {open && (
-          <div 
+          <div
             ref={dropdownRef}
             className="user-dropdown-menu"
             onClick={(e) => e.stopPropagation()}
@@ -133,9 +132,9 @@ const UserDropdown = ({ onLogout }) => {
                 <span className="user-wallet-type"></span>
               </div>
             </div>
-            
+
             <div className="dropdown-divider"></div>
-            
+
             <div className="menu-items-container">
               {menuItems.map((item) => (
                 <React.Fragment key={item.id}>
@@ -210,6 +209,5 @@ const UserDropdown = ({ onLogout }) => {
     </>
   );
 };
-
 
 export default UserDropdown;

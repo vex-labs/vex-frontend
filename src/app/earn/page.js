@@ -148,100 +148,114 @@ const EarnPage = () => {
           <h2 className="earn-section-title">Frequently Asked Questions</h2>
 
           <div className="earn-faq-container">
-            <div
-              className={`earn-faq-item ${activeFaq === 0 ? "active" : ""}`}
-              onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)}
-            >
-              <h3 className="earn-faq-question">What are VEX Rewards?</h3>
-              <p className="earn-faq-answer">
-                <ul>
-                  <li>
-                    VEX Rewards enable the community-powered nature of BetVEX.
-                  </li>
-                  <li>
-                    With VEX Rewards you are able to share in the revenue that
-                    the platform generates and decide how the platform changes
-                    in the future.
-                  </li>
-                  <li>
-                    70% of the revenue BetVEX generates is distributed to those
-                    who have activated their VEX Rewards. The other 30% is sent
-                    to the treasury for the community to collectively spend.
-                  </li>
-                </ul>
-              </p>
+            <div className={`earn-faq-item ${activeFaq === 0 ? "active" : ""}`}>
+              <h3
+                className="earn-faq-question"
+                onClick={() => setActiveFaq(activeFaq === 0 ? null : 0)}
+              >
+                What are VEX Rewards?
+              </h3>
+              <ul className="earn-faq-answer">
+                <li>
+                  VEX Rewards enable the community-powered nature of BetVEX.
+                </li>
+                <li>
+                  With VEX Rewards you are able to share in the revenue that the
+                  platform generates and decide how the platform changes in the
+                  future.
+                </li>
+                <li>
+                  70% of the revenue BetVEX generates is distributed to those
+                  who have activated their VEX Rewards. The other 30% is sent to
+                  the treasury for the community to collectively spend.
+                </li>
+              </ul>
             </div>
 
-            <div
-              className={`earn-faq-item ${activeFaq === 1 ? "active" : ""}`}
-              onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
-            >
-              <h3 className="earn-faq-question">
+            <div className={`earn-faq-item ${activeFaq === 1 ? "active" : ""}`}>
+              <h3
+                className="earn-faq-question"
+                onClick={() => setActiveFaq(activeFaq === 1 ? null : 1)}
+              >
                 What are the value of VEX Rewards?
               </h3>
-              <p className="earn-faq-answer">
-                <ul>
-                  <li>
-                    The value of VEX Rewards are determined by the market and
-                    its price will fluctuate over time depending on market
-                    conditions.
-                  </li>
-                  <li>VEX Rewards are available for trading 24/7.</li>
-                </ul>
-              </p>
+              <ul className="earn-faq-answer">
+                <li>
+                  The value of VEX Rewards are determined by the market and its
+                  price will fluctuate over time depending on market conditions.
+                </li>
+                <li>VEX Rewards are available for trading 24/7.</li>
+              </ul>
             </div>
 
-            <div
-              className={`earn-faq-item ${activeFaq === 2 ? "active" : ""}`}
-              onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
-            >
-              <h3 className="earn-faq-question">
+            <div className={`earn-faq-item ${activeFaq === 2 ? "active" : ""}`}>
+              <h3
+                className="earn-faq-question"
+                onClick={() => setActiveFaq(activeFaq === 2 ? null : 2)}
+              >
                 What does it mean to Activate VEX Rewards?
               </h3>
-              <p className="earn-faq-answer">
-                <ul>
-                  <li>
-                    70% of the revenue BetVEX generates is distributed to those
-                    who have activated their VEX Rewards.
-                  </li>
-                  <li>
-                    By activating VEX Rewards you are providing funds to
-                    financially back the bets placed on the platform. The more
-                    you activate the more you can earn and you can activate more
-                    $VEX rewards whenever you want.
-                  </li>
-                  <li>
-                    In rare cases, a betting market can cause a loss meaning
-                    that those who have activated VEX Rewards could lose some of
-                    their VEX Rewards, though we expect a 5% return on each
-                    betting market and there is a pool of $ to reduce the risk
-                    of this happening.
-                  </li>
-                </ul>
-              </p>
+              <ul className="earn-faq-answer">
+                <li>
+                  70% of the revenue BetVEX generates is distributed to those
+                  who have activated their VEX Rewards.
+                </li>
+                <li>
+                  By activating VEX Rewards you are providing funds to
+                  financially back the bets placed on the platform. The more you
+                  activate the more you can earn and you can activate more $VEX
+                  rewards whenever you want.
+                </li>
+                <li>
+                  In rare cases, a betting market can cause a loss meaning that
+                  those who have activated VEX Rewards could lose some of their
+                  VEX Rewards, though we expect a 5% return on each betting
+                  market and there is a pool of $ to reduce the risk of this
+                  happening.
+                </li>
+              </ul>
             </div>
 
-            <div
-              className={`earn-faq-item ${activeFaq === 3 ? "active" : ""}`}
-              onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
-            >
-              <h3 className="earn-faq-question">
+            <div className={`earn-faq-item ${activeFaq === 3 ? "active" : ""}`}>
+              <h3
+                className="earn-faq-question"
+                onClick={() => setActiveFaq(activeFaq === 3 ? null : 3)}
+              >
                 What happens when you deactivate your rewards?
               </h3>
-              <p className="earn-faq-answer">
-                <ul>
-                  <li>
-                    If you are finished collecting rewards you can deactivate
-                    your VEX Rewards which will stop you from earning further
-                    rewards and stop any chances of losing your rewards.
-                  </li>
-                  <li>
-                    Please note that you can only deactivate your rewards 1 week
-                    after last activating rewards, this grace period stops
-                    people from collecting rewards without backing bets.
-                  </li>
-                </ul>
-              </p>
+              <ul className="earn-faq-answer">
+                <li>
+                  If you are finished collecting rewards you can deactivate your
+                  VEX Rewards which will stop you from earning further rewards
+                  and stop any chances of losing your rewards.
+                </li>
+                <li>
+                  Please note that you can only deactivate your rewards 1 week
+                  after last activating rewards, this grace period stops people
+                  from collecting rewards without backing bets.
+                </li>
+              </ul>
+            </div>
+
+            <div className={`earn-faq-item ${activeFaq === 4 ? "active" : ""}`}>
+              <h3
+                className="earn-faq-question"
+                onClick={() => setActiveFaq(activeFaq === 4 ? null : 4)}
+              >
+                What is Distributing Rewards?
+              </h3>
+              <ul className="earn-faq-answer">
+                <li>
+                  You, the community, help BetVEX run. When VEX Rewards
+                  accumulated from matches build up above a certain threshold
+                  they are ready to be distributed to the community.
+                </li>
+                <li>
+                  If you ever see the distribute VEX Rewards button highlighted,
+                  click it to send out the rewards, and you will receive 1% of
+                  the total rewards just for clicking the button!
+                </li>
+              </ul>
             </div>
           </div>
         </div>

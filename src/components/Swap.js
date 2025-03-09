@@ -41,6 +41,12 @@ const Swap = () => {
   const [swapSuccess, setSwapSuccess] = useState(false);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(false);
 
+  // Constants for contracts and pool
+  const REF_FINANCE_CONTRACT = "ref-finance-101.testnet";
+  const VEX_TOKEN_CONTRACT = "token.betvex.testnet";
+  const USDC_CONTRACT = "usdc.betvex.testnet";
+  const VEX_USDC_POOL_ID = 2197;
+
   // Use global context for token balances and refresh function
   const { tokenBalances, toggleRefreshBalances } = useGlobalContext();
 
@@ -51,6 +57,28 @@ const Swap = () => {
       getOutputAmount("100");
     }
   }, [isTourActive]);
+
+  /**
+   * Fetch NEAR contract view function
+   *
+   * @param {string} contractId - Contract ID to call
+   * @param {string} methodName - Method name to call
+   * @param {object} args - Arguments to pass to the method
+   * @returns {Promise<any>} - Result of the call
+   */
+  const fetchNearView = async (contractId, methodName, args) => {
+    const provider = new providers.JsonRpcProvider(NearRpcUrl);
+
+    const result = await provider.query({
+      request_type: "call_function",
+      account_id: contractId,
+      method_name: methodName,
+      args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
+      finality: "final",
+    });
+
+    return JSON.parse(Buffer.from(result.result).toString());
+  };
 
   const getOutputAmount = async (inputAmount) => {
     if (!inputAmount || isNaN(inputAmount) || parseFloat(inputAmount) <= 0) {
@@ -72,39 +100,58 @@ const Swap = () => {
         return;
       }
 
-      const provider = new providers.JsonRpcProvider(NearRpcUrl);
-      const contractId = "ref-finance-101.testnet";
-      const poolId = 2197;
+      if (swapDirection) {
+        // Selling VEX to get USDC - Calculate how much USDC you'll get
+        const amountInVex = BigInt(
+          Math.floor(parseFloat(inputAmount) * Math.pow(10, 18))
+        ).toString();
 
-      // For both buying and selling, we're always converting VEX amount to USDC
-      const amountInYocto = BigInt(
-        Math.floor(parseFloat(inputAmount) * Math.pow(10, 18))
-      ).toString();
+        const args = {
+          pool_id: VEX_USDC_POOL_ID,
+          token_in: VEX_TOKEN_CONTRACT,
+          amount_in: amountInVex,
+          token_out: USDC_CONTRACT,
+        };
 
-      const args = {
-        pool_id: poolId,
-        token_in: "token.betvex.testnet", // Always inputting VEX
-        amount_in: amountInYocto,
-        token_out: "usdc.betvex.testnet", // Always getting USDC equivalent
-      };
+        const decodedResult = await fetchNearView(
+          REF_FINANCE_CONTRACT,
+          "get_return",
+          args
+        );
 
-      const result = await provider.query({
-        request_type: "call_function",
-        account_id: contractId,
-        method_name: "get_return",
-        args_base64: Buffer.from(JSON.stringify(args)).toString("base64"),
-        finality: "final",
-      });
+        // Convert from USDC's 6 decimals
+        const outputUsdcAmount = decodedResult / Math.pow(10, 6);
 
-      const decodedResult = JSON.parse(Buffer.from(result.result).toString());
-      // Convert from USDC's 6 decimals
-      const outputUsdcAmount = decodedResult / Math.pow(10, 6);
+        // Set the USDC amount to display
+        setDisplayUsdcAmount(outputUsdcAmount.toFixed(2));
+        setUsdcAmount(outputUsdcAmount);
+      } else {
+        // Buying VEX with USDC - Calculate how much USDC needed for this amount of VEX
+        const amountOutVex = BigInt(
+          Math.floor(parseFloat(inputAmount) * Math.pow(10, 18))
+        ).toString();
 
-      // Set the USDC amount to display
-      setDisplayUsdcAmount(outputUsdcAmount.toFixed(2));
+        const args = {
+          pool_id: VEX_USDC_POOL_ID,
+          token_in: USDC_CONTRACT,
+          token_out: VEX_TOKEN_CONTRACT,
+          amount_out: amountOutVex,
+        };
 
-      // Also update usdcAmount for the swap functionality
-      setUsdcAmount(outputUsdcAmount.toFixed(2));
+        // Updated to use get_return_by_output as suggested
+        const requiredUsdcAmount = await fetchNearView(
+          REF_FINANCE_CONTRACT,
+          "get_return_by_output",
+          args
+        );
+
+        // Convert from USDC's 6 decimals
+        const inputUsdcAmount = requiredUsdcAmount / Math.pow(10, 6);
+
+        // Set the USDC amount to display
+        setDisplayUsdcAmount(inputUsdcAmount.toFixed(2));
+        setUsdcAmount(inputUsdcAmount);
+      }
     } catch (error) {
       console.error("Failed to fetch output amount:", error);
     } finally {
@@ -128,12 +175,12 @@ const Swap = () => {
     setIsCheckingRegistration(true);
 
     const sourceTokenId = swapDirection
-      ? "token.betvex.testnet" // Selling VEX
-      : "usdc.betvex.testnet"; // Buying VEX with USDC
+      ? VEX_TOKEN_CONTRACT // Selling VEX
+      : USDC_CONTRACT; // Buying VEX with USDC
 
     try {
       const userId = accountId; // Use the unified accountId from GlobalContext
-      const refSwapId = "ref-finance-101.testnet";
+      const refSwapId = REF_FINANCE_CONTRACT;
 
       // Check and register user for target token
       const targetResponse = await fetch("/api/auth/register-if-needed", {
@@ -255,11 +302,11 @@ const Swap = () => {
     }
 
     const sourceTokenId = swapDirection
-      ? "token.betvex.testnet" // Selling VEX
-      : "usdc.betvex.testnet"; // Buying VEX with USDC
+      ? VEX_TOKEN_CONTRACT // Selling VEX
+      : USDC_CONTRACT; // Buying VEX with USDC
     const targetTokenId = swapDirection
-      ? "usdc.betvex.testnet" // Getting USDC when selling
-      : "token.betvex.testnet"; // Getting VEX when buying
+      ? USDC_CONTRACT // Getting USDC when selling
+      : VEX_TOKEN_CONTRACT; // Getting VEX when buying
 
     // Ensure all necessary token registrations are complete using the new API
     const registrationsComplete = await ensureTokenRegistrations(targetTokenId);
@@ -278,28 +325,20 @@ const Swap = () => {
     try {
       // If using Web3Auth
       if (web3auth?.connected) {
-        const receiverId = "ref-finance-101.testnet";
-        const poolId = 2197;
-        const minAmountOut = (
-          parseFloat(swapDirection ? usdcAmount : vexAmount) * 0.95
-        ).toFixed(6);
+        const receiverId = REF_FINANCE_CONTRACT;
+        const poolId = VEX_USDC_POOL_ID;
 
+        // Set min_amount_out to 0 as suggested
         const msg = JSON.stringify({
           force: 0,
           actions: [
             {
               pool_id: poolId,
-              token_in: swapDirection
-                ? "token.betvex.testnet"
-                : "usdc.betvex.testnet",
-              token_out: swapDirection
-                ? "usdc.betvex.testnet"
-                : "token.betvex.testnet",
+              token_in: swapDirection ? VEX_TOKEN_CONTRACT : USDC_CONTRACT,
+              token_out: swapDirection ? USDC_CONTRACT : VEX_TOKEN_CONTRACT,
               amount_in: formattedAmount,
               amount_out: "0",
-              min_amount_out: BigInt(
-                Math.floor(minAmountOut * Math.pow(10, swapDirection ? 6 : 18))
-              ).toString(),
+              min_amount_out: "0", // Set to 0 as suggested
             },
           ],
         });
