@@ -449,7 +449,7 @@ const GameCard = ({
               alt={formatTeamName(team1Name)}
               className="team-logo"
               onError={(e) => {
-                e.target.src = "/icons/teams/default_team.png";
+                e.target.src = "/icons/teams/default_team.svg";
               }}
             />
             <div
@@ -473,7 +473,7 @@ const GameCard = ({
               alt={formatTeamName(team2Name)}
               className="team-logo"
               onError={(e) => {
-                e.target.src = "/icons/teams/default_team.png";
+                e.target.src = "/icons/teams/default_team.svg";
               }}
             />
             <div
@@ -516,11 +516,11 @@ const GameCard = ({
                 <div className="team-container-modal team1-container-modal">
                   <div className="team-bm">
                     <img
-                      src={team1Logo || "/icons/teams/default_team.png"}
+                      src={team1Logo || "/icons/teams/default_team.svg"}
                       alt={formatTeamName(team1Name)}
                       className="team-logo"
                       onError={(e) => {
-                        e.target.src = "/icons/teams/default_team.png";
+                        e.target.src = "/icons/teams/default_team.svg";
                       }}
                     />
                     <span className="team-name">
@@ -537,11 +537,11 @@ const GameCard = ({
                       {formatTeamName(team2Name)}
                     </span>
                     <img
-                      src={team2Logo || "/icons/teams/default_team.png"}
+                      src={team2Logo || "/icons/teams/default_team.svg"}
                       alt={formatTeamName(team2Name)}
                       className="team-logo"
                       onError={(e) => {
-                        e.target.src = "/icons/teams/default_team.png";
+                        e.target.src = "/icons/teams/default_team.svg";
                       }}
                     />
                   </div>
