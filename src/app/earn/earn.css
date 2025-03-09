@@ -1052,18 +1052,35 @@ input:checked + .slider:before {
   color: rgba(255, 255, 255, 0.7);
   margin: 0;
   line-height: 1.5;
-  max-height: 0;
+  height: 0;
   overflow: hidden;
-  transition: max-height 0.3s ease, margin 0.3s ease;
+  transition: height 0.5s ease, margin 0.3s ease;
+  visibility: hidden;
+}
 
-  li {
-    margin-bottom: 8px;
-  }
+.earn-faq-answer li {
+  margin-bottom: 8px;
 }
 
 .earn-faq-item.active .earn-faq-answer {
-  max-height: 200px;
+  height: auto;
   margin-top: 12px;
+  visibility: visible;
+}
+
+/* Also updating media queries for mobile */
+@media (max-width: 480px) {
+  .earn-faq-item {
+    padding: 16px;
+  }
+
+  .earn-faq-question {
+    font-size: 15px;
+  }
+
+  .earn-faq-answer {
+    font-size: 13px;
+  }
 }
 
 /* Animation keyframes */

@@ -9,7 +9,7 @@ import {
 } from "@web3auth/base";
 import { connect, KeyPair, keyStores, utils } from "near-api-js";
 import { getED25519Key } from "@web3auth/base-provider";
-import { NetworkId, NearRpcUrl } from "@/app/config";
+import { NearRpcUrl } from "@/app/config";
 
 // Set up web3 auth stuff
 const Web3AuthContext = createContext({});

@@ -207,7 +207,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background-color: rgba(20, 20, 20, 0.95);
+  background-color: rgba(35, 35, 35, 1);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
@@ -268,7 +268,7 @@
     order: 3; /* Position after mobile game selector */
     margin-left: 0; /* Reset auto margin for small screens */
   }
-  
+
   .sort-selector-button {
     justify-content: flex-start; /* Left align text on mobile */
   }

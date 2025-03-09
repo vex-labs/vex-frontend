@@ -4,10 +4,8 @@ import "./GiftModal.css";
 import {
   Gift,
   ArrowRight,
-  DollarSign,
   AlertCircle,
   CheckCircle,
-  Search,
   Loader,
 } from "lucide-react";
 import { NearRpcUrl, QueryURL } from "@/app/config";
@@ -16,6 +14,7 @@ import { providers } from "near-api-js";
 import { useNear } from "@/app/context/NearContext";
 import { useWeb3Auth } from "@/app/context/Web3AuthContext";
 import { useGlobalContext } from "@/app/context/GlobalContext";
+import { actionCreators, encodeSignedDelegate } from "@near-js/transactions";
 
 const GiftModal = ({ open, setIsOpen }) => {
   const [amount, setAmount] = React.useState(1.0);
@@ -264,32 +263,28 @@ const GiftModal = ({ open, setIsOpen }) => {
   };
 
   /**
-   * Calls the storage_deposit method on the token contract
+   * Register an account with the token contract
+   * Using the new registration API for consistency
    */
   const registerAccount = async (targetAccountId, tokenContractId) => {
     try {
-      if (web3auth?.connected) {
-        // For social login, use near connection to call storage_deposit
-        const account = await nearConnection.account(web3authAccountId);
-        await account.functionCall({
-          contractId: tokenContractId,
-          methodName: "storage_deposit",
-          args: { account_id: targetAccountId },
-          gas: "30000000000000", // 30 TGas
-          attachedDeposit: STORAGE_DEPOSIT_AMOUNT,
-        });
-      } else if (wallet) {
-        // For NEAR wallet login
-        await wallet.callMethod({
-          contractId: tokenContractId,
-          method: "storage_deposit",
-          args: { account_id: targetAccountId },
-          gas: "30000000000000", // 30 TGas
-          deposit: STORAGE_DEPOSIT_AMOUNT,
-        });
-      } else {
-        throw new Error("No wallet connected");
+      // Use the API endpoint for registration
+      const response = await fetch("/api/auth/register-if-needed", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          accountId: targetAccountId,
+          tokenContract: tokenContractId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`Failed to register account: ${errorData.message}`);
       }
+
       return true;
     } catch (error) {
       console.error(`Error registering ${targetAccountId}:`, error);
@@ -299,9 +294,9 @@ const GiftModal = ({ open, setIsOpen }) => {
   };
 
   /**
-   * Transfers tokens to the specified account
+   * Transfer tokens using Web3Auth and the relayer
    */
-  const transferTokens = async (
+  const transferTokensWithWeb3Auth = async (
     targetAccountId,
     tokenAmount,
     tokenContractId
@@ -312,33 +307,77 @@ const GiftModal = ({ open, setIsOpen }) => {
         Math.floor(parseFloat(tokenAmount) * Math.pow(10, decimals))
       ).toString();
 
-      if (web3auth?.connected) {
-        // For social login
-        const account = await nearConnection.account(web3authAccountId);
-        await account.functionCall({
-          contractId: tokenContractId,
-          methodName: "ft_transfer",
-          args: {
-            receiver_id: targetAccountId,
-            amount: amountInSmallestUnit,
-          },
-          gas: "30000000000000", // 30 TGas
-          attachedDeposit: "1",
-        });
-      } else if (wallet) {
-        // For NEAR wallet login
-        await wallet.callMethod({
-          method: "ft_transfer",
-          args: {
-            receiver_id: targetAccountId,
-            amount: amountInSmallestUnit,
-          },
-          contractId: tokenContractId,
-          deposit: 1,
-        });
-      } else {
-        throw new Error("No wallet connected");
+      const account = await nearConnection.account(web3authAccountId);
+
+      // Create a function call action for ft_transfer
+      const action = actionCreators.functionCall(
+        "ft_transfer",
+        {
+          receiver_id: targetAccountId,
+          amount: amountInSmallestUnit,
+        },
+        "30000000000000", // 30 TGas
+        "1" // 1 yoctoNEAR deposit
+      );
+
+      // Create and sign the delegate
+      const signedDelegate = await account.signedDelegate({
+        actions: [action],
+        blockHeightTtl: 120,
+        receiverId: tokenContractId,
+      });
+
+      // Encode the signed delegate
+      const encodedDelegate = Array.from(encodeSignedDelegate(signedDelegate));
+
+      // Send the transaction to the relay API
+      const response = await fetch("/api/transactions/relay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify([encodedDelegate]), // Send as array of transactions
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to relay transaction");
       }
+
+      const { data } = await response.json();
+      console.log("Relayed gift transaction:", data);
+      return true;
+    } catch (error) {
+      console.error(`Error transferring tokens to ${targetAccountId}:`, error);
+      setMessage(`Failed to transfer tokens. ${error.message}`);
+      return false;
+    }
+  };
+
+  /**
+   * Transfer tokens using NEAR wallet
+   */
+  const transferTokensWithNearWallet = async (
+    targetAccountId,
+    tokenAmount,
+    tokenContractId
+  ) => {
+    try {
+      const decimals = giftType === "usdc" ? 6 : 18;
+      const amountInSmallestUnit = BigInt(
+        Math.floor(parseFloat(tokenAmount) * Math.pow(10, decimals))
+      ).toString();
+
+      await wallet.callMethod({
+        method: "ft_transfer",
+        args: {
+          receiver_id: targetAccountId,
+          amount: amountInSmallestUnit,
+        },
+        contractId: tokenContractId,
+        deposit: 1,
+      });
+
       return true;
     } catch (error) {
       console.error(`Error transferring tokens to ${targetAccountId}:`, error);
@@ -376,117 +415,60 @@ const GiftModal = ({ open, setIsOpen }) => {
       const formattedRecipient = getFormattedRecipientId();
       const selectedTokenContract = TOKEN_CONTRACTS[giftType];
 
+      // Check if account is registered with the token contract
       const isRegistered = await isAccountRegistered(
         formattedRecipient,
         selectedTokenContract
       );
 
-      if (isRegistered) {
-        setMessage("Sending gift...");
-        const success = await transferTokens(
+      // If not registered, register the account first
+      if (!isRegistered) {
+        setMessage("Registering recipient account...");
+        const registrationSuccess = await registerAccount(
+          formattedRecipient,
+          selectedTokenContract
+        );
+
+        if (!registrationSuccess) {
+          throw new Error("Registration failed");
+        }
+      }
+
+      // Send the gift based on the login method
+      setMessage("Sending gift...");
+      let success = false;
+
+      if (web3auth?.connected) {
+        // For social login, use the relayer
+        success = await transferTokensWithWeb3Auth(
           formattedRecipient,
           amount,
           selectedTokenContract
         );
-        if (success) {
-          setMessage(
-            `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
-          );
+      } else if (wallet) {
+        // For NEAR wallet login
+        success = await transferTokensWithNearWallet(
+          formattedRecipient,
+          amount,
+          selectedTokenContract
+        );
+      }
 
-          // Reset form after successful submission
-          setTimeout(() => {
-            setAmount(1.0);
-            setUsername("");
-            setMessage("");
-            setAccountStatus(null);
-            setAccountType(null);
-            setIsOpen(false);
-            toggleRefreshBalances();
-          }, 2000);
-        }
-      } else {
-        // Account needs to be registered first
-        if (web3auth?.connected) {
-          // For social login, do sequential calls
-          const registrationSuccess = await registerAccount(
-            formattedRecipient,
-            selectedTokenContract
-          );
-          if (!registrationSuccess) {
-            throw new Error("Registration failed");
-          }
+      if (success) {
+        setMessage(
+          `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
+        );
 
-          setMessage("Sending gift...");
-          const transferSuccess = await transferTokens(
-            formattedRecipient,
-            amount,
-            selectedTokenContract
-          );
-          if (transferSuccess) {
-            setMessage(
-              `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
-            );
-
-            // Reset form after successful submission
-            setTimeout(() => {
-              setAmount(1.0);
-              setUsername("");
-              setMessage("");
-              setAccountStatus(null);
-              setAccountType(null);
-              setIsOpen(false);
-              toggleRefreshBalances();
-            }, 2000);
-          }
-        } else if (wallet) {
-          // For NEAR wallet, use batch actions
-          setMessage("Sending gift...");
-          try {
-            // Create batch transactions for registration and transfer
-            await wallet
-              .callMethod({
-                contractId: selectedTokenContract,
-                method: "storage_deposit",
-                args: { account_id: formattedRecipient },
-                gas: "30000000000000",
-                deposit: STORAGE_DEPOSIT_AMOUNT,
-              })
-              .then(() => {
-                const decimals = giftType === "usdc" ? 6 : 18;
-                const amountInSmallestUnit = BigInt(
-                  Math.floor(parseFloat(amount) * Math.pow(10, decimals))
-                ).toString();
-
-                return wallet.callMethod({
-                  method: "ft_transfer",
-                  args: {
-                    receiver_id: formattedRecipient,
-                    amount: amountInSmallestUnit,
-                  },
-                  contractId: selectedTokenContract,
-                  deposit: 1,
-                });
-              });
-
-            setMessage(
-              `Gift of ${amount} ${giftType.toUpperCase()} sent to ${formattedRecipient} successfully!`
-            );
-
-            // Reset form after successful submission
-            setTimeout(() => {
-              setAmount(1.0);
-              setUsername("");
-              setMessage("");
-              setAccountStatus(null);
-              setAccountType(null);
-              setIsOpen(false);
-              toggleRefreshBalances();
-            }, 2000);
-          } catch (error) {
-            console.error("Batch transaction failed:", error);
-            throw new Error(`Batch transaction failed: ${error.message}`);
-          }
-        }
+        // Reset form after successful submission
+        setTimeout(() => {
+          setAmount(1.0);
+          setUsername("");
+          setMessage("");
+          setAccountStatus(null);
+          setAccountType(null);
+          setIsOpen(false);
+          toggleRefreshBalances();
+        }, 2000);
       }
     } catch (error) {
       console.error("Failed to send gift:", error);
@@ -582,7 +564,7 @@ const GiftModal = ({ open, setIsOpen }) => {
               <span>Send Gift</span>
             </Dialog.Title>
             <Dialog.Description className="dialog-description">
-              Send VEX or USD tokens to your friends on the platform.
+              Send USD or VEX to your friends
             </Dialog.Description>
           </div>
 

@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { Wallet } from "@/components/near-wallet";
-import { VexContract, NetworkId } from "@/app/config";
+import { NetworkId } from "@/app/config";
 
 export const NearContext = createContext({
   wallet: undefined,

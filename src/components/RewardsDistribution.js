@@ -153,6 +153,7 @@ const RewardsDistribution = () => {
 
         if (!response.ok) {
           const error = await response.json();
+          console.error("error:", error);
           throw new Error(error.message || "Failed to relay transaction");
         }
 
@@ -194,13 +195,13 @@ const RewardsDistribution = () => {
       <div className="rewards-distribution-header">
         <h2 className="rewards-heading">Rewards Distribution</h2>
         <div className="rewards-subtitle">
-          Distribute USD rewards to stakers
+          Distribute USD rewards to activators
         </div>
       </div>
 
       <div className="rewards-stats-container">
         <div className="stat-card">
-          <div className="stat-title">Available USD Rewards</div>
+          <div className="stat-title">Available Rewards</div>
           {accountId && isLoading && !isTourOpen ? (
             <div className="loading-indicator">
               <Loader2 size={24} className="loading-icon" />
