@@ -4,8 +4,6 @@ import { useGlobalContext } from "@/app/context/GlobalContext";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import { gql } from "graphql-request";
 import { useQuery } from "@tanstack/react-query";
-import { TEAM_ICON_MAP } from "@/data/team-icons";
-import { GAME_LABELS } from "@/data/games";
 
 /**
  * Enhanced UpcomingGames component using GraphQL
@@ -148,7 +146,7 @@ const UpcomingGames = ({
 
   // Get team logo with fallback
   const getTeamLogo = (teamName) => {
-    return TEAM_ICON_MAP[teamName] || "/icons/teams/default_team.png";
+    return `/icons/teams/${teamName}.png`;
   };
 
   // Format match date and time

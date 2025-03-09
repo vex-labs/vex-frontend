@@ -445,7 +445,7 @@ const GameCard = ({
         <div className="match-body">
           <div className="team">
             <img
-              src={team1Logo || "/icons/teams/default_team.png"}
+              src={team1Logo}
               alt={formatTeamName(team1Name)}
               className="team-logo"
               onError={(e) => {
@@ -469,7 +469,7 @@ const GameCard = ({
 
           <div className="team">
             <img
-              src={team2Logo || "/icons/teams/default_team.png"}
+              src={team2Logo}
               alt={formatTeamName(team2Name)}
               className="team-logo"
               onError={(e) => {
