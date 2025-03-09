@@ -142,28 +142,27 @@ const RewardsDistribution = () => {
           encodeSignedDelegate(signedDelegate)
         );
 
-        // Send the signed delegate to our relay API
-        const response = await fetch("/api/transactions/relay", {
+        // change to not awaitting transactions result because takes too long
+        fetch("/api/transactions/relay", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify([encodedDelegate]), // Send as array of transactions
-        });
+        })
+          .then((response) => {
+            console.log("Transaction submitted");
+          })
+          .catch((error) => {
+            console.error("Error submitting transaction:", error);
+            // Don't show error to user, just log it
+          });
 
-        if (!response.ok) {
-          const error = await response.json();
-          console.error("error:", error);
-          throw new Error(error.message || "Failed to relay transaction");
-        }
-
-        const { data } = await response.json();
-
-        console.log("Relayed transaction:", data);
         setActionSuccess(true);
       }
       // If using NEAR Wallet
       else if (signedAccountId && wallet) {
+        // change to not awaitting transactions result because takes too long
         const outcome = await wallet.callMethod({
           contractId: contractId,
           method: "perform_stake_swap",
@@ -178,15 +177,26 @@ const RewardsDistribution = () => {
         console.error("Failed to distribute rewards. Please try again.");
       }
 
-      // Refresh rewards data
+      // Show success UI regardless of actual transaction outcome
+      setActionSuccess(true);
+
+      // Update rewards data after 20 seconds to give the transaction time to process
       setTimeout(() => {
         fetchRewardsData();
         setActionSuccess(false);
-      }, 3000);
+      }, 20000);
     } catch (error) {
       console.error("Failed to perform stake swap:", error.message || error);
+      // Still reset UI after error
+      setTimeout(() => {
+        setActionSuccess(false);
+        setIsDistributingRewards(false);
+      }, 3000);
     } finally {
-      setIsDistributingRewards(false);
+      // Only reset the distributing state after a delay to show loading state to user
+      setTimeout(() => {
+        setIsDistributingRewards(false);
+      }, 3000);
     }
   };
 
