@@ -223,7 +223,15 @@ const DepositModal = ({ modalOpen, setModalOpen, modalOnly }) => {
       )}
       <Dialog.Portal>
         <Dialog.Overlay className="DialogOverlay" />
-        <Dialog.Content className="DialogContent" id="deposit-modal">
+        <Dialog.Content
+          className="DialogContent"
+          id="deposit-modal"
+          onPointerDownOutside={(e) => {
+            if (isTourOpen) {
+              e.preventDefault();
+            }
+          }}
+        >
           {!isSuccess ? (
             <>
               <Dialog.Title className="DialogTitle">Deposit USD</Dialog.Title>
