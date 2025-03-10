@@ -132,3 +132,5 @@ To learn more about Next.js and NEAR Protocol, take a look at the following reso
 - [NEAR API JS](https://github.com/near/near-api-js) - JavaScript library for interacting with NEAR Protocol.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) and [the NEAR Protocol GitHub repository](https://github.com/near/nearcore) for more information.
+
+.
