@@ -536,7 +536,7 @@ const Swap = () => {
             className="token-logo"
           />
           <div>
-            <p className="token-name">USDC</p>
+            <p className="token-name">USD</p>
           </div>
         </div>
 
